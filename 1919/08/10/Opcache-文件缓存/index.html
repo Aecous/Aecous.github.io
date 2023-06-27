@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      Opcache 文件缓存 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Opcache 文件缓存</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-06-27 16:20:44
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <p>参考链接等<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xhds/p/13239331.html">https://www.cnblogs.com/xhds/p/13239331.html</a><br><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/83844">https://www.anquanke.com/post/id/83844</a><br><a target="_blank" rel="noopener" href="https://chybeta.github.io/2017/05/13/%E5%88%A9%E7%94%A8PHP%E7%9A%84OPcache%E6%9C%BA%E5%88%B6getshell/">https://chybeta.github.io/2017/05/13/%E5%88%A9%E7%94%A8PHP%E7%9A%84OPcache%E6%9C%BA%E5%88%B6getshell/</a><br><a target="_blank" rel="noopener" href="https://www.gosecure.net/blog/2016/04/27/binary-webshell-through-opcache-in-php-7/">https://www.gosecure.net/blog/2016/04/27/binary-webshell-through-opcache-in-php-7/</a><br>题目<br><a target="_blank" rel="noopener" href="https://github.com/tothi/ctfs/tree/master/alictf-2016/homework">https://github.com/tothi/ctfs/tree/master/alictf-2016/homework</a><br>2022强网杯uploadpro<br><a target="_blank" rel="noopener" href="https://www.ctfiot.com/116586.html">https://www.ctfiot.com/116586.html</a><br>工具<br><a target="_blank" rel="noopener" href="https://github.com/GoSecure/php7-opcache-override">https://github.com/GoSecure/php7-opcache-override</a><br><a target="_blank" rel="noopener" href="https://github.com/M0x0is3ry/php8-opcache-override">https://github.com/M0x0is3ry/php8-opcache-override</a></p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>OPcache是一种通过解析的PHP脚本预编译的字节码存放在共享内存中来避免每次加载和解析PHP脚本的开销，解析器可以直接从共享内存读取已经缓存的字节码，从而大大提高了PHP的执行效率。<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686808240149-95530f57-91b8-4f9f-a7aa-5ff6a87b5628.png#averageHue=%23fbfafa&clientId=u31d7b2ed-085d-4&from=paste&height=462&id=u8907faab&originHeight=462&originWidth=1338&originalType=binary&ratio=1&rotation=0&showTitle=false&size=95875&status=done&style=none&taskId=ue2bbab6e-ca95-48b0-8404-3756b56f263&title=&width=1338" alt="image.png"><br>简单来说，就是第一次访问的时候，会生成一个对应的二进制文件，例如访问1.php，就会生成1.php.bin<br>后面只要你访问1.php，实际上都是在执行1.php.bin，而我们可以通过上传恶意二进制文件，覆盖1.php.bin，那么再次访问1.php时，就会执行恶意二进制文件，到达getshell的目的</p>
+<p>如果目标题目给了一个phpinfo页面，可以获得opcache配置，以及后续计算systemid所需信息<br>并且还有一个任意文件上传的页面，那么我们就可以对其二进制文件进行覆盖，使页面的二进制文件变成我们上传的恶意文件。</p>
+<h3 id="php7"><a href="#php7" class="headerlink" title="php7"></a>php7</h3><p>如果站点存在一个phpinfo文件，通过文件可以得到opcache缓存目录，php版本号，zend拓展版本号等多个数据，可以用来计算system_id<br>随便找个php7。并且要有opcache拓展<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686837480615-0b36df45-fe8a-4565-a223-0b718694ab7c.png#averageHue=%23330d29&clientId=u1350ded8-9119-4&from=paste&height=109&id=ud19ab447&originHeight=163&originWidth=811&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=52827&status=done&style=none&taskId=u121fa387-e0a1-4ca7-b0c7-28584dd40c3&title=&width=540.6666666666666" alt="image.png"><br>配置cli的php.ini，也就是本地php对应的配置<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686837524505-6d215f87-4788-4b95-af76-d64e348b8990.png#averageHue=%23310c26&clientId=u1350ded8-9119-4&from=paste&height=119&id=u695918c3&originHeight=178&originWidth=1005&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=41375&status=done&style=none&taskId=uaa3fd4ef-34d7-4eac-884e-618a7fbc8d7&title=&width=670" alt="image.png"><br>开启php内置web服务，访问页面<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686840060983-0533639b-5fd7-4d39-ade1-7cc2f4ee0fdd.png#averageHue=%23999999&clientId=u1350ded8-9119-4&from=paste&height=105&id=u502261d3&originHeight=158&originWidth=408&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=7126&status=done&style=none&taskId=u3bef72fb-af22-480c-a6fe-ca479e899b0&title=&width=272" alt="image.png"><br>即可获得一个二进制文件<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686837627394-0f5c8eb3-1c26-4045-9166-b206715101c0.png#averageHue=%236068a3&clientId=u1350ded8-9119-4&from=paste&height=59&id=u89362ab4&originHeight=89&originWidth=864&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=18843&status=done&style=none&taskId=u61a645cb-c5c2-44d2-9883-9dc9bb58430&title=&width=576" alt="image.png"></p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python">zend_extension<span class="token operator">=</span>opcache<span class="token punctuation">.</span>so
+opcache<span class="token punctuation">.</span>validate_timestamps<span class="token operator">=</span><span class="token number">0</span>   <span class="token punctuation">;</span>关闭时间戳验证
+opcache<span class="token punctuation">.</span>file_cache<span class="token operator">=</span><span class="token string">"/tmp/opcache"</span>  <span class="token punctuation">;</span>设置缓存储存未知
+opcache<span class="token punctuation">.</span>file_cache_only<span class="token operator">=</span><span class="token number">1</span>  <span class="token punctuation">;</span>设置缓存优先级<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>此时我们需要去生成一个恶意二进制文件来覆盖1.php.bin，这样我们去访问1.php时，则会加载恶意二进制文件<br>生成恶意二进制文件需要phpinfo页面的一些信息，我们将phpinfo页面的信息保存到info.html中,并使用脚本计算systemid<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686838953621-d3a2b6ea-0712-41fc-b868-807ef86b936a.png#averageHue=%232f0924&clientId=u1350ded8-9119-4&from=paste&height=179&id=u2d81f640&originHeight=269&originWidth=1047&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=63281&status=done&style=none&taskId=ub9b964a9-6409-4cca-869a-1656fb28671&title=&width=698" alt="image.png"><br>用上面同样的方式生成一个恶意二进制文件，并更改其systemid<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686839409772-4b9b20e0-dc64-4130-8978-409570df7083.png#averageHue=%23efeeee&clientId=u1350ded8-9119-4&from=paste&height=231&id=u7a54e0e2&originHeight=347&originWidth=1466&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=26700&status=done&style=none&taskId=u36e23435-4d2b-4bf9-8d91-11e06a23056&title=&width=977.3333333333334" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686839226396-e3cf556b-21a2-4e9d-abba-8b6e9131079b.png#averageHue=%232f0924&clientId=u1350ded8-9119-4&from=paste&height=71&id=ub69b36e1&originHeight=107&originWidth=528&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=16223&status=done&style=none&taskId=u173800eb-faad-473b-8a3f-40ca04f15f5&title=&width=352" alt="image.png">对应的php文件<br>具体的生成过程之前就操作过了<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686839167098-51e94d32-1454-4cc3-bf69-131821c93c7b.png#averageHue=%23555c93&clientId=u1350ded8-9119-4&from=paste&height=107&id=uf73d4a59&originHeight=160&originWidth=1049&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=43272&status=done&style=none&taskId=u94a03e16-e15f-48c3-b630-a0a6373c51b&title=&width=699.3333333333334" alt="image.png"><br>将恶意二进制文件覆盖掉原来的二进制文件<br>再次访问<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686840229073-3ecb242e-3bba-422f-95b0-5b36b0b7e1bb.png#averageHue=%23979696&clientId=u1350ded8-9119-4&from=paste&height=107&id=u7679fda9&originHeight=160&originWidth=583&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=14547&status=done&style=none&taskId=u15063669-a4d2-446a-ae87-a28f402d9e6&title=&width=388.6666666666667" alt="image.png"><br>拿下！</p>
+<h3 id="php8"><a href="#php8" class="headerlink" title="php8"></a>php8</h3><p>本质上就是换了一个systemid的生成方式，因为我不太会逆向方面的知识，所以只能贴一下别的师傅的操作了<a target="_blank" rel="noopener" href="https://www.yuque.com/misery333/sz1apr/ah97rk23alsgx3n1">https://www.yuque.com/misery333/sz1apr/ah97rk23alsgx3n1</a></p>
+<h3 id="绕过时间戳验证"><a href="#绕过时间戳验证" class="headerlink" title="绕过时间戳验证"></a>绕过时间戳验证</h3><p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686840926692-2275fec8-c795-4c01-9771-02d19818027a.png#averageHue=%23340c29&clientId=u1350ded8-9119-4&from=paste&height=85&id=u9bf08499&originHeight=127&originWidth=581&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=32696&status=done&style=none&taskId=u3ad68547-95a0-4ad1-b0ae-b90f8828265&title=&width=387.3333333333333" alt="image.png">改为1，开启时间戳认证<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686841213358-ecbe332d-e25c-452d-9660-df60831323de.png#averageHue=%23e3e2e2&clientId=u1350ded8-9119-4&from=paste&height=231&id=ub51dfe62&originHeight=347&originWidth=1693&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=120441&status=done&style=none&taskId=u1196e05f-87ff-4ba3-8149-0152ce37f5b&title=&width=1128.6666666666667" alt="image.png"><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/opcache.configuration.php#ini.opcache.validate-timestamps">https://www.php.net/manual/zh/opcache.configuration.php#ini.opcache.validate-timestamps</a></p>
+<blockquote>
+<p><strong>如果启用了时间戳验证，OPcache 将检查请求的 PHP 源文件的时间戳，并将其与缓存文件的时间戳头字段进行比较。如果它们不匹配，则丢弃缓存文件并创建一个新文件。</strong></p>
+</blockquote>
+<p><strong>简单来说就是需要二进制文件与原文件的时间戳要对上</strong><br><strong>通过任意文件下载，从原二进制文件中获取时间戳，修改恶意二进制文件的时间戳并上传覆盖，再次访问页面即可</strong></p>
+<p><strong>操作</strong><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686844118325-bd8ca6bf-96ca-4f34-82c6-94f24b846d63.png#averageHue=%233d2961&clientId=u1350ded8-9119-4&from=paste&height=87&id=u6df87377&originHeight=131&originWidth=922&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=34413&status=done&style=none&taskId=u59e64d0b-0d50-4324-877a-ea15e33a981&title=&width=614.6666666666666" alt="image.png"><br>开启服务，访问1.php并获取其二进制文件<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686847157801-e016c01a-c312-4924-b214-21096682e555.png#averageHue=%239e9e9d&clientId=u1350ded8-9119-4&from=paste&height=105&id=uc4470401&originHeight=157&originWidth=419&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=8071&status=done&style=none&taskId=ud3d61f23-f310-41be-8347-f9dc12ead30&title=&width=279.3333333333333" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686844111316-40668a53-b49a-43f2-8c25-a891fa55f0f1.png#averageHue=%23565a91&clientId=u1350ded8-9119-4&from=paste&height=72&id=ubc3146c0&originHeight=108&originWidth=1086&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=36726&status=done&style=none&taskId=ua31f0717-c849-4129-909f-223a6ee3263&title=&width=724" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686847046185-842f3ce6-d6c5-43bb-9c09-7fa4c337af01.png#averageHue=%23383631&clientId=u1350ded8-9119-4&from=paste&height=711&id=ud3a22791&originHeight=1066&originWidth=1867&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=156026&status=done&style=none&taskId=u181b91bd-043a-4150-9cf5-a159a838d2d&title=&width=1244.6666666666667" alt="image.png">使用配套的010 opcache脚本提取时间戳，并修改恶意文件的时间戳<img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686847066922-7af08f9f-fa49-4336-ad78-d67859e6d9cb.png#averageHue=%23393631&clientId=u1350ded8-9119-4&from=paste&height=696&id=u4267c5f7&originHeight=1044&originWidth=1143&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=106508&status=done&style=none&taskId=u45ccf7b0-bcfd-4838-a011-437e47c9c2f&title=&width=762" alt="image.png"><br>保存，改名为1.php.bin并上传覆盖原二进制文件<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686847119894-0689f5cd-1c98-4358-9a72-58161d543f06.png#averageHue=%232f0924&clientId=u1350ded8-9119-4&from=paste&height=76&id=u9efeaca6&originHeight=114&originWidth=1053&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=29264&status=done&style=none&taskId=u677e2d6c-8834-4603-8c4f-438a4b71011&title=&width=702" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1686847139866-f8156e2c-8c7f-45c7-843b-4910eb80317f.png#averageHue=%239f9e9d&clientId=u1350ded8-9119-4&from=paste&height=98&id=ud4ab9bd5&originHeight=147&originWidth=516&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=13619&status=done&style=none&taskId=u91e64e67-3d09-4d3a-ba2e-7da0ad7cba7&title=&width=344" alt="image.png"><br>成功</p>
+<h3 id=""><a href="#" class="headerlink" title=""></a></h3>
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-06-27 16:20:44
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2023/06/27/Imagick%E8%A7%A6%E5%8F%91msl/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-text">原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php7"><span class="toc-text">php7</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php8"><span class="toc-text">php8</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E6%97%B6%E9%97%B4%E6%88%B3%E9%AA%8C%E8%AF%81"><span class="toc-text">绕过时间戳验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-text"></span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Opcache%20%E6%96%87%E4%BB%B6%E7%BC%93%E5%AD%98 + '&url=' + http%3A%2F%2Fexample.com%2F1919%2F08%2F10%2FOpcache-%25E6%2596%2587%25E4%25BB%25B6%25E7%25BC%2593%25E5%25AD%2598%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/1919/08/10/Opcache-%E6%96%87%E4%BB%B6%E7%BC%93%E5%AD%98/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
