@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      一条抽象的equals触发链 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">一条抽象的equals触发链</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-07-24 03:34:55
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <h3 id="前文"><a href="#前文" class="headerlink" title="前文"></a>前文</h3><p><del>为什么抽象呢，因为他是个抽象类，所以很抽象</del><br>在NEEPUCTF2023中的一道题 NoMap中，就用到了这个链子，很遗憾，网络上没找到几篇wp，看了Boogiepop师傅的，还有官方的，我操作了两天都没能成功复现，官方使用了agent去修改jdk内置类，<del>但是我确实不会，一点都看不懂</del>，看Boogiepop师傅的，他是直接将内置类的源码在当前目录下重写了一遍，因为jdk会先调用当前目录下的类？大概把？这个我也不太清楚，希望懂这方面的师傅留言或者加我教学一下。<br>但是我在复现的过程中发现，是走不进去的，用javassist修改也是，之前有这样操作过jackson链子，但是这次jdk内置类失败了，大概是不能这样修改jdk内置类吧，后面联想到php的序列化，我就直接将数据流写入文件，使用16进制工具直接修改，结果就成功了。<br>这里只讲链子的具体调用，因为题目实际上就这个考点，剩下的就是经典的jackson+springboot高版本内存马，这里就不细致讲解了。</p>
+<p>参考链接：<br><a target="_blank" rel="noopener" href="https://boogipop.com/2023/05/21/NeepuCTF2023%20%E5%85%AC%E5%BC%80%E8%B5%9B%20Writeup/">https://boogipop.com/2023/05/21/NeepuCTF2023%20%E5%85%AC%E5%BC%80%E8%B5%9B%20Writeup/</a><br><a target="_blank" rel="noopener" href="https://github.com/R1ckyZ/My-CTF-Challenges/blob/main/NEEPUCTF%202023/No%20Map/solve/Solve.java">https://github.com/R1ckyZ/My-CTF-Challenges/blob/main/NEEPUCTF%202023/No%20Map/solve/Solve.java</a></p>
+<h3 id="AbstractAction调用链"><a href="#AbstractAction调用链" class="headerlink" title="AbstractAction调用链"></a>AbstractAction调用链</h3><pre class="line-numbers language-python" data-language="python"><code class="language-python">javax<span class="token punctuation">.</span>swing<span class="token punctuation">.</span>AbstractAction<span class="token comment">#readObject -> </span>
+	javax<span class="token punctuation">.</span>swing<span class="token punctuation">.</span>AbstractAction<span class="token comment">#putValue -></span>
+		javax<span class="token punctuation">.</span>swing<span class="token punctuation">.</span>AbstractAction<span class="token comment">#firePropertyChange -> </span>
+			java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Object<span class="token comment">#equals</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>想要使用需要重写writeObject,<del>但是我不会，或者说我自己的方法失败了。</del><br>这里得用agent技术去修改jdk内置类，直接javassist没办法的，所以就讲解一下自己的方法</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//signObject为jackson触发的getter，上面太长了就不写了</span>
+	<span class="token class-name">POJONode</span> jsonNodes <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">POJONode</span><span class="token punctuation">(</span>signedObject<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token class-name">XString</span> xString <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">XString</span><span class="token punctuation">(</span><span class="token string">"111"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token class-name">SwingPropertyChangeSupport</span> swingPropertyChangeSupport <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SwingPropertyChangeSupport</span><span class="token punctuation">(</span><span class="token string">"11"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token class-name">StyledEditorKit<span class="token punctuation">.</span>AlignmentAction</span> alignmentAction <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StyledEditorKit<span class="token punctuation">.</span>AlignmentAction</span><span class="token punctuation">(</span><span class="token string">"111"</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    
+    <span class="token class-name">Field</span> field <span class="token operator">=</span> <span class="token class-name">Class</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"javax.swing.AbstractAction"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getDeclaredField</span><span class="token punctuation">(</span><span class="token string">"changeSupport"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    field<span class="token punctuation">.</span><span class="token function">setAccessible</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    field<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>alignmentAction<span class="token punctuation">,</span>swingPropertyChangeSupport<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    alignmentAction<span class="token punctuation">.</span><span class="token function">putValue</span><span class="token punctuation">(</span><span class="token string">"key1"</span><span class="token punctuation">,</span>xString<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    alignmentAction<span class="token punctuation">.</span><span class="token function">putValue</span><span class="token punctuation">(</span><span class="token string">"key2"</span><span class="token punctuation">,</span>jsonNodes<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+	<span class="token comment">//这里是我自己写的工具类，大概含义就是将类序列化后的bytes写入指定文件</span>
+    tools<span class="token punctuation">.</span><span class="token function">serialize_file</span><span class="token punctuation">(</span>alignmentAction<span class="token punctuation">,</span><span class="token string">"serialize1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>将字节码写入文件，手动去更改key2，把key2改成key1，这样才能进入反序列化 &#x2F;&#x2F;后续会说<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690133769346-e1ff9ab9-8d58-427d-b543-4dddfcae364c.png#averageHue=%2338352f&clientId=uffd611c2-5d39-4&from=paste&height=103&id=u5a824705&originHeight=103&originWidth=404&originalType=binary&ratio=1&rotation=0&showTitle=false&size=11494&status=done&style=none&taskId=u6a6481c4-a79d-44e1-a7c6-5d219a4dbc9&title=&width=404" alt="image.png"></p>
+<h3 id="writeObject"><a href="#writeObject" class="headerlink" title="writeObject"></a>writeObject</h3><p>大概讲一下，这个类的writeObject前的一些操作<br>在alignmentActioin初始化时，子类的构造函数会不断调用父类的构造函数，一直到达AbstractAction，进行一次putValue操作，</p>
+<blockquote>
+<p>StyledEditorKit.AlignmentAction alignmentAction &#x3D; new StyledEditorKit.AlignmentAction(“Aecous”,1);</p>
+</blockquote>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690136098983-b76e7288-48cd-47e3-9776-2bab337c65b4.png#averageHue=%2333373a&clientId=ua55c6cf8-34a2-4&from=paste&height=385&id=u7cee9c52&originHeight=385&originWidth=673&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=30929&status=done&style=none&taskId=u2abccaf1-5165-401a-a5b1-d340919a8b4&title=&width=673" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690133976204-fd6fd156-63d0-4e38-8720-6e4939cb3998.png#averageHue=%23405541&clientId=uffd611c2-5d39-4&from=paste&height=206&id=u23eb7ec4&originHeight=206&originWidth=931&originalType=binary&ratio=1&rotation=0&showTitle=false&size=61539&status=done&style=none&taskId=u0910ea9a-7a0a-4119-8ca3-4baf4f05b57&title=&width=931" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134022603-ce2f27d4-3d4b-45a2-abe6-1a1fe509cd04.png#averageHue=%23303537&clientId=uffd611c2-5d39-4&from=paste&height=129&id=ude8bdc83&originHeight=129&originWidth=937&originalType=binary&ratio=1&rotation=0&showTitle=false&size=48025&status=done&style=none&taskId=ud5a93447-ca63-43be-88e4-60ecf394614&title=&width=937" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134038008-59f16fa9-7d10-4920-9e8e-0deb60336a5d.png#averageHue=%23393f44&clientId=uffd611c2-5d39-4&from=paste&height=334&id=u5d6068dc&originHeight=334&originWidth=685&originalType=binary&ratio=1&rotation=0&showTitle=false&size=20702&status=done&style=none&taskId=ub3367d24-1690-4c39-bf83-6aff3b566ca&title=&width=685" alt="image.png"><br>Action.NAME为固定的Name，name为我们的第一参数，进入putValue<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134080441-a823ed32-ef9e-4033-8661-f5d7c157e0eb.png#averageHue=%23323538&clientId=uffd611c2-5d39-4&from=paste&height=251&id=ufd59b64d&originHeight=251&originWidth=1467&originalType=binary&ratio=1&rotation=0&showTitle=false&size=96809&status=done&style=none&taskId=ua70c59b8-49e6-4f2a-957b-1a450ec5436&title=&width=1467" alt="image.png"><br>上面会进行一系列的table创建，判断是否存在键值等等操作，由于是新参数，所以将其put进arrayTable中</p>
+<p>使用alignmentAction.putValue，将恶意键值也添加进arrayTable中<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134237674-ab8119f6-ff34-4946-97a4-5fd592e8eb40.png#averageHue=%23344454&clientId=uffd611c2-5d39-4&from=paste&height=194&id=ua5737e86&originHeight=194&originWidth=1992&originalType=binary&ratio=1&rotation=0&showTitle=false&size=161743&status=done&style=none&taskId=ubddb0c83-f43f-4907-87eb-53837f88999&title=&width=1992" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134290048-718b296a-c74b-4154-b6c6-b1559177eec7.png#averageHue=%23313e4c&clientId=uffd611c2-5d39-4&from=paste&height=245&id=u711ac354&originHeight=245&originWidth=1601&originalType=binary&ratio=1&rotation=0&showTitle=false&size=125202&status=done&style=none&taskId=uf10834de-4dec-4c71-9a1a-21106255833&title=&width=1601" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134311563-4ed81eaa-8933-49e6-aeaf-015f142bbaf8.png#averageHue=%23313f4d&clientId=uffd611c2-5d39-4&from=paste&height=213&id=u8b58bc74&originHeight=213&originWidth=1638&originalType=binary&ratio=1&rotation=0&showTitle=false&size=117056&status=done&style=none&taskId=uaee8d57f-38d4-4f75-bc05-31aef2d17a9&title=&width=1638" alt="image.png"><br>最后在序列化时，进入ArrayTable.writeArrayTable<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134449565-a75b7f57-a4dc-4b17-a34a-4712eb2c8913.png#averageHue=%2331363a&clientId=uffd611c2-5d39-4&from=paste&height=376&id=udc71f209&originHeight=376&originWidth=1544&originalType=binary&ratio=1&rotation=0&showTitle=false&size=199792&status=done&style=none&taskId=ubbcad6c5-8f2a-441a-b14b-99e6718e5b1&title=&width=1544" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134469723-d8c97ca4-fe40-4edf-9f45-ed2e53d17c6f.png#averageHue=%23323d47&clientId=uffd611c2-5d39-4&from=paste&height=352&id=u74028979&originHeight=352&originWidth=1485&originalType=binary&ratio=1&rotation=0&showTitle=false&size=165222&status=done&style=none&taskId=u334cdc0e-2a6e-4fdc-9ac2-37a2e33f12c&title=&width=1485" alt="image.png"><br>会先将键值对的数量写入，我们一共存入了3对，接着把键与值依次写入结束</p>
+<h3 id="readObject"><a href="#readObject" class="headerlink" title="readObject"></a>readObject</h3><p>接着是反序列化<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134610829-24fa603f-159c-4325-bfd4-3bd4d3085113.png#averageHue=%2333404d&clientId=uffd611c2-5d39-4&from=paste&height=283&id=u069ba7f4&originHeight=283&originWidth=1596&originalType=binary&ratio=1&rotation=0&showTitle=false&size=138640&status=done&style=none&taskId=u7d83171c-3b04-4de5-8a74-a3358a6c7fb&title=&width=1596" alt="image.png"><br>readObject时，会先读取键值对的次数，并且进行putValue调用读取的键值对<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134648836-ecbc5bfc-f22b-432b-90a4-007b97b10afa.png#averageHue=%23314559&clientId=uffd611c2-5d39-4&from=paste&height=132&id=u79d54bcb&originHeight=132&originWidth=1339&originalType=binary&ratio=1&rotation=0&showTitle=false&size=67569&status=done&style=none&taskId=ub019d450-9f22-4771-9f4a-ad5595ea275&title=&width=1339" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134681984-95c9bbf1-434d-415d-a096-f315dd57e385.png#averageHue=%23313537&clientId=uffd611c2-5d39-4&from=paste&height=265&id=u36ff7166&originHeight=265&originWidth=1566&originalType=binary&ratio=1&rotation=0&showTitle=false&size=119244&status=done&style=none&taskId=ufde0a901-1e95-4cd7-ae5a-cabe7ad220b&title=&width=1566" alt="image.png"><br>put key1 &#x3D;&gt; XString<br>我们通过修改16进制，将POJOnode对应的key2改成了key1<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134754316-056993cb-dce1-47e1-83e6-7278c0ec5550.png#averageHue=%23303437&clientId=uffd611c2-5d39-4&from=paste&height=866&id=ub771536d&originHeight=866&originWidth=1708&originalType=binary&ratio=1&rotation=0&showTitle=false&size=493075&status=done&style=none&taskId=u7db95e70-c49b-4ad2-8c0c-af36f44b9d2&title=&width=1708" alt="image.png"><br>判断出已存在key1，取出了oldValue XString，newValue为POJOnode 一起传入了firePropertyChange函数<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134799406-5c15195a-d415-4923-9e71-17c70b4da741.png#averageHue=%23303436&clientId=uffd611c2-5d39-4&from=paste&height=171&id=u50a62ae1&originHeight=171&originWidth=1731&originalType=binary&ratio=1&rotation=0&showTitle=false&size=76838&status=done&style=none&taskId=u9b9ee077-091c-4781-9e30-5f7444223bd&title=&width=1731" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690134814931-09b07cb0-7163-445e-a740-11b32838d0ff.png#averageHue=%23323f4b&clientId=uffd611c2-5d39-4&from=paste&height=262&id=udb7f259e&originHeight=262&originWidth=1607&originalType=binary&ratio=1&rotation=0&showTitle=false&size=162664&status=done&style=none&taskId=u9cebb8d1-87b9-4b8d-bacc-914eaac6661&title=&width=1607" alt="image.png"></p>
+<p>反射为changeSupport 赋值<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690136740807-262c7aec-43c6-4232-be31-cdb3695f5110.png#averageHue=%23323739&clientId=ua55c6cf8-34a2-4&from=paste&height=176&id=u5c494ae0&originHeight=176&originWidth=1357&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=114814&status=done&style=none&taskId=u0a80224e-2386-45cf-918d-af9d69250c1&title=&width=1357" alt="image.png"><br>当changeSupport  !&#x3D;null时，会往后执行</p>
+<blockquote>
+<p>(oldValue !&#x3D; null &amp;&amp; newValue !&#x3D; null &amp;&amp; oldValue.equals(newValue))</p>
+</blockquote>
+<p>就可以触发XString.equals(POJOnode)<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690136899650-5f3a3eb7-bfa1-46e9-85c5-e096579ec319.png#averageHue=%233d403f&clientId=ua55c6cf8-34a2-4&from=paste&height=563&id=u8ab136ea&originHeight=563&originWidth=1152&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=228200&status=done&style=none&taskId=ub0bda828-df30-4c52-904a-96c6b0d867b&title=&width=1152" alt="image.png"><br>最后调用POJOnode.toString触发任意getter调用</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/07/08/C3P0%E8%A7%A3%E6%9E%90%E4%B8%8E%E7%94%A8%E6%B3%95/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-07-24 03:34:55
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E6%96%87"><span class="toc-text">前文</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AbstractAction%E8%B0%83%E7%94%A8%E9%93%BE"><span class="toc-text">AbstractAction调用链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#writeObject"><span class="toc-text">writeObject</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#readObject"><span class="toc-text">readObject</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E4%B8%80%E6%9D%A1%E6%8A%BD%E8%B1%A1%E7%9A%84equals%E8%A7%A6%E5%8F%91%E9%93%BE + '&url=' + http%3A%2F%2Fexample.com%2F2023%2F07%2F24%2F%25E4%25B8%2580%25E6%259D%25A1%25E6%258A%25BD%25E8%25B1%25A1%25E7%259A%2584equals%25E8%25A7%25A6%25E5%258F%2591%25E9%2593%25BE%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2023/07/24/%E4%B8%80%E6%9D%A1%E6%8A%BD%E8%B1%A1%E7%9A%84equals%E8%A7%A6%E5%8F%91%E9%93%BE/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
