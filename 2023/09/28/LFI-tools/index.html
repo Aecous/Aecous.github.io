@@ -12,7 +12,7 @@
   
   <title>
     
-      archive_a: 2023/8 
+      LFI_tools 
       
       
       |
@@ -103,172 +103,162 @@
 
 
       <div class="flex-container">
-        <!-- 归档页，展示本站所有文章，按照年份降序归类，url形式：https://yoursite/archives/ -->
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
 
-<!-- last: 按年份把文章分组，当前遍历到的年份 -->
-<!-- now: 当前遍历到的文章的发布年份 -->
 
-<div class="container archives">
-  <div class="post-list">
-    
-        <!-- 后续文章的发布年份呈现 -->
-        <div class="content-title">
-          <h2>
-            <span>2023</span>
-          </h2>
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">LFI_tools</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-09-28 04:35:38
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>本来想整个狠的，没想到拉了一坨大的<br>因为LFI基本上没啥活了，这里就把一些常用的结合在了一起，5个小时写了一坨<br>本来觉得这应该是个挺牛逼挺好用的工具，然后找了几个题目测了下，好像有点烂，反正魔改魔改也能适配大部分题目了<br>本项目是面向CTF开发，并无渗透实战功能<br>项目地址：<a target="_blank" rel="noopener" href="https://github.com/Aecous/LFI-tools">https://github.com/Aecous/LFI-tools</a></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>集合了以下几种功能</p>
+<ul>
+<li>filter chain </li>
+<li>伪协议检测</li>
+<li>伪协议遍历文件，检测是否有日志文件和pearcmd等文件</li>
+<li>#不使用伪协议直接遍历文件 默认关闭，通常在有过滤的情况下使用</li>
+<li>pearcmd.php利用</li>
+<li>log包含利用</li>
+<li>session文件包含利用</li>
+</ul>
+<p>伪协议遍历检测的文件会写入至当前目录下的LFI_file文件夹中，需要手动创建，我懒得再写个功能点了，不创建也不影响运行，能一把梭的就一把梭完了</p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>以NSSRound 8 MyDoor作为示例<br><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3483">https://www.nssctf.cn/problem/3483</a><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1695845079177-b6455145-a0d6-4013-8b38-a234beeca832.png#averageHue=%232e2e2d&clientId=u757d9d18-dacd-4&from=paste&height=239&id=u515b65af&originHeight=239&originWidth=701&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=26020&status=done&style=none&taskId=uce3b2a21-480f-4dc7-a302-932df7b6f42&title=&width=701" alt="image.png"><br>装填请求方式 地址 参数 cookie等，直接启动<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1695845319848-57106c87-c129-4a9c-84df-3bfba9ec4dbc.png#averageHue=%232e2d2d&clientId=u757d9d18-dacd-4&from=paste&height=622&id=u5f932d62&originHeight=622&originWidth=1156&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=81729&status=done&style=none&taskId=u6d959905-fd70-49d8-84a4-c1ac4e09615&title=&width=1156" alt="image.png"></p>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li>本仓库仅用于合法合规用途，严禁用于违法违规用途。</li>
+<li>本工具中所涉及的漏洞均为网上已公开。</li>
+</ul>
+<hr>
+<p>彩蛋：<br>现在是04点24分，我好饿，好冷，好寂寞，今天的单词还没背，计算机基础还没看，写个破脚本写了我5个小时，准备今天给自己放个假，休息休息<br>凌晨给自己来一首最有氛围感的<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1695846364968-68f09a27-ccd8-4b21-92a5-1f75e8f65872.png#averageHue=%23232428&clientId=u9bdcb6b4-0031-4&from=paste&height=100&id=ufe6fa6e4&originHeight=100&originWidth=446&originalType=binary&ratio=1&rotation=0&showTitle=false&size=34037&status=done&style=none&taskId=u737e7b49-6d07-4d68-b30b-7eef83b2661&title=&width=446" alt="image.png"><br>在电脑桌前，就开个屏幕挂灯，音量调高，很有氛围感，感觉已经拥有整个世界了<br>这其实是为new star准备的，就想多抢几个web一血，满足一下我脆弱的虚荣心，期待后面几周的难度<br>所以有集美看我博客吗？能不能恰个V交流交流web<br>前段时间去南京线下领航杯随随便便又摸了个省一，这种毫无意义的比赛属实有些食之无味弃之可惜，我这种大专狗撑死了申个奖学金，也没啥其他实质性的作用，对于想去的公司甚至都不会多看一眼这种没有水平的奖项。<br>休息一天，明天继续好好学习了，不管怎么样，得拿下本科</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/09/17/Text/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-09-28 04:35:38
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
         </div>
       
-      <div class="post-item" title="LFI_tools">
-        <div class="time-m-d">09-28</div>
-        <div class="title">
-          <a href="/2023/09/28/LFI-tools/">
-            <span>LFI_tools</span>
-          </a>
-        </div>
-      </div>
+    </div>
     
-      <div class="post-item" title="Dreamer-CMS后台模板任意文件读取编辑">
-        <div class="time-m-d">09-17</div>
-        <div class="title">
-          <a href="/2023/09/17/Text/">
-            <span>Dreamer-CMS后台模板任意文件读取编辑</span>
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="SICTF 出题记录">
-        <div class="time-m-d">09-15</div>
-        <div class="title">
-          <a href="/2023/09/15/SICTF-%E5%87%BA%E9%A2%98%E8%AE%B0%E5%BD%95/">
-            <span>SICTF 出题记录</span>
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="2023羊城杯线下之旅">
-        <div class="time-m-d">09-15</div>
-        <div class="title">
-          <a href="/2023/09/15/2023%E7%BE%8A%E5%9F%8E%E6%9D%AF%E7%BA%BF%E4%B8%8B%E4%B9%8B%E6%97%85/">
-            <span>2023羊城杯线下之旅</span>
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="2023羊城杯线下">
-        <div class="time-m-d">09-15</div>
-        <div class="title">
-          <a href="/2023/09/15/2023%E7%BE%8A%E5%9F%8E%E6%9D%AF%E7%BA%BF%E4%B8%8B/">
-            <span>2023羊城杯线下</span>
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="NSSCTF 2nd WP">
-        <div class="time-m-d">08-28</div>
-        <div class="title">
-          <a href="/2023/08/28/NSSCTF-2nd-WP/">
-            <span>NSSCTF 2nd WP</span>
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="护网日记">
-        <div class="time-m-d">08-25</div>
-        <div class="title">
-          <a href="/2023/08/25/%E6%8A%A4%E7%BD%91%E6%97%A5%E8%AE%B0/">
-            <span>护网日记</span>
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="php反序列化小记(1)">
-        <div class="time-m-d">08-01</div>
-        <div class="title">
-          <a href="/2023/08/01/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%B0%8F%E8%AE%B0-1/">
-            <span>php反序列化小记(1)</span>
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="fastjson漏洞解析高清重制版">
-        <div class="time-m-d">06-28</div>
-        <div class="title">
-          <a href="/2023/06/28/fastjson%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90%E9%AB%98%E6%B8%85%E9%87%8D%E5%88%B6%E7%89%88/">
-            <span>fastjson漏洞解析高清重制版</span>
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="Imagick触发msl">
-        <div class="time-m-d">06-27</div>
-        <div class="title">
-          <a href="/2023/06/27/Imagick%E8%A7%A6%E5%8F%91msl/">
-            <span>Imagick触发msl</span>
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="Hessian反序列化">
-        <div class="time-m-d">05-26</div>
-        <div class="title">
-          <a href="/2023/05/26/Hessian%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">
-            <span>Hessian反序列化</span>
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="php反序列化--phar篇">
-        <div class="time-m-d">04-24</div>
-        <div class="title">
-          <a href="/2023/04/24/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-phar%E7%AF%87/">
-            <span>php反序列化--phar篇</span>
-          </a>
-        </div>
-      </div>
-    
-      <div class="post-item" title="一条抽象的equals触发链">
-        <div class="time-m-d">04-24</div>
-        <div class="title">
-          <a href="/2023/04/24/%E4%B8%80%E6%9D%A1%E6%8A%BD%E8%B1%A1%E7%9A%84equals%E8%A7%A6%E5%8F%91%E9%93%BE/">
-            <span>一条抽象的equals触发链</span>
-          </a>
-        </div>
-      </div>
-    
-        <!-- 后续文章的发布年份呈现 -->
-        <div class="content-title">
-          <h2>
-            <span>2022</span>
-          </h2>
-        </div>
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
       
-      <div class="post-item" title="thinkphp的一些漏洞解析">
-        <div class="time-m-d">07-08</div>
-        <div class="title">
-          <a href="/2022/07/08/thinkphp%E7%9A%84%E4%B8%80%E4%BA%9B%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90/">
-            <span>thinkphp的一些漏洞解析</span>
-          </a>
-        </div>
-      </div>
-    
-        <!-- 后续文章的发布年份呈现 -->
-        <div class="content-title">
-          <h2>
-            <span>1919</span>
-          </h2>
-        </div>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li></ol>
       
-      <div class="post-item" title="Opcache 文件缓存">
-        <div class="time-m-d">08-10</div>
-        <div class="title">
-          <a href="/1919/08/10/Opcache-%E6%96%87%E4%BB%B6%E7%BC%93%E5%AD%98/">
-            <span>Opcache 文件缓存</span>
-          </a>
-        </div>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
       </div>
     
   </div>
-</div>
+
 
         
 <div class="footer">
@@ -523,6 +513,24 @@
 
 
         
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + LFI_tools + '&url=' + http%3A%2F%2Fexample.com%2F2023%2F09%2F28%2FLFI-tools%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2023/09/28/LFI-tools/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
   
   
 <script src="/js/shares.js"></script>
