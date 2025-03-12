@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      Codeql全新版本从0到1 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Codeql全新版本从0到1</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2025-03-12 12:09:46
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <p>网络上大部分的入门文章都是旧版本的，并且关于开源项目的数据库也迁移到了github api中，所以特地分享一下自己的学习成果，避免后人走太多弯路。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>codeql二进制文件下载 <a target="_blank" rel="noopener" href="https://github.com/github/codeql-cli-binaries/releases">https://github.com/github/codeql-cli-binaries/releases</a></p>
+<p>ql规则库下载 <a target="_blank" rel="noopener" href="https://github.com/github/codeql">https://github.com/github/codeql</a></p>
+<p>Codeql Cli 文档<a target="_blank" rel="noopener" href="https://githubdocs.cn/en/code-security/codeql-cli/getting-started-with-the-codeql-cli/about-the-codeql-cli">https://githubdocs.cn/en/code-security/codeql-cli/getting-started-with-the-codeql-cli/about-the-codeql-cli</a></p>
+<p>codeql 文档 <a target="_blank" rel="noopener" href="https://codeql.githubdocs.cn/docs/contents/">https://codeql.githubdocs.cn/docs/contents/</a></p>
+<p>解压codeqlCli 设置进环境变量</p>
+<p>vscode安装插件,并设置<strong>二进制文件</strong>路径</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736787930338-a1698c58-1f6c-4df9-bc06-f2aa997bfc48.png"></p>
+<h3 id="获取库"><a href="#获取库" class="headerlink" title="获取库"></a>获取库</h3><h4 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h4><p>测试靶场</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/l4yn3/micro_service_seclab/">https://github.com/l4yn3/micro_service_seclab&#x2F;</a></p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">codeql database create db_name --language="java" --command="mvn clean install --file pom.xml" --source-root=~/micro-service-seclab/<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>踩坑：这靶场用了lombok，编译的时候会犯病，给lombok去掉，手动改全model就行了</p>
+<p>常见CTF环境 or 漏洞挖掘环境</p>
+<p>有些时候需要去挖依赖中的链子，需要将依赖一起打包生成库来进行规则查找</p>
+<p>使用jadx将jar反编译保存成resources和sources</p>
+<p>在codeql中可以不构建代码的情况下生成数据库，这也是我们所需要的（其实我之前各种尝试编译都失败了</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736788587013-dc88f010-6720-465e-af09-48a6564b4c1d.png"></p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">codeql database create db-name --language=java --source-root=./sources --build-mode=none<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>代价是很慢，一个项目我跑了14分钟</p>
+<p>&#x2F;&#x2F;单独依赖也可以用这种方式来建库，将依赖丢进jadx保存source后步骤同上</p>
+<h4 id="直接获下载已经创建好的库"><a href="#直接获下载已经创建好的库" class="headerlink" title="直接获下载已经创建好的库"></a>直接获下载已经创建好的库</h4><p>通过翻阅文档知，可以通过接口去列出公共项目不同语言的codeql库并下载</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1737651940002-17f94ce2-c739-476e-bfaa-fe93aaa8001b.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1737651991283-f173cf4a-8d59-4779-b74e-ddd9812f1541.png"></p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">列出项目有哪些语言的库
+<span class="token function">curl</span> <span class="token parameter variable">-L</span> <span class="token punctuation">\</span>
+  <span class="token parameter variable">-H</span> <span class="token string">"Accept: application/vnd.github+json"</span> <span class="token punctuation">\</span>
+  <span class="token parameter variable">-H</span> <span class="token string">"Authorization: Bearer token"</span> <span class="token punctuation">\</span>
+  https://api.github.com/repos/apache/kylin/code-scanning/codeql/databases
+
+
+下载
+<span class="token function">curl</span> <span class="token parameter variable">-L</span> <span class="token punctuation">\</span>
+  <span class="token parameter variable">-H</span> <span class="token string">"Accept: application/zip"</span> <span class="token punctuation">\</span>
+  <span class="token parameter variable">-H</span> <span class="token string">"Authorization: Bearer token"</span> <span class="token punctuation">\</span>
+  https://api.github.com/repos/apache/kylin/code-scanning/codeql/databases/java
+  <span class="token parameter variable">--output</span> ./xxx.zip<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1737651879454-978930af-5798-4b81-8138-c7329799d762.png"></p>
+<p>例如这里就是下载了apache kylin的codeql库，然后就可以进行代码扫描了，不过有一点可惜的是没办法指定过往版本</p>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><h4 id="SUCTF-ezsolon"><a href="#SUCTF-ezsolon" class="headerlink" title="SUCTF-ezsolon"></a>SUCTF-ezsolon</h4><p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736788795208-046a11ed-befd-42fd-a706-a31d1469c80c.png"></p>
+<p>hessian2反序列化，会调用类的toString方法，依赖中存在fastjson</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736789241123-4261abe9-47d8-4bcc-953a-f63804351a82.png"></p>
+<p>hessian版本巨高，黑名单一堆，基本上现有的直接死了</p>
+<p>存在一个h2</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736789264912-6d129390-ed45-48be-89f2-69d10c05525e.png"></p>
+<p>大概就是要去打jdbc，但是jdbc的getter被ban了<img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736789347281-1f0eb88d-c131-4004-b0ac-470fe70c2b41.png">需要挖一条新的getter or setter</p>
+<p>创建codql库，跑了14分钟</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736789379319-0c1260db-d9ed-43f6-997d-3522c07f4f5b.png"></p>
+<p>编写规则</p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">import java
+
+
+class GetMethod extends Method&#123;
+  GetMethod()&#123;
+      this.getName().indexOf("get") = 0 or this.getName().indexOf("set") = 0 and
+      this.getName().length() > 3 and
+      this.isPublic() and
+      this.fromSource() and
+      this.hasNoParameters() 
+  &#125;
+&#125;
+
+from GetMethod getMethod, MethodAccess ma, Method method
+where  ma.getEnclosingStmt() = getMethod.getBody().getAChild*() and method = ma.getMethod() 
+    and method.hasName("getConnection") and getMethod.hasNoParameters()
+select method,getMethod,getMethod.getDeclaringType()<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736790000829-bd47363b-3d30-457a-8987-ca5cfcf022a7.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736877906343-2e63225f-519f-412d-bf58-aae7b8df1e26.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736877913999-eb549bc4-352b-4d70-93c2-504093b10aca.png"></p>
+<p>此处的getter可以去触发jdbc</p>
+<h4 id="oracle-jdbc-getter"><a href="#oracle-jdbc-getter" class="headerlink" title="oracle jdbc getter"></a>oracle jdbc getter</h4><p>面向答案解题</p>
+<p>jdbc会触发jndi注入，所以找lookup</p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">/**
+@kind path-problem
+*/
+
+import java
+import semmle.code.java.dataflow.FlowSources
+
+
+
+class GetMethod extends Method &#123;
+GetMethod()&#123;
+    this.getName().indexOf("get") = 0 and
+    this.hasNoParameters() and
+    this.getName().length() > 3 and
+    this.isPublic() 
+&#125;
+&#125;
+
+
+class LookupMethod extends Method &#123;
+
+    LookupMethod() &#123;
+        exists(MethodCall a| 
+            a.getCallee().hasName("lookup") and
+            this = a.getCaller()
+            )
+    &#125;  
+&#125;  
+
+
+query predicate edges(Method a, Method b) &#123; 
+    a.polyCalls(b) 
+    and
+    a.getDeclaringType().getAField().getDeclaringType().hasName(b.getDeclaringType().getName())
+&#125;
+
+from GetMethod source, LookupMethod sink
+where edges+(source, sink)
+select source, source, sink, "$@ $@ to $@ $@" ,
+source.getDeclaringType(),source.getDeclaringType().getName(),
+source,source.getName(),
+sink.getDeclaringType(),sink.getDeclaringType().getName(),
+sink,sink.getName() 	 	<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736869684174-e83501f2-02c9-466d-87c0-eb6ee6e7d223.png"></p>
+<p>找到两条，下面这条就是我们正常使用的那条</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736869722974-8df3068e-ce43-482a-9154-244b4b532f5c.png"></p>
+<p>上面其实也是理论可以使用的，但是存在着一个问题</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736869845953-a4d16c49-6c44-4fe3-b271-471bbef76438.png"></p>
+<p>该类调用了一个JavaEE的东西，需要存在相关的依赖才能够正常使用</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736869885453-a04a1fdb-196a-4dce-8617-42649df5170b.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736869948103-83950a86-dc7e-461b-ba86-34ad7a880a6f.png"></p>
+<p>如果遇见了相关的题目或许可以派上用场</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">OracleManagedConnectionFactory</span> oracleManagedConnectionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">OracleManagedConnectionFactory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name">Util</span><span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span>oracleManagedConnectionFactory<span class="token punctuation">,</span> <span class="token string">"xaDataSourceName"</span><span class="token punctuation">,</span> <span class="token string">"ldap://test"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+oracleManagedConnectionFactory<span class="token punctuation">.</span><span class="token function">getLogWriter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+
+
+
+
+
+
+
+
+<h4 id="aliyunctf-chain17"><a href="#aliyunctf-chain17" class="headerlink" title="aliyunctf chain17"></a>aliyunctf chain17</h4><p>根据不同的jdk版本依赖情况进行修改</p>
+<p>例如jdk8高版本则可以注释lookup，无jdbc依赖就注释getConnection等</p>
+<p>这里就留个lookup和newInstance</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+@kind path-problem
+*/</span>
+
+<span class="token keyword">import</span> <span class="token namespace">java</span>
+<span class="token keyword">import</span> <span class="token namespace">semmle<span class="token punctuation">.</span>code<span class="token punctuation">.</span>java<span class="token punctuation">.</span>dataflow<span class="token punctuation">.</span></span><span class="token class-name">FlowSources</span>
+
+<span class="token keyword">class</span> <span class="token class-name">Serializable</span> <span class="token keyword">extends</span> <span class="token class-name">Method</span><span class="token punctuation">&#123;</span>
+    <span class="token class-name">Serializable</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>getASupertype<span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">instanceof</span> <span class="token class-name">TypeSerializable</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+
+
+<span class="token keyword">class</span> <span class="token class-name">GetSource</span> <span class="token keyword">extends</span> <span class="token class-name">Serializable</span> <span class="token punctuation">&#123;</span>
+    <span class="token class-name">GetSource</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
+    <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token string">"get"</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span> or <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token string">"set"</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">)</span> and
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">hasNoParameters</span><span class="token punctuation">(</span><span class="token punctuation">)</span> and
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">3</span> and
+    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">isPublic</span><span class="token punctuation">(</span><span class="token punctuation">)</span> 
+<span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+
+<span class="token keyword">class</span> <span class="token class-name">GetSink</span> <span class="token keyword">extends</span> <span class="token class-name">Serializable</span> <span class="token punctuation">&#123;</span>
+
+    <span class="token class-name">GetSink</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token function">exists</span><span class="token punctuation">(</span><span class="token class-name">MethodCall</span> a<span class="token operator">|</span> 
+            <span class="token punctuation">(</span>
+            <span class="token punctuation">(</span>a<span class="token punctuation">.</span><span class="token function">getCallee</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hasName</span><span class="token punctuation">(</span><span class="token string">"lookup"</span><span class="token punctuation">)</span> and a<span class="token punctuation">.</span><span class="token function">getCallee</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>getASupertype<span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hasQualifiedName</span><span class="token punctuation">(</span><span class="token string">"javax.naming"</span><span class="token punctuation">,</span> <span class="token string">"Context"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token comment">// or   a.getCallee().hasName("getConnection")</span>
+        <span class="token comment">// or   a.getCallee().hasName("readObject")</span>
+        or   <span class="token punctuation">(</span>a<span class="token punctuation">.</span><span class="token function">getCallee</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hasName</span><span class="token punctuation">(</span><span class="token string">"newInstance"</span><span class="token punctuation">)</span> and a<span class="token punctuation">.</span><span class="token function">getCallee</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getNumberOfParameters</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">1</span> <span class="token punctuation">)</span>
+            <span class="token punctuation">)</span>
+        and  <span class="token keyword">this</span> <span class="token operator">=</span> a<span class="token punctuation">.</span><span class="token function">getCaller</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token punctuation">)</span> 
+    <span class="token punctuation">&#125;</span>  
+<span class="token punctuation">&#125;</span>  
+
+
+query predicate <span class="token function">edges</span><span class="token punctuation">(</span><span class="token class-name">Method</span> a<span class="token punctuation">,</span> <span class="token class-name">Method</span> b<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> 
+    a<span class="token punctuation">.</span><span class="token function">polyCalls</span><span class="token punctuation">(</span>b<span class="token punctuation">)</span>
+    or a <span class="token operator">=</span> b 
+<span class="token punctuation">&#125;</span>
+
+from <span class="token class-name">GetSource</span> source<span class="token punctuation">,</span> <span class="token class-name">GetSink</span> sink
+where edges<span class="token operator">+</span><span class="token punctuation">(</span>source<span class="token punctuation">,</span> sink<span class="token punctuation">)</span>
+select source<span class="token punctuation">,</span> source<span class="token punctuation">,</span> sink<span class="token punctuation">,</span> <span class="token string">"$@ $@ to $@ $@"</span> <span class="token punctuation">,</span>
+source<span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>source<span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+source<span class="token punctuation">,</span>source<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+sink<span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>sink<span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+sink<span class="token punctuation">,</span>sink<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> 	 	<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1736878118171-3cd31e2d-ad7b-4ad9-b0e4-174798d66cef.png"></p>
+<p>也可以找到</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2025/03/12/Solon%E5%86%85%E5%AD%98%E9%A9%AC%E5%88%86%E6%9E%90/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2025-03-12 12:09:46
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2025/03/12/CVE-2024-22399-Seata-Hessian%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%BA%93"><span class="toc-text">获取库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA"><span class="toc-text">创建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B4%E6%8E%A5%E8%8E%B7%E4%B8%8B%E8%BD%BD%E5%B7%B2%E7%BB%8F%E5%88%9B%E5%BB%BA%E5%A5%BD%E7%9A%84%E5%BA%93"><span class="toc-text">直接获下载已经创建好的库</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-text">示例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SUCTF-ezsolon"><span class="toc-text">SUCTF-ezsolon</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#oracle-jdbc-getter"><span class="toc-text">oracle jdbc getter</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#aliyunctf-chain17"><span class="toc-text">aliyunctf chain17</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2025 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Codeql%E5%85%A8%E6%96%B0%E7%89%88%E6%9C%AC%E4%BB%8E0%E5%88%B01 + '&url=' + http%3A%2F%2Fexample.com%2F2025%2F03%2F12%2FCodeql%25E5%2585%25A8%25E6%2596%25B0%25E7%2589%2588%25E6%259C%25AC%25E4%25BB%258E0%25E5%2588%25B01%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2025/03/12/Codeql%E5%85%A8%E6%96%B0%E7%89%88%E6%9C%AC%E4%BB%8E0%E5%88%B01/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
