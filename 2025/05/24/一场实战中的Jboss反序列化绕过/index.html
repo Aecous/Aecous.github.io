@@ -9,10 +9,13 @@
   <meta name="author" content="John Doe" />
   <meta name="description" content="" />
   
-    <meta name="robots" content="noindex" />
-  
   
   <title>
+    
+      一场实战中的Jboss反序列化绕过 
+      
+      
+      |
     
      Prove yourself
   </title>
@@ -100,84 +103,181 @@
 
 
       <div class="flex-container">
-        <div class="container index">
-  <div class="post-list">
-    <!-- 遍历渲染文章 -->
-    
-      <div class="post-item" title="Hessian反序列化">
-        <div class="time-m-d">2023-05-26</div>
-        <div class="title">
-          <a href="/2023/05/26/Hessian%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">
-            
-              
-                <span>Hessian反序列化</span>
-              
-            
-          </a>
-        </div>
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">一场实战中的Jboss反序列化绕过</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2025-05-24 00:19:31
+        </span>
+        
       </div>
-    
-      <div class="post-item" title="php反序列化--phar篇">
-        <div class="time-m-d">2023-04-24</div>
-        <div class="title">
-          <a href="/2023/04/24/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-phar%E7%AF%87/">
-            
-              
-                <span>php反序列化--phar篇</span>
-              
-            
-          </a>
-        </div>
+      <div class="markdown-body">
+        <h3 id="梦开始的地方"><a href="#梦开始的地方" class="headerlink" title="梦开始的地方"></a>梦开始的地方</h3><p>事出有因</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744941198377-1457e630-5917-425c-a80a-550c78108eba.png"></p>
+<p>一眼Jboss反序列化的路由，我们拿工具梭哈一下</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744941096951-c7a8e5bb-45d4-46d3-aaf5-a4445ca82572.png"></p>
+<p>极好的，存在反序列化的漏洞，但是真的会这么简单吗？</p>
+<p>在进行命令执行时，则发生了报错。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744941189163-07dda3a1-8fff-4691-8d5f-97d41b83a395.png"></p>
+<p>我们先简单了解一下Jboss反序列化</p>
+<p><font style="color:rgb(51, 51, 51);">该漏洞位于JBoss的HttpInvoker组件中的ReadOnlyAccessFilter过滤器中，其doFilter方法在没有进行任何安全检查和限制的情况下尝试将来自客户端的序列化数据流进行反序列化，导致恶意访问者通过精心设计的序列化数据执行任意代码。</font><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744941325853-cddd953e-d705-444c-b4a1-fb19f7252da0.png"></p>
+<p>而在通常情况下，使用的都是cc的反序列化链</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744941392526-e51ec3b9-efb7-4c92-bfda-427822c85c6e.png"></p>
+<p>在我们的这次实战环境中出现了以下报错</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744941456984-8e384c11-fa37-4b62-abdf-46edd9a621c0.png"></p>
+<p>可以发现调用栈进入了InvokerTransformer的readObject方法进行了检测，而默认配置是不允许进行反序列化的，这里的cc依赖的版本应该在3.2.2及以上，修复了反序列化漏洞。</p>
+<h3 id="真的无法战胜吗。。。？"><a href="#真的无法战胜吗。。。？" class="headerlink" title="真的无法战胜吗。。。？"></a>真的无法战胜吗。。。？</h3><p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744941658594-441abf7d-5a09-4f1a-9c22-043e01bce1fb.png"></p>
+<p>好不容易找到一个存在漏洞的服务器，难道就要这样放弃吗？尝试一下cb的链子</p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">curl http://xxxx/invoker/JMXInvokerServlet --data-binary @1 --output result.txt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744941772132-6896778c-cbc9-4e5f-beba-5a32de26efd4.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744941817963-d31f348c-5a99-44ff-9429-1b3e40240d33.png"></p>
+<p>失败，没有cb依赖。</p>
+<p>再次尝试jboss自带的反序列化链，失败<img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744941871369-d1deb750-d5cc-494f-b69b-3597dfb98c5e.png"></p>
+<p>尝试手搓了一条不在常规内的cc链，依然被过滤</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744941921541-fbc796d3-3776-489b-983d-07500d4b4cdb.png"></p>
+<p>只有URLDNS带来捷报。。。。接下来该怎么做呢</p>
+<h3 id="会赢的"><a href="#会赢的" class="headerlink" title="会赢的"></a>会赢的</h3><p>既然URLDNS能够出网，那么我们可以尝试打一个依赖探测去查找可以利用的反序列化链</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/kezibei/Urldns/tree/main">https://github.com/kezibei/Urldns/tree/main</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/vulhub/java-chains">https://github.com/vulhub/java-chains</a></p>
+<p>利用hashmap反序列化key和value时，若value不存在则跳出循环，不会触发urldns链，在检测是否存在相关依赖</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744944553924-d9ecb2e5-4f77-4b24-b022-7fb7988c870a.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744944648509-b3dd3b0b-ef41-4918-b2b2-bbbdbd95ad0c.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744944641009-4572135b-5827-4016-a6a7-b0c3bade71e8.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744944670120-77406bca-828d-45ca-a6be-970981a19297.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744944678264-055750c2-36b7-47fe-a476-5c7daafe0ec2.png"></p>
+<p>存在7u21，立马ping了一下试试，极好的，能够利用</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744944789768-6dd017a0-eb26-4a43-85fb-ac5084c79eb7.png"></p>
+<p>在接下来打内存马的过程中发现似乎是jboss的版本太低了，和jmg生成的内存马不太兼容，因为时间问题，这里也没有去调试自己写个内存马，直接使用java实现的反弹cmd，执行命令上线c2了</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1744945054137-a8d95c63-a18f-4bbc-abe7-6f87388db945.png"></p>
+
       </div>
-    
-      <div class="post-item" title="一条抽象的equals触发链">
-        <div class="time-m-d">2023-04-24</div>
-        <div class="title">
-          <a href="/2023/04/24/%E4%B8%80%E6%9D%A1%E6%8A%BD%E8%B1%A1%E7%9A%84equals%E8%A7%A6%E5%8F%91%E9%93%BE/">
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
             
-              
-                <span>一条抽象的equals触发链</span>
-              
+              <a href="/2025/05/24/ruoyi4-8%E5%90%8E%E5%8F%B0RCE%E5%88%86%E6%9E%90/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
             
-          </a>
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2025-05-24 00:19:31
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
         </div>
-      </div>
+      
+    </div>
     
-      <div class="post-item" title="thinkphp的一些漏洞解析">
-        <div class="time-m-d">2022-07-08</div>
-        <div class="title">
-          <a href="/2022/07/08/thinkphp%E7%9A%84%E4%B8%80%E4%BA%9B%E6%BC%8F%E6%B4%9E%E8%A7%A3%E6%9E%90/">
-            
-              
-                <span>thinkphp的一些漏洞解析</span>
-              
-            
-          </a>
-        </div>
-      </div>
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A2%A6%E5%BC%80%E5%A7%8B%E7%9A%84%E5%9C%B0%E6%96%B9"><span class="toc-text">梦开始的地方</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9C%9F%E7%9A%84%E6%97%A0%E6%B3%95%E6%88%98%E8%83%9C%E5%90%97%E3%80%82%E3%80%82%E3%80%82%EF%BC%9F"><span class="toc-text">真的无法战胜吗。。。？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%9A%E8%B5%A2%E7%9A%84"><span class="toc-text">会赢的</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
     
-      <div class="post-item" title="Opcache 文件缓存">
-        <div class="time-m-d">1919-08-10</div>
-        <div class="title">
-          <a href="/1919/08/10/Opcache-%E6%96%87%E4%BB%B6%E7%BC%93%E5%AD%98/">
-            
-              
-                <span>Opcache 文件缓存</span>
-              
-            
-          </a>
-        </div>
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
       </div>
     
   </div>
-  <nav class="post-navigation">
-    
-      <a href="/page/3/"><i class="iconfont icon-angleleft"></i></a>
-    
-    <span class="page-num">4 / 4</span>
-    
-  </nav>
-</div>
+
 
         
 <div class="footer">
@@ -432,6 +532,24 @@
 
 
         
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E4%B8%80%E5%9C%BA%E5%AE%9E%E6%88%98%E4%B8%AD%E7%9A%84Jboss%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E7%BB%95%E8%BF%87 + '&url=' + http%3A%2F%2Fexample.com%2F2025%2F05%2F24%2F%25E4%25B8%2580%25E5%259C%25BA%25E5%25AE%259E%25E6%2588%2598%25E4%25B8%25AD%25E7%259A%2584Jboss%25E5%258F%258D%25E5%25BA%258F%25E5%2588%2597%25E5%258C%2596%25E7%25BB%2595%25E8%25BF%2587%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2025/05/24/%E4%B8%80%E5%9C%BA%E5%AE%9E%E6%88%98%E4%B8%AD%E7%9A%84Jboss%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E7%BB%95%E8%BF%87/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
   
   
 <script src="/js/shares.js"></script>
